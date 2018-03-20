@@ -17,7 +17,8 @@ INCLUDE += -I$(SRC_DIR)
 # Source files
 CFILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c)
 HFILES := $(wildcard $(SRC_DIR)/*.h) $(wildcard $(SRC_DIR)/**/*.h)
-SRC_SUB_DIRS := $(sort $(filter-out $(SRC_DIR)/,$(dir $(CFILES) $(HFILES))))
+IFILES := $(wildcard $(SRC_DIR)/*.i) $(wildcard $(SRC_DIR)/**/*.i)
+SRC_SUB_DIRS := $(sort $(filter-out $(SRC_DIR)/,$(dir $(CFILES) $(HFILES) @(IFILES))))
 
 # Important files
 MAKEFILE := Makefile
