@@ -1,7 +1,7 @@
 # Sources
 *.c text
 *.h text
-*.inc text
+*.i text
 
 # Compiled stuff
 *.o binary
@@ -16,7 +16,7 @@
 # Linguist overrides
 *.c linguist-language=C
 *.h linguist-language=C
-*.inc linguist-language=C
+*.i linguist-language=C
 
 # Library code
 lib/* linguist-vendored
