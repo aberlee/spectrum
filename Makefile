@@ -11,7 +11,7 @@ LIBRARY :=
 
 #======== Source code setup ========#
 # Directory for all project files.
-SRC_DIR := ./src
+SRC_DIR := src
 INCLUDE += -I$(SRC_DIR)
 
 # Source files
@@ -41,7 +41,7 @@ DFILES := $(OFILES:%.o=%.d)
 #============ Main files ===========#
 # Standalone text executable sources
 # to link with the rest of the code.
-MAIN_DIR := ./main
+MAIN_DIR := main
 MCFILES := $(wildcard $(MAIN_DIR)/*.c)
 MOFILES := $(MCFILES:$(MAIN_DIR)/%.c=$(BUILD_DIR)/$(MAIN_DIR)/%.o)
 MDFILES := $(MOFILES:%.o=%.d)
