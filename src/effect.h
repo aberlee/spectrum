@@ -18,6 +18,7 @@ typedef enum {
     YOURSELF=1,         ///< Hits the user of the technique.
     ENEMY,              ///< Hits one enemy.
     ALLY,               ///< Hits one teammate, or the user.
+    ANYONE,             ///< Hits any one spectra.
     ALL_ENEMIES,        ///< Hits each enemy.
     EVERYONE_ELSE,      ///< Hits everyone but the user.
 } TARGET_TYPE;
@@ -58,7 +59,7 @@ typedef enum {
     
     // Special
     CAPTURE_SPECTRA,    ///< Attempts to capture an enemy in battle.
-    DIE,                ///< The user dies after attacking.
+    KILL_USER,          ///< The user dies after attacking.
 } EFFECT_ID;
 
 /**************************************************************/

@@ -98,21 +98,29 @@ typedef enum {
     RECYCLE,
 } TECHNIQUE_ID;
 
+/// The number of unique techniques.
+#define N_TECHNIQUES (RECYCLE+1)
+
 /**********************************************************//**
  * @struct TECHNIQUE
  * @brief Stores all constant data about one technique
  * specified with a TECHNIQUE_ID.
  **************************************************************/
 typedef struct {
-    char Name[12];          ///< The name of the technique.
+    char Name[13];          ///< The name of the technique.
     TYPE_ID Type;           ///< The type of the technique.
     int Power;              ///< Technique power (0 is none).
     int Cost;               ///< Cost of the technique (0 is free).
     TARGET_TYPE Target;     ///< Who the technique targets.
     EFFECT_ID Effect;       ///< Effect on the targets.
     int Argument;           ///< Argument to the effect.
-    char Description[32];   ///< Describes the technique on the menu.
+    
+    /// Describes the technique on the menu.
+    const char Description[128];
 } TECHNIQUE;
+
+/// Defines all the techniques in the game.
+extern const TECHNIQUE *TECHNIQUE_DATA;
 
 /**************************************************************/
 #endif
