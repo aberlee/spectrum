@@ -1,10 +1,12 @@
 /**********************************************************//**
  * @file spectra.i
  * @brief Defines constant species data for every species.
+ * @author Rena Shinomiya
+ * @date March 6th, 2018
  **************************************************************/
 
-#ifndef _SPECTRA_I_
-#define _SPECTRA_I_
+#ifndef _SPECIES_I_
+#define _SPECIES_I_
 
 #include "type.h"           // TYPE_ID
 #include "species.h"        // SPECIES_ID, EXPERIENCE_TYPE, SPECIES
@@ -14,7 +16,7 @@
  * @var SPECIES_DATA
  * @brief Defines all the SPECIES data.
  **************************************************************/
-static const SPECIES SPECIES_DATA[N_SPECIES] = {
+const SPECIES SPECIES_DATA[N_SPECIES] = {
     
     [COALSHARK]={
         .Name="Coalshark",
@@ -1076,4 +1078,4 @@ static const SPECIES SPECIES_DATA[N_SPECIES] = {
 };
 
 /**************************************************************/
-#endif
+#endif // _SPECIES_I_

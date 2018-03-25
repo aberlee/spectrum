@@ -1,10 +1,12 @@
 /**********************************************************//**
  * @file species.h
  * @brief Defines structures that contain monster data.
+ * @author Rena Shinomiya
+ * @date March 6th, 2018
  **************************************************************/
  
-#ifndef _SPECTRA_H_
-#define _SPECTRA_H_
+#ifndef _SPECIES_H_
+#define _SPECIES_H_
 
 #include "technique.h"      // TECHNIQUE_ID
 
@@ -86,7 +88,7 @@ typedef enum {
  * spectra. These should be kept constant.
  **************************************************************/
 typedef struct {
-    char Name[12];          ///< The official species name.
+    char Name[13];          ///< The official species name.
     
     // Base statistics
     TYPE_ID Type[2];        ///< The spectra's intrinsic type.
@@ -105,11 +107,14 @@ typedef struct {
     
     // Technique moveset
     int MovesetSize;        ///< The size of the moveset member list.
-    struct {
+    const struct {
         int Level;              ///< Level to learn the technique.
         TECHNIQUE_ID Technique; ///< The technique learned.
     } Moveset[MOVESET_SIZE];///< The spectra's full moveset.
 } SPECIES;
+
+/// Defines all the species data used in the game.
+extern const SPECIES SPECIES_DATA[];
 
 /**********************************************************//**
  * @enum AILMENT_ID
@@ -124,6 +129,8 @@ typedef enum {
     AFLAME,
 } AILMENT_ID;
 
+#define N_AILMENT (AFLAME+1)
+
 /**********************************************************//**
  * @struct SPECTRA
  * @brief Defines menu and battle independent information
@@ -133,8 +140,8 @@ typedef struct {
     SPECIES_ID Species;     ///< The species of the spectra.
     
     // Active stats
-    int HealthMax;          ///< Active max health.
-    int PowerMax;           ///< Active max power.
+    int MaxHealth;          ///< Active max health.
+    int MaxPower;           ///< Active max power.
     int Attack;             ///< Active attack.
     int Defend;             ///< Active defend.
     int Evade;              ///< Active evade.
@@ -167,12 +174,5 @@ typedef struct {
     int LuckBoost;          ///< Change to apply to luck stat.
 } BATTLER;
 
-/// Defines all the species data used in the game.
-static const SPECIES SPECIES_DATA[N_SPECIES];
-
-static inline const SPECIES *Species(const SPECTRA *spectra) {
-    return &SPECIES_DATA[spectra->Species];
-}
-
 /**************************************************************/
-#endif
+#endif // _SPECIES_H_
