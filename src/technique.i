@@ -657,4 +657,4 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
 };
 
 /**************************************************************/
-#endif
+#endif // _TECHNIQUE_I_

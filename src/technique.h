@@ -123,4 +123,4 @@ typedef struct {
 extern const TECHNIQUE *TECHNIQUE_DATA;
 
 /**************************************************************/
-#endif
+#endif // _TECHNIQUE_H_
