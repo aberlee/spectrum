@@ -9,6 +9,9 @@ LFLAGS := -s -lm
 INCLUDE := 
 LIBRARY := 
 
+# debug.h
+CFLAGS += -DVERBOSE
+
 #======== Source code setup ========#
 # Directory for all project files.
 SRC_DIR := src
@@ -28,7 +31,7 @@ MAKEFILE := Makefile
 ALLEGRO_DIR := C:/lib/allegro/allegro
 INCLUDE += -I$(ALLEGRO_DIR)/include
 LIBRARY += -L$(ALLEGRO_DIR)/lib
-LFLAGS += -lallegro -lallegro_audio -lallegro_font -lallegro_image -lallegro_primitives -lallegro_ttf
+LFLAGS += -lallegro -lallegro_audio -lallegro_acodec -lallegro_font -lallegro_ttf -lallegro_image -lallegro_color -lallegro_primitives  -lallegro_main 
 
 #=========== Build setup ===========#
 # Get the names of all object files
