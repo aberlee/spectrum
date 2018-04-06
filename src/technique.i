@@ -13,10 +13,15 @@
 
 /**********************************************************//**
  * @var TECHNIQUE_DATA
- * @brief Defines a constant array for every technique's data.
+ * @brief Defines TECHNIQUE data for each TECHNIQUE_ID, such
+ * that TECHNIQUE_DATA[TECHNIQUE_ID] is the data for that
+ * technique. This array is constant and should never be
+ * modified at runtime.
  **************************************************************/
 const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
     
+    ////////////////////////////////////////////////////////
+    // Basic techniques
     [BITE]={
         .Name="Bite",
         .Type=BASIC,
@@ -237,6 +242,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="The user explodes, causing massive damage to everyone. The user dies after attacking.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Wind techniques
     [GUST]={
         .Name="Gust",
         .Type=WIND,
@@ -270,6 +277,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="A massive storm that hits all enemies.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Fire techniques
     [HOT_GUST]={
         .Name="Hot Gust",
         .Type=FIRE,
@@ -288,7 +297,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Cost=12,
         .Target=YOURSELF,
         .Effect=BOOST_DEFEND,
-        .Argument=2
+        .Argument=2,
         .Description="The user surrounds itself with fire, raising its defense a lot.",
     },
     
@@ -303,6 +312,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="A gargantuan beam of fire engulfs the target, possibly setting it on fire.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Water techniques
     [SWIM_ATTACK]={
         .Name="Swim Attack",
         .Type=WATER,
@@ -358,6 +369,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="A massive tidal wave washes over the enemies, dealing massive damage.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Dark Techniques
     [POISON_CLAW]={
         .Name="Poison Claw",
         .Type=DARK,
@@ -413,6 +426,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="Nasty gases surround the target, poisoning it.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Light Techniques
     [ZAP]={
         .Name="Zap",
         .Type=LIGHT,
@@ -457,6 +472,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="The user collects electric charge, raising both its attack a lot.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Ice techniques
     [COLD_GUST]={
         .Name="Cold Gust",
         .Type=ICE,
@@ -479,6 +496,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="Icy boulders fall from above, possibly burying the target in the ground.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Extra techniques
     [MIND_RAY]={
         .Name="Mind Ray",
         .Type=BASIC,
@@ -507,7 +526,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Power=0,
         .Cost=10,
         .Target=ENEMY,
-        .Effect=AFFLICT_ASLEEP,
+        .Effect=AFFLICT_SLEEP,
         .Argument=100,
         .Description="The target is induced to fall asleep.",
     },
@@ -534,6 +553,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="The user disrupts te target's vision, decreasing its luck.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Earth techniques
     [FRACTURE]={
         .Name="Fracture",
         .Type=EARTH,
@@ -567,6 +588,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="The target is crushed by the forces of geology, burying it in the ground in the process.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Metal techniques
     [CORE_BEAM]={
         .Name="Core Beam",
         .Type=METAL,
@@ -611,6 +634,8 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="The user sturdies itself, increasing its defense a lot.",
     },
     
+    ////////////////////////////////////////////////////////
+    // Extra techniques (2)
     [CAPTURE]={
         .Name="Capture",
         .Type=BASIC,
@@ -655,6 +680,11 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Description="By practicing sustainable resource use, the user heals some HP.",
     },
 };
+
+/**************************************************************/
+const TECHNIQUE *TechniqueByID(TECHNIQUE_ID id) {
+    return &TECHNIQUE_DATA[id];
+}
 
 /**************************************************************/
 #endif // _TECHNIQUE_I_

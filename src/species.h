@@ -113,9 +113,6 @@ typedef struct {
     } Moveset[MOVESET_SIZE];///< The spectra's full moveset.
 } SPECIES;
 
-/// Defines all the species data used in the game.
-extern const SPECIES SPECIES_DATA[];
-
 /**********************************************************//**
  * @enum AILMENT_ID
  * @brief Defines unique identifiers for each ailment that can
@@ -173,6 +170,11 @@ typedef struct {
     int EvadeBoost;         ///< Change to apply to evade stat.
     int LuckBoost;          ///< Change to apply to luck stat.
 } BATTLER;
+
+// SPECIES getters
+extern const SPECIES *SpeciesByID(SPECIES_ID id);
+extern const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra);
+extern const SPECIES *SpeciesOfBattler(const BATTLER *battler);
 
 /**************************************************************/
 #endif // _SPECIES_H_

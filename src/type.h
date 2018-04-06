@@ -26,5 +26,7 @@ typedef enum {
     DARK,       ///< Dark-type - based on night, poison, and fear.
 } TYPE_ID;
 
+#define N_TYPE (DARK+1)
+
 /**************************************************************/
 #endif // _TYPE_H_

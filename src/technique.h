@@ -98,7 +98,7 @@ typedef enum {
     RECYCLE,
 } TECHNIQUE_ID;
 
-/// The number of unique techniques.
+/// A size large enough to contain every TECHNIQUE_ID in an array.
 #define N_TECHNIQUES (RECYCLE+1)
 
 /**********************************************************//**
@@ -119,8 +119,8 @@ typedef struct {
     const char Description[128];
 } TECHNIQUE;
 
-/// Defines all the techniques in the game.
-extern const TECHNIQUE *TECHNIQUE_DATA;
+/// Gets technique information.
+extern const TECHNIQUE *TechniqueByID(TECHNIQUE_ID id);
 
 /**************************************************************/
 #endif // _TECHNIQUE_H_
