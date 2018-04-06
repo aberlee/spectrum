@@ -16,3 +16,7 @@
 *.tar
 *.tar.gz
 *.zip
+
+# Error stuff
+dev/
+error.log 
