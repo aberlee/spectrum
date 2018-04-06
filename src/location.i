@@ -1,0 +1,699 @@
+/**********************************************************//**
+ * @file location.h
+ * @brief Database for all map locations in the game.
+ * @author Rena Shinomiya
+ * @date March 26th, 2018
+ **************************************************************/
+
+#ifndef _LOCATION_I_
+#define _LOCATION_I_
+
+#include "location.h"       // LOCATION, LOCATION_ID
+#include "shop.h"           // SHOP, SHOP_ID
+
+/**********************************************************//**
+ * @var LOCATION_DATA
+ * @brief Defines constant LOCATION data for each LOCATION_ID.
+ **************************************************************/
+const LOCATION LOCATION_DATA[N_LOCATION] = {
+    
+    ////////////////////////////////////////////////////////
+    // Sapling Town and Triangle Lake area
+    [TRIANGLE_LAKE]={
+        .Name="Triangle Lake",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{1312, 560}, {2320, 1184}},
+        .Background=GRASS,
+        .Encounters={
+            {50, JAYRAPTOR, {4, 8}},
+            {25, FLOPJELLY, {3, 6}},
+            {19, SSSNAKE, {3, 6}},
+            { 5, HOCUS, {5}},
+            { 1, JAYRAPTOR, {12}},
+        },
+        .FishingEncounters={
+            {90, CATFISH, {4, 8}},
+            { 9, CATFISH, {8, 15}},
+            { 1, NESSIE, {10}}
+        },
+    },
+    
+    [SAPLING_TOWN]={
+        .Name="Sapling Town",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{1072, 0}, {2320, 560}},
+        .Background=GRASS,
+        .Encounters={
+            {50, JAYRAPTOR, {4, 6}},
+            {25, SSSNAKE, {2, 5}},
+            {25, FLOPJELLY, {2, 5}},
+        },
+        .FishingEncounters={
+            {90, CATFISH, {4, 8}},
+            { 9, CATFISH, {8, 15}},
+            { 1, NESSIE, {10}},
+        },
+    },
+    
+    [YOUR_HOUSE]={
+        .Name="Amy's House",
+        .Map=MAP_SAPLING_YOUR_HOUSE,
+        .Bounds={{0, 0}, {192, 112}},
+    },
+    
+    [SAPLING_AIRPORT]={
+        .Name="Sapling Town",
+        .Map=MAP_SAPLING_AIRPORT,
+        .Bounds={{0, 0}, {112, 112}},
+    },
+    
+    [SAPLING_HOSPITAL]={
+        .Name="Sapling Town",
+        .Map=MAP_SAPLING_HOSPITAL,
+        .Bounds={{0, 0}, {192, 112}},
+    },
+    
+    [SAPLING_CITY_HALL]={
+        .Name="Sapling Town",
+        .Map=MAP_SAPLING_CITY_HALL,
+        .Bounds={{0, 0}, {224, 144}},
+    },
+    
+    [SAPLING_GREENHOUSE]={
+        .Name="Sapling Town",
+        .Map=MAP_SAPLING_HOSPITAL,
+        .Bounds={{0, 0}, {208, 144}},
+        .Background=GRASS,
+        .Encounters={
+            {99, SSSNAKE, {4, 6}},
+            { 1, SPACESNAKE, {8}},
+        },
+    },
+    
+    [SAPLING_LABORATORY]={
+        .Name="Triangle Lake",
+        .Map=MAP_SAPLING_LABORATORY,
+        .Bounds={{0, 0}, {128, 128}},
+    },
+    
+    ////////////////////////////////////////////////////////
+    // Port Royal area
+    [PORT_ROYAL]={
+        .Name="Port Royal",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{0, 0}, {896, 1296}},
+        .Background=SAND,
+        .Encounters={
+            {50, JAYRAPTOR, {7, 9}},
+            {49, FLOPJELLY, {5, 8}},
+            { 1, GASMOG, {5, 8}},
+        },
+        .FishingEncounters={
+            {60, CATFISH, {5, 8}},
+            {30, GARPIKE, {7, 9}},
+            { 9, GARPIKE, {10, 16}},
+            { 1, MINESPHERE, {11}},
+        },
+    },
+    
+    [ROYAL_HOSPITAL]={
+        .Name="Port Royal",
+        .Map=MAP_ROYAL_HOSPITAL,
+        .Bounds={{0, 0}, {192, 112}},
+    },
+    
+    [ROYAL_WAREHOUSE]={
+        .Name="Port Royal",
+        .Map=MAP_ROYAL_WAREHOUSE,
+        .Bounds={{0, 0}, {176, 128}},
+    },
+    
+    [ROYAL_PORT]={
+        .Name="Port Royal",
+        .Map=MAP_ROYAL_PORT,
+        .Bounds={{0, 0}, {160, 112}},
+    },
+    
+    ////////////////////////////////////////////////////////
+    // Oxide Crater area
+    [OXIDE_COAST]={
+        .Name="Oxide Crater Outskirts",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{0, 1296}, {1392, 1808}},
+        .Background=GRASS,
+        .Encounters={
+            {40, JAYRAPTOR, {9, 12}},
+            {30, FLOPJELLY, {8, 12}},
+            {20, NITROBOMB, {8, 12}},
+        },
+        .FishingEncounters={
+            {50, CATFISH, {8, 12}},
+            {40, GARPIKE, {9, 15}},
+            { 9, COALSHARK, {12, 16}},
+            { 1, MINESPHERE, {17}},
+        },
+    },
+    
+    [OXIDE_CRATER]={
+        .Name="Oxide Crater",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{816, 912}, {1312, 1296}},
+        .Background=OXIDE,
+        .Encounters={
+            {40, JAYRAPTOR, {9, 12}},
+            {30, ASTEROID, {10, 14}},
+            {20, NITROBOMB, {8, 12}},
+            { 9, BUTCHERBIRD, {15}},
+            { 1, PUZZLE, {12}},
+        },
+    },
+
+    [OXIDE_CAVE]={
+        .Name="Oxide Crater Cave",
+        .Map=MAP_OXIDE_CRATER,
+        .Bounds={{0, 0}, {768, 640}},
+        .Background=OXIDE,
+        .Encounters={
+            {40, ASTEROID, {10, 18}},
+            {30, NITROBOMB, {8, 12}},
+            {20, BUTCHERBIRD, {11, 16}},
+            { 9, MEGATAR, {16, 18}},
+            { 1, PUZZLE, {16}},
+        },
+    },
+    
+    ////////////////////////////////////////////////////////
+    // Solar City area
+    [SOLAR_CITY]={
+        .Name="Solar City",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{1392, 1184}, {2320, 1872}},
+        .Background=CAVE,
+        .Encounters={
+            {40, OSCILLATE, {8, 12}},
+            {40, GASMOG, {8, 13}},
+            {19, LEKTRON, {5, 12}},
+            { 1, CUMULUS, {12}},
+        },
+        .FishingEncounters={
+            {50, CATFISH, {8, 12}},
+            {49, GARPIKE, {9, 15}},
+            { 1, MINESPHERE, {17}},
+        },
+    },
+    
+    [SOLAR_AIRPORT]={
+        .Name="Solar City",
+        .Map=MAP_SOLAR_AIRPORT,
+        .Bounds={{0, 0}, {192, 144}},
+    },
+    
+    [SOLAR_HOSPITAL]={
+        .Name="Solar City",
+        .Map=MAP_SOLAR_HOSPITAL,
+        .Bounds={{0, 0}, {192, 112}},
+    },
+    
+    [SOLAR_EAST_CORPORATION]={
+        .Name="Solar City",
+        .Map=MAP_SOLAR_EAST_CORP,
+        .Bounds={{0, 0}, {192, 160}},
+    },
+    
+    [SOLAR_WEST_CORPORATION]={
+        .Name="Solar City",
+        .Map=MAP_SOLAR_WEST_CORP,
+        .Bounds={{0, 0}, {192, 160}},
+    },
+    
+    [SOLAR_CITY_OUTSKIRTS]={
+        .Name="Solar City Outskirts",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{1392, 1872}, {2320, 2304}},
+        .Background=GRASS,
+        .Encounters={
+            {40, OSCILLATE, {9, 15}},
+            {30, REPLICA, {12, 20}},
+            {20, LEKTRON, {8, 16}},
+            { 5, CUMULUS, {10, 18}},
+            { 4, VOLTDRAGON, {15, 21}},
+            { 1, LAUNCHPAD, {21, 22}},
+        },
+        .FishingEncounters={
+            {50, CATFISH, {10, 18}},
+            {30, GARPIKE, {12, 18}},
+            {20, TOOLFISH, {14, 16}},
+        },
+    },
+    
+    
+    [SOLAR_INSTITUTE_1F]={
+        .Name="Solar Institute",
+        .Map=MAP_SOLAR_INSTITUTE_1F,
+        .Bounds={{0, 0}, {224, 160}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {90, LEKTRON, {12, 20}},
+            {10, VOLTDRAGON, {16, 20}},
+        },
+    },
+    
+    [SOLAR_INSTITUTE_2F]={
+        .Name="Solar Institute",
+        .Map=MAP_SOLAR_INSTITUTE_2F,
+        .Bounds={{0, 0}, {224, 160}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {70, LEKTRON, {16, 20}},
+            {30, VOLTDRAGON, {16, 20}},
+        },
+    },
+    
+    [SOLAR_INSTITUTE_3F]={
+        .Name="Solar Institute",
+        .Map=MAP_SOLAR_INSTITUTE_3F,
+        .Bounds={{0, 0}, {224, 160}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {50, LEKTRON, {18, 22}},
+            {50, VOLTDRAGON, {18, 22}},
+        },
+    },
+    
+    [SOLAR_GENERATOR_ROOM]={
+        .Name="Solar Institute",
+        .Map=MAP_GENERATOR_ROOM,
+        .Bounds={{0, 0}, {112, 128}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {95, LEKTRON, {26, 34}},
+            { 5, PRGMERROR, {20}},
+        },
+    },
+    
+    ////////////////////////////////////////////////////////
+    // New Land Cave area
+    [NEW_LAND_CAVE_OUTSKIRTS]={
+        .Name="New Land Cave Outskirts",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{1680, 2304}, {2320, 2880}},
+        .Background=GRASS,
+        .Encounters={
+            {50, JAYRAPTOR, {10, 18}},
+            {30, LEKTRON, {8, 16}},
+            {20, CUMULUS, {10, 18}},
+        },
+        .FishingEncounters={
+            {50, CATFISH, {10, 18}},
+            {30, GARPIKE, {12, 18}},
+            {20, TOOLFISH, {14, 16}},
+        },
+    },
+    
+    [NEW_LAND_CAVE]={
+        .Name="New Land Cave",
+        .Map=MAP_NEW_LAND_CAVE,
+        .Bounds={{0, 0}, {1168, 528}},
+        .Background=CAVE,
+        .Encounters={
+            {40, KARDA, {10, 16}},
+            {30, LEKTRON, {8, 16}},
+            {20, BUTCHERBIRD, {12, 20}},
+            { 5, PUZZLE, {16, 19}},
+            { 4, ICEBOULDER, {18, 20}},
+            { 1, BUTCHERBIRD, {28}},
+        },
+    },
+    
+    ////////////////////////////////////////////////////////
+    // Andora Falls area
+    [FALLS_AREA]={
+        .Name="Falls Path",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{620, 2304}, {1680, 2880}},
+        .Background=GRASS,
+        .Encounters={
+            {39, JAYRAPTOR, {17, 24}},
+            {30, PHOENIX, {18, 22}},
+            {20, TELEVIRUS, {15, 22}},
+            { 9, CUMULUS, {18, 24}},
+            { 1, TOTEM_POLE, {27}},
+            { 1, JAYRAPTOR, {30}},
+        },
+        .FishingEncounters={
+            {50, CATFISH, {18, 24}},
+            {30, BASSMONSTER, {20, 25}},
+            {19, ACISTAR, {22, 26}},
+            { 1, ACISTAR, {27, 32}},
+        },
+    },
+    
+    [ANDORA_REST_STOP]={
+        .Name="Falls Path",
+        .Map=MAP_REST_STOP,
+        .Bounds={{0, 0}, {80, 112}},
+    },
+    
+    [FALLS_CAVE_1F]={
+        .Name="Falls Cave",
+        .Map=MAP_FALLS_CAVE_1F,
+        .Bounds={{0, 0}, {512, 336}},
+        .Background=CAVE,
+        .Encounters={
+            {30, GIGACLAM, {16, 22}},
+            {30, WATERWING, {18, 22}},
+            {30, BASSMONSTER, {18, 22}},
+            { 9, ACISTAR, {20, 24}},
+            { 1, ICEBOULDER, {22}},
+        },
+    },
+    
+    [FALLS_CAVE_B1F]={
+        .Name="Falls Cave",
+        .Map=MAP_FALLS_CAVE_B1F,
+        .Bounds={{0, 0}, {544, 368}},
+        .Background=CAVE,
+        .Encounters={
+            {30, GIGACLAM, {20, 26}},
+            {20, WATERWING, {20, 26}},
+            {20, BASSMONSTER, {20, 26}},
+            {10, ACISTAR, {22, 28}},
+            {10, MOATMONSTER, {26, 28}},
+            { 5, ICEBOULDER, {23, 26}},
+            { 4, MOATMONSTER, {30, 34}},
+            { 1, GIGACLAM, {36}},
+        },
+    },
+    
+    [ANDORA_FALLS]={
+        .Name="Andora Falls",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{0, 1808}, {620, 3104}},
+        .Background=GRASS,
+        .Encounters={
+            {40, JAYRAPTOR, {19, 27}},
+            {40, WATERWING, {20, 24}},
+            {20, CUMULUS, {18, 24}},
+        },
+        .FishingEncounters={
+            {30, CATFISH, {18, 24}},
+            {30, WATERWING, {20, 24}},
+            {20, BASSMONSTER, {20, 25}},
+            {19, ACISTAR, {22, 26}},
+            { 1, NESSIE, {32}},
+        },
+    },
+    
+    [ANDORA_HOSPITAL]={
+        .Name="Andora Falls",
+        .Map=MAP_ANDORA_HOSPITAL,
+        .Bounds={{0, 0}, {192, 112}},
+    },
+    
+    [ANDORA_PORT]={
+        .Name="Andora Falls",
+        .Map=MAP_ANDORA_PORT,
+        .Bounds={{0, 0}, {160, 112}},
+    },
+    
+    ////////////////////////////////////////////////////////
+    // Granite City area
+    [GRANITE_CAVE_1F]={
+        .Name="Granite Cave",
+        .Map=MAP_GRANITE_CAVE_1F,
+        .Bounds={{0, 0}, {704, 528}},
+        .Background=CAVE,
+        .Encounters={
+            {40, KARDA, {24, 28}},
+            {30, NITROBOMB, {24, 28}},
+            {20, DACTYLUS, {24, 28}},
+            { 5, TARHEAP, {26, 32}},
+            { 5, MEGATAR, {28, 32}},
+        },
+    },
+    
+    [GRANITE_CAVE_B1F]={
+        .Name="Granite Cave",
+        .Map=MAP_GRANITE_CAVE_B1F,
+        .Bounds={{0, 0}, {688, 688}},
+        .Background=CAVE,
+        .Encounters={
+            {30, NITROBOMB, {28, 32}},
+            {20, KARDA, {26, 34}},
+            {20, DACTYLUS, {28, 34}},
+            {10, TARHEAP, {26, 32}},
+            {10, MEGATAR, {28, 32}},
+            { 5, PUZZLE, {28, 32}},
+            { 4, BUTCHERBIRD, {30, 36}},
+            { 1, GOLDDRAGON, {40}},
+        },
+    },
+    
+    [GRANITE_OUTSKIRTS]={
+        .Name="Granite Outskirts",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{0, 3104}, {620, 3448}},
+        .Background=GRASS,
+        .Encounters={
+            {50, JAYRAPTOR, {24, 29}},
+            {30, FLOPJELLY, {22, 28}},
+            {20, TELEVIRUS, {22, 28}},
+        },
+        .FishingEncounters={
+            {50, CATFISH, {22, 28}},
+            {30, BASSMONSTER, {22, 30}},
+            {19, ACISTAR, {27, 32}},
+            { 1, CATFISH, {29, 38}},
+        },
+    },
+    
+    [GRANITE_CITY_SUBURBS]={
+        .Name="Granite City",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{0, 3648}, {1168, 4320}},
+        .Background=GRASS,
+        .Encounters={
+            {40, JAYRAPTOR, {22, 30}},
+            {30, GASMOG, {22, 28}},
+            {20, VACUUM, {24, 28}},
+            {10, FOGFANG, {26, 32}},
+        },
+    },
+    
+    [GRANITE_CITY_DOWNTOWN]={
+        .Name="Granite City",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{1168, 2880}, {2320, 4320}},
+        .Background=CAVE,
+        .Encounters={
+            {40, GASMOG, {28, 38}},
+            {30, FOGFANG, {28, 36}},
+            {20, NITROBOMB, {26, 32}},
+            { 9, VACUUM, {30, 36}},
+            { 1, SPACESNAKE, {28, 36}},
+        },
+    },
+    
+    [GRANITE_AIRPORT]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_AIRPORT,
+        .Bounds={{0, 0}, {192, 144}},
+    },
+    
+    [GRANITE_AIR_TOWER_EAST]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_AIR_EAST,
+        .Bounds={{0, 0}, {80, 96}},
+    },
+    
+    [GRANITE_AIR_TOWER_WEST]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_AIR_WEST,
+        .Bounds={{0, 0}, {80, 96}},
+    },
+    
+    [GRANITE_CORPORATION]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_CORP,
+        .Bounds={{0, 0}, {208, 160}},
+    },
+    
+    [GRANITE_DEPARTMENT_STORE]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_DEPARTMENT,
+        .Bounds={{0, 0}, {192, 208}},
+    },
+    
+    [GAME_DESIGNER_ROOM]={
+        .Name="Game Designer's House",
+        .Map=MAP_GAME_DESIGNER_ROOM,
+        .Bounds={{0, 0}, {144, 128}},
+    },
+    
+    [GRANITE_HOSPITAL]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_HOSPITAL,
+        .Bounds={{0, 0}, {240, 192}},
+    },
+    
+    [GRANITE_LIBRARY]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_LIBRARY,
+        .Bounds={{0, 0}, {208, 144}},
+    },
+    
+    [GRANITE_STORE_1]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_STORE_1,
+        .Bounds={{0, 0}, {128, 112}},
+    },
+    
+    [GRANITE_STORE_2]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_STORE_2,
+        .Bounds={{0, 0}, {128, 112}},
+    },
+    
+    [GRANITE_STORE_3]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_STORE_3,
+        .Bounds={{0, 0}, {128, 112}},
+    },
+    
+    [GRANITE_STORE_4]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_STORE_4,
+        .Bounds={{0, 0}, {128, 112}},
+    },
+    
+    [GRANITE_STORE_5]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_STORE_5,
+        .Bounds={{0, 0}, {128, 112}},
+    },
+    
+    [GRANITE_STORE_6]={
+        .Name="Granite City",
+        .Map=MAP_GRANITE_STORE_6,
+        .Bounds={{0, 0}, {128, 112}},
+    },
+    
+    [GRANITE_TOWER_1F]={
+        .Name="Granite Tower",
+        .Map=MAP_GRANITE_TOWER_1F,
+        .Bounds={{0, 0}, {0, 0}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {70, NITROBOMB, {65, 70}},
+            {20, LEKTRON, {48, 54}},
+            {10, GASMOG, {48, 54}},
+        },
+    },
+    
+    [GRANITE_TOWER_2F]={
+        .Name="Granite Tower",
+        .Map=MAP_GRANITE_TOWER_2F,
+        .Bounds={{0, 0}, {0, 0}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {70, NITROBOMB, {45, 50}},
+            {20, LEKTRON, {48, 54}},
+            {10, ASTEROID, {58, 64}},
+        },
+    },
+    
+    [GRANITE_TOWER_3F]={
+        .Name="Granite Tower",
+        .Map=MAP_GRANITE_TOWER_3F,
+        .Bounds={{0, 0}, {0, 0}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {70, NITROBOMB, {50, 55}},
+            {30, ASTEROID, {58, 64}},
+        },
+    },
+    
+    [GRANITE_TOWER_4F]={
+        .Name="Granite Tower",
+        .Map=MAP_GRANITE_TOWER_4F,
+        .Bounds={{0, 0}, {0, 0}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {50, NITROBOMB, {55, 60}},
+            {30, ASTEROID, {58, 64}},
+            {20, SPACESNAKE, {58, 64}},
+        },
+    },
+    
+    [GRANITE_TOWER_5F]={
+        .Name="Granite Tower",
+        .Map=MAP_GRANITE_TOWER_5F,
+        .Bounds={{0, 0}, {0, 0}},
+        .Background=CHARCOAL,
+        .Encounters={
+            {50, ASTEROID, {60, 65}},
+            {50, SPACESNAKE, {58, 64}},
+        },
+    },
+    
+    [GRANITE_TOWER_LAVATORY]={
+        .Name="Granite Tower",
+        .Map=MAP_LAVATORY,
+        .Bounds={{0, 0}, {0, 0}},
+        .Background=WATER,
+        .Encounters={
+            {40, WATERWING, {48, 54}},
+            {30, FLOPJELLY, {48, 54}},
+            {20, TARHEAP, {48, 54}},
+            { 9, MOATMONSTER, {48, 54}},
+            { 1, PRGMERROR, {70}},
+        },
+    },
+    
+    ////////////////////////////////////////////////////////
+    // Boulder Park area
+    [BOULDER_CAVE]={
+        .Name="Boulder Park Cave",
+        .Map=MAP_BOULDER_CAVE,
+        .Bounds={{0, 0}, {624, 416}},
+        .Background=CAVE,
+        .Encounters={
+            {30, DACTYLUS, {34, 36}},
+            {30, ASTEROID, {32, 36}},
+            {20, SPACESNAKE, {30, 34}},
+            {10, PUZZLE, {30, 36}},
+            {10, PHOENIX, {32, 36}},
+        },
+    },
+    
+    [BOULDER_PARK]={
+        .Name="Boulder Park",
+        .Map=MAP_OVERWORLD,
+        .Bounds={{620, 2880}, {1168, 3448}},
+        .Background=GRASS,
+        .Encounters={
+            {29, JAYRAPTOR, {28, 36}},
+            {29, BRONTO, {44, 54}},
+            {19, MOATMONSTER, {44, 54}},
+            {10, PUZZLE, {34, 40}},
+            { 9, TOTEM_POLE, {44, 54}},
+            { 1, GLACIALITH, {54, 64}},
+            { 1, BRONTO, {54, 64}},
+            { 1, MOATMONSTER, {54, 64}},
+            { 1, JAYRAPTOR, {37, 58}},
+        },
+        .FishingEncounters={
+            {30, GARPIKE, {44, 54}},
+            {30, BASSMONSTER, {28, 36}},
+            {19, COALSHARK, {44, 54}},
+            {10, GIGACLAM, {34, 40}},
+            { 9, MOATMONSTER, {44, 54}},
+            { 1, CATFISH, {70, 80}},
+            { 1, COALSHARK, {54, 64}},
+        },
+    },
+    
+};
+
+/**************************************************************/
+#endif // _LOCATION_I_
