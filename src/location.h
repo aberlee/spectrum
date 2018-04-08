@@ -197,6 +197,24 @@ typedef struct {
     int LevelRange[2];
 } ENCOUNTER;
 
+typedef enum {
+    TILE_SOLID      = 0x0001,
+    TILE_WATER      = 0x0002,
+    TILE_WARP       = 0x0004,
+    TILE_SIGN       = 0x0008,
+} TILE_FLAGS;
+
+typedef struct {
+    TILE_FLAGS Flags;
+    int Argument;
+} TILE;
+
+typedef struct {
+    int Height;
+    int Width;
+    TILE *Sensor;
+} SENSOR;
+
 typedef struct {
     COORDINATE Where;
     COORDINATE Destination;
@@ -219,7 +237,11 @@ typedef struct {
     COORDINATE Bounds[2];
     BACKGROUND_ID Background;
     ENCOUNTER Encounters[8];
-    ENCOUNTER FishingEncounters[4];
+    ENCOUNTER FishingEncounters[8];
 } LOCATION;
+
+void Warp(MAP_ID id, int x, int y);
+void DrawMap(void);
+void UpdateMap(void);
 
 #endif

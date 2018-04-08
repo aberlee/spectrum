@@ -581,7 +581,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
     [GRANITE_TOWER_1F]={
         .Name="Granite Tower",
         .Map=MAP_GRANITE_TOWER_1F,
-        .Bounds={{0, 0}, {0, 0}},
+        .Bounds={{0, 0}, {288, 208}},
         .Background=CHARCOAL,
         .Encounters={
             {70, NITROBOMB, {65, 70}},
@@ -593,7 +593,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
     [GRANITE_TOWER_2F]={
         .Name="Granite Tower",
         .Map=MAP_GRANITE_TOWER_2F,
-        .Bounds={{0, 0}, {0, 0}},
+        .Bounds={{0, 0}, {288, 208}},
         .Background=CHARCOAL,
         .Encounters={
             {70, NITROBOMB, {45, 50}},
@@ -605,7 +605,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
     [GRANITE_TOWER_3F]={
         .Name="Granite Tower",
         .Map=MAP_GRANITE_TOWER_3F,
-        .Bounds={{0, 0}, {0, 0}},
+        .Bounds={{0, 0}, {288, 208}},
         .Background=CHARCOAL,
         .Encounters={
             {70, NITROBOMB, {50, 55}},
@@ -616,7 +616,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
     [GRANITE_TOWER_4F]={
         .Name="Granite Tower",
         .Map=MAP_GRANITE_TOWER_4F,
-        .Bounds={{0, 0}, {0, 0}},
+        .Bounds={{0, 0}, {288, 208}},
         .Background=CHARCOAL,
         .Encounters={
             {50, NITROBOMB, {55, 60}},
@@ -628,7 +628,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
     [GRANITE_TOWER_5F]={
         .Name="Granite Tower",
         .Map=MAP_GRANITE_TOWER_5F,
-        .Bounds={{0, 0}, {0, 0}},
+        .Bounds={{0, 0}, {288, 208}},
         .Background=CHARCOAL,
         .Encounters={
             {50, ASTEROID, {60, 65}},
@@ -639,7 +639,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
     [GRANITE_TOWER_LAVATORY]={
         .Name="Granite Tower",
         .Map=MAP_LAVATORY,
-        .Bounds={{0, 0}, {0, 0}},
+        .Bounds={{0, 0}, {144, 128}},
         .Background=WATER,
         .Encounters={
             {40, WATERWING, {48, 54}},
@@ -672,7 +672,7 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
         .Bounds={{620, 2880}, {1168, 3448}},
         .Background=GRASS,
         .Encounters={
-            {29, JAYRAPTOR, {28, 36}},
+            {30, JAYRAPTOR, {28, 36}},
             {29, BRONTO, {44, 54}},
             {19, MOATMONSTER, {44, 54}},
             {10, PUZZLE, {34, 40}},
@@ -680,7 +680,6 @@ const LOCATION LOCATION_DATA[N_LOCATION] = {
             { 1, GLACIALITH, {54, 64}},
             { 1, BRONTO, {54, 64}},
             { 1, MOATMONSTER, {54, 64}},
-            { 1, JAYRAPTOR, {37, 58}},
         },
         .FishingEncounters={
             {30, GARPIKE, {44, 54}},
