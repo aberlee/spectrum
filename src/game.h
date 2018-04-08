@@ -21,6 +21,9 @@
 /// Maximum frame rate of the game in FPS.
 #define FRAME_RATE 60.0
 
+extern double LastFrameTimeElapsed;
+extern double TotalTimeElapsed;
+
 /**********************************************************//**
  * @enum KEY
  * @brief Constants mapping each Spectrum key function to a

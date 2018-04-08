@@ -1,5 +1,6 @@
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "assets.h"
 #include "game.h"
@@ -15,7 +16,7 @@ static COORDINATE Position = {0, 0};
 #define Tile(x, y) CurrentSensor.Sensor[y*CurrentSensor.Width+x]
 #define Coordinate(x, y) Tile(x/16, y/16)
 
-static void LoadSensor(MAP_ID id) {
+static void UseSensor(MAP_ID id) {
     if (CurrentSensor.Sensor) {
         free(CurrentSensor.Sensor);
     }
@@ -79,7 +80,7 @@ void Warp(MAP_ID id, int x, int y) {
     Position.Y = y;
     
     // Load the sensor at the map
-    LoadSensor(id);
+    UseSensor(id);
 }
 
 void DrawMap(void) {
@@ -87,13 +88,34 @@ void DrawMap(void) {
     int centerX = DISPLAY_WIDTH/2-Position.X;
     int centerY = DISPLAY_HEIGHT/2-Position.Y;
     al_draw_bitmap(mapImage, centerX, centerY, 0);
+    al_draw_filled_circle(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2, 16, al_map_rgb(255, 128, 128));
 }
 
-#define WALK_SPEED 16
+#define WALK_SPEED 80
+
+#define FlagSet(flags, what) (flags&what)
+#define Passable(x, y) (!Tile(x, y).Flags)
 
 void UpdateMap(void) {
-    float horizontal = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED;
-    float vertical = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED;
-    Position.X += horizontal;
-    Position.Y += vertical;
+    float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTimeElapsed;
+    float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTimeElapsed;
+    
+    // Collision checking
+    int x = Position.X/16;
+    int y = Position.Y/16;
+    int xf = (Position.X+dx)/16;
+    int yf = (Position.Y+dy)/16;
+    if (Passable(xf, yf)) {
+        // Nothing
+    } else if (Passable(x, yf)) {
+        dx = 0;
+    } else if (Passable(xf, y)) {
+        dy = 0;
+    } else {
+        dx = 0;
+        dy = 0;
+    }
+    
+    Position.X += dx;
+    Position.Y += dy;
 }
