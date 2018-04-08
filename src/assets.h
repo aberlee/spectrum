@@ -8,18 +8,23 @@
 #ifndef _ASSETS_H_
 #define _ASSETS_H_
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_font.h>
+#include <allegro5/allegro.h>       // ALLEGRO_BITMAP
+#include <allegro5/allegro_font.h>  // ALLEGRO_FONT
 
 #include "location.h"       // MAP_ID, BACKGROUND_ID
 #include "species.h"        // SPECIES_ID, AILMENT_ID
 #include "menu.h"           // WINDOW_ID
 #include "player.h"         // COSTUME_ID
 
+/**********************************************************//**
+ * @enum FONT_ID
+ * @brief Defines an identifier for each unique font style.
+ **************************************************************/
 typedef enum {
     FONT_WINDOW=1,
 } FONT_ID;
 
+/// A size big enough for an array to contain every FONT_ID.
 #define N_FONT (FONT_WINDOW+1)
 
 extern bool LoadAssets(void);
@@ -32,6 +37,7 @@ extern ALLEGRO_BITMAP *WindowImage(WINDOW_ID id);
 extern ALLEGRO_BITMAP *AilmentImage(AILMENT_ID id);
 extern ALLEGRO_BITMAP *TypeImage(TYPE_ID id);
 extern ALLEGRO_BITMAP *MapImage(MAP_ID id);
+extern ALLEGRO_BITMAP *SensorImage(MAP_ID id);
 
 extern ALLEGRO_FONT *Font(FONT_ID id);
 

@@ -201,6 +201,63 @@ static IMAGE_ASSET MapAssets[N_MAP] = {
     [MAP_LAVATORY]              = IMAGE("map/granite_city/tower_bathroom.png"),
 };
 
+static IMAGE_ASSET SensorAssets[N_MAP] = {
+    [MAP_OVERWORLD]             = IMAGE("sensor/kaido.png"),
+    
+    [MAP_BOULDER_CAVE]          = IMAGE("sensor/boulder_cave.png"),
+    [MAP_FALLS_CAVE_1F]         = IMAGE("sensor/falls_cave_1st_floor.png"),
+    [MAP_FALLS_CAVE_B1F]        = IMAGE("sensor/falls_cave_basement.png"),
+    [MAP_GRANITE_CAVE_1F]       = IMAGE("sensor/granite_cave_1st_floor.png"),
+    [MAP_GRANITE_CAVE_B1F]      = IMAGE("sensor/granite_cave_basement.png"),
+    [MAP_NEW_LAND_CAVE]         = IMAGE("sensor/new_land_cave.png"),
+    [MAP_OXIDE_CRATER]          = IMAGE("sensor/oxide_crater.png"),
+    
+    [MAP_SAPLING_YOUR_HOUSE]    = IMAGE("sensor/sapling_town/amy_house.png"),
+    [MAP_SAPLING_AIRPORT]       = IMAGE("sensor/sapling_town/airport.png"),
+    [MAP_SAPLING_HOSPITAL]      = IMAGE("sensor/sapling_town/hospital.png"),
+    [MAP_SAPLING_CITY_HALL]     = IMAGE("sensor/sapling_town/city_hall.png"),
+    [MAP_SAPLING_GREENHOUSE]    = IMAGE("sensor/sapling_town/greenhouse.png"),
+    [MAP_SAPLING_LABORATORY]    = IMAGE("sensor/sapling_town/laboratory.png"),
+    
+    [MAP_ROYAL_HOSPITAL]        = IMAGE("sensor/port_royal/hospital.png"),
+    [MAP_ROYAL_WAREHOUSE]       = IMAGE("sensor/port_royal/warehouse.png"),
+    [MAP_ROYAL_PORT]            = IMAGE("sensor/port_royal/port.png"),
+    
+    [MAP_SOLAR_AIRPORT]         = IMAGE("sensor/solar_city/airport.png"),
+    [MAP_SOLAR_HOSPITAL]        = IMAGE("sensor/solar_city/hospital.png"),
+    [MAP_SOLAR_EAST_CORP]       = IMAGE("sensor/solar_city/corporation_east.png"),
+    [MAP_SOLAR_WEST_CORP]       = IMAGE("sensor/solar_city/corporation_west.png"),
+    [MAP_SOLAR_INSTITUTE_1F]    = IMAGE("sensor/solar_city/institute_1st_floor.png"),
+    [MAP_SOLAR_INSTITUTE_2F]    = IMAGE("sensor/solar_city/institute_2nd_floor.png"),
+    [MAP_SOLAR_INSTITUTE_3F]    = IMAGE("sensor/solar_city/institute_3rd_floor.png"),
+    [MAP_GENERATOR_ROOM]        = IMAGE("sensor/solar_city/institute_generator_room.png"),
+    
+    [MAP_REST_STOP]             = IMAGE("sensor/andora_falls/rest_stop.png"),
+    [MAP_ANDORA_HOSPITAL]       = IMAGE("sensor/andora_falls/hospital.png"),
+    [MAP_ANDORA_PORT]           = IMAGE("sensor/andora_falls/port.png"),
+    
+    [MAP_GRANITE_AIRPORT]       = IMAGE("sensor/granite_city/airport.png"),
+    [MAP_GRANITE_AIR_EAST]      = IMAGE("sensor/granite_city/air_tower_east.png"),
+    [MAP_GRANITE_AIR_WEST]      = IMAGE("sensor/granite_city/air_tower_west.png"),
+    [MAP_GRANITE_CORP]          = IMAGE("sensor/granite_city/corporation.png"),
+    [MAP_GRANITE_DEPARTMENT]    = IMAGE("sensor/granite_city/department_store.png"),
+    [MAP_GAME_DESIGNER_ROOM]    = IMAGE("sensor/granite_city/game_designer_room.png"),
+    [MAP_GRANITE_HOSPITAL]      = IMAGE("sensor/granite_city/hospital.png"),
+    [MAP_GRANITE_LIBRARY]       = IMAGE("sensor/granite_city/library.png"),
+    [MAP_GRANITE_STORE_1]       = IMAGE("sensor/granite_city/store_1_through_5.png"),
+    [MAP_GRANITE_STORE_2]       = IMAGE("sensor/granite_city/store_1_through_5.png"),
+    [MAP_GRANITE_STORE_3]       = IMAGE("sensor/granite_city/store_1_through_5.png"),
+    [MAP_GRANITE_STORE_4]       = IMAGE("sensor/granite_city/store_1_through_5.png"),
+    [MAP_GRANITE_STORE_5]       = IMAGE("sensor/granite_city/store_1_through_5.png"),
+    [MAP_GRANITE_STORE_6]       = IMAGE("sensor/granite_city/store_6.png"),
+    [MAP_GRANITE_TOWER_1F]      = IMAGE("sensor/granite_city/tower_1st_floor.png"),
+    [MAP_GRANITE_TOWER_2F]      = IMAGE("sensor/granite_city/tower_2nd_floor.png"),
+    [MAP_GRANITE_TOWER_3F]      = IMAGE("sensor/granite_city/tower_3rd_floor.png"),
+    [MAP_GRANITE_TOWER_4F]      = IMAGE("sensor/granite_city/tower_4th_floor.png"),
+    [MAP_GRANITE_TOWER_5F]      = IMAGE("sensor/granite_city/tower_5th_floor.png"),
+    [MAP_LAVATORY]              = IMAGE("sensor/granite_city/tower_bathroom.png"),
+};
+
 static FONT_ASSET FontAssets[N_FONT] = {
     [FONT_WINDOW]       = FONT("legacy/legacy.ttf", 10),
 };
@@ -251,6 +308,7 @@ bool LoadAssets(void) {
     LoadImageAssets(AilmentAssets, N_AILMENT);
     LoadImageAssets(TypeAssets, N_TYPE);
     LoadImageAssets(MapAssets, N_MAP);
+    LoadImageAssets(SensorAssets, N_MAP);
     LoadFontAssets(FontAssets, N_FONT);
     return LoadSuccess;
 }
@@ -263,6 +321,7 @@ void DestroyAssets(void) {
     DestroyImageAssets(AilmentAssets, N_AILMENT);
     DestroyImageAssets(TypeAssets, N_TYPE);
     DestroyImageAssets(MapAssets, N_MAP);
+    DestroyImageAssets(SensorAssets, N_MAP);
     DestroyFontAssets(FontAssets, N_FONT);
 }
 
@@ -292,6 +351,10 @@ ALLEGRO_BITMAP *TypeImage(TYPE_ID id) {
 
 ALLEGRO_BITMAP *MapImage(MAP_ID id) {
     return MapAssets[id].Image;
+}
+
+ALLEGRO_BITMAP *SensorImage(MAP_ID id) {
+    return SensorAssets[id].Image;
 }
 
 ALLEGRO_FONT *Font(FONT_ID id) {
