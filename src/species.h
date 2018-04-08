@@ -156,6 +156,8 @@ typedef struct {
     int Experience;        ///< Current experience of the spectra.
 } SPECTRA;
 
+#define LEVEL_MAX 100
+
 /**********************************************************//**
  * @struct BATTLER
  * @brief Defines battle-level information for a spectra
