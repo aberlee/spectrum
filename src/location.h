@@ -9,90 +9,72 @@
 #ifndef _LOCATION_H_
 #define _LOCATION_H_
 
-#include "species.h"        // SPECIES_ID
-#include "item.h"           // ITEM_ID
-#include "coordinate.h"     // COORDINATE
-#include "npc.h"            // NPC
-
-/**********************************************************//**
- * @enum BACKGROUND_ID
- * @brief Defines a constant for each screen background used
- * in the battle system (0 is invalid).
- **************************************************************/
-typedef enum {
-    CHARCOAL=1,     ///< Basic black-and-white background.
-    GRASS,          ///< Green grass.
-    OXIDE,          ///< Rusty red.
-    SAND,           ///< A sandy beach.
-    OCEAN,          ///< Blue ocean waves.
-    CAVE,           ///< A dark cave.
-} BACKGROUND_ID;
-
-/// The number of unique backgrounds.
-#define N_BACKGROUND (CAVE+1)
+#include "coordinate.h"         // COORDINATE
+#include "species.h"            // SPECIES_ID
 
 /**********************************************************//**
  * @enum LOCATION_ID
- * @brief Defines a constant for each location the player can
- * visit.
+ * @brief Defines a constant for each LOCATION.
  **************************************************************/
 typedef enum {
-    // Outskirts
-    TRIANGLE_LAKE=1,
-    OXIDE_COAST,
-    OXIDE_CRATER,
-    SOLAR_CITY_OUTSKIRTS,
-    NEW_LAND_CAVE_OUTSKIRTS,
-    FALLS_AREA,
-    GRANITE_OUTSKIRTS,
-    BOULDER_PARK,
-    
-    // Cities and towns
+    // Sapling Town
+    TRIANGLE_LAKE   = 1,
     SAPLING_TOWN,
-    PORT_ROYAL,
-    SOLAR_CITY,
-    ANDORA_FALLS,
-    GRANITE_CITY_SUBURBS,
-    GRANITE_CITY_DOWNTOWN,
-    
-    // Caves
-    OXIDE_CAVE,
-    NEW_LAND_CAVE,
-    FALLS_CAVE_1F,
-    FALLS_CAVE_B1F,
-    GRANITE_CAVE_1F,
-    GRANITE_CAVE_B1F,
-    BOULDER_CAVE,
-    
-    // Sapling town buildings
     YOUR_HOUSE,
     SAPLING_AIRPORT,
     SAPLING_HOSPITAL,
     SAPLING_CITY_HALL,
     SAPLING_GREENHOUSE,
     SAPLING_LABORATORY,
-    
+
     // Port Royal buildings
+    PORT_ROYAL,
     ROYAL_HOSPITAL,
     ROYAL_WAREHOUSE,
     ROYAL_PORT,
-    
-    // Solar City buildings
+
+    // Oxide Crater
+    OXIDE_COAST,
+    OXIDE_CRATER,
+    OXIDE_CAVE,
+
+    // Solar City
+    SOLAR_CITY,
     SOLAR_AIRPORT,
     SOLAR_HOSPITAL,
     SOLAR_EAST_CORPORATION,
     SOLAR_WEST_CORPORATION,
+    SOLAR_CITY_OUTSKIRTS,
+
+    // Solar Institute
     SOLAR_INSTITUTE_1F,
     SOLAR_INSTITUTE_2F,
     SOLAR_INSTITUTE_3F,
     SOLAR_GENERATOR_ROOM,
-    
-    // Andora Falls buildings
+
+    // New Land Cave
+    NEW_LAND_CAVE_OUTSKIRTS,
+    NEW_LAND_CAVE,
+
+    // Falls Cave
+    FALLS_AREA,
     ANDORA_REST_STOP,
+    FALLS_CAVE_1F,
+    FALLS_CAVE_B1F,
+
+    // Andora Falls
+    ANDORA_FALLS,
     ANDORA_HOSPITAL,
     ANDORA_PORT,
-    
-    // Granite City buildings
+
+    // Granite Cave
+    GRANITE_CAVE_1F,
+    GRANITE_CAVE_B1F,
+
+    // Granite City
+    GRANITE_OUTSKIRTS,
+    GRANITE_CITY_SUBURBS,
+    GRANITE_CITY_DOWNTOWN,
     GRANITE_AIRPORT,
     GRANITE_AIR_TOWER_EAST,
     GRANITE_AIR_TOWER_WEST,
@@ -107,23 +89,31 @@ typedef enum {
     GRANITE_STORE_4,
     GRANITE_STORE_5,
     GRANITE_STORE_6,
+
+    // Granite Tower
     GRANITE_TOWER_1F,
     GRANITE_TOWER_2F,
     GRANITE_TOWER_3F,
     GRANITE_TOWER_4F,
     GRANITE_TOWER_5F,
     GRANITE_TOWER_LAVATORY,
+
+    // Boulder Park
+    BOULDER_CAVE,
+    BOULDER_PARK,
 } LOCATION_ID;
 
-#define N_LOCATION (GRANITE_TOWER_LAVATORY+1)
+/// The number of unique LOCATION_ID members.
+#define N_LOCATION (BOULDER_PARK+1)
 
 /**********************************************************//**
  * @enum MAP_ID
  * @brief Defines a constant for each map image.
  **************************************************************/
 typedef enum {
-    MAP_OVERWORLD=1,
-    
+    // Overworld
+    MAP_OVERWORLD   = 1,
+
     // Caves
     MAP_BOULDER_CAVE,
     MAP_FALLS_CAVE_1F,
@@ -132,7 +122,7 @@ typedef enum {
     MAP_GRANITE_CAVE_B1F,
     MAP_NEW_LAND_CAVE,
     MAP_OXIDE_CRATER,
-    
+
     // Sapling Town buildings
     MAP_SAPLING_YOUR_HOUSE,
     MAP_SAPLING_AIRPORT,
@@ -140,12 +130,12 @@ typedef enum {
     MAP_SAPLING_CITY_HALL,
     MAP_SAPLING_GREENHOUSE,
     MAP_SAPLING_LABORATORY,
-    
+
     // Port Royal buildings
     MAP_ROYAL_HOSPITAL,
     MAP_ROYAL_WAREHOUSE,
     MAP_ROYAL_PORT,
-    
+
     // Solar City buildings
     MAP_SOLAR_AIRPORT,
     MAP_SOLAR_HOSPITAL,
@@ -155,12 +145,12 @@ typedef enum {
     MAP_SOLAR_INSTITUTE_2F,
     MAP_SOLAR_INSTITUTE_3F,
     MAP_GENERATOR_ROOM,
-    
+
     // Andora Falls buildings
     MAP_REST_STOP,
     MAP_ANDORA_HOSPITAL,
     MAP_ANDORA_PORT,
-    
+
     // Granite City buildings
     MAP_GRANITE_AIRPORT,
     MAP_GRANITE_AIR_EAST,
@@ -184,64 +174,85 @@ typedef enum {
     MAP_LAVATORY,
 } MAP_ID;
 
+/// The number of unique MAP_ID members.
 #define N_MAP (MAP_LAVATORY+1)
 
 /**********************************************************//**
- * @enum ENCOUNTER
+ * @enum BACKGROUND_ID
+ * @brief Defines a constant for each screen background used
+ * in the battle system (0 is invalid).
+ **************************************************************/
+typedef enum {
+    CHARCOAL        = 1,
+    GRASS,
+    OXIDE,
+    SAND,
+    OCEAN,
+    CAVE,
+} BACKGROUND_ID;
+
+/// The number of unique backgrounds.
+#define N_BACKGROUND (CAVE+1)
+
+/**********************************************************//**
+ * @struct ENCOUNTER
  * @brief Data about one type of species that can be
  * encountered.
  **************************************************************/
 typedef struct {
-    int Chance;
-    SPECIES_ID Spectra;
-    int LevelRange[2];
+    int Chance;                 ///< Chance of the encounter.
+    SPECIES_ID Spectra;         ///< SPECIES that can be encountered.
+    int LevelRange[2];          ///< Level range of encounter {min, max}
 } ENCOUNTER;
 
+/**********************************************************//**
+ * @enum TILE_FLAGS
+ * @brief Flags that describe a tile (16*16 cell) on a map.
+ * These can be combined with a bitwise-OR.
+ **************************************************************/
 typedef enum {
-    TILE_SOLID      = 0x0001,
-    TILE_WATER      = 0x0002,
-    TILE_WARP       = 0x0004,
-    TILE_SIGN       = 0x0008,
+    TILE_SOLID      = 0x0001,   ///< Tile can't be walked through.
+    TILE_WATER      = 0x0002,   ///< Tile can be fished in.
+    TILE_EVENT      = 0x0004,   ///< Tile contains an indexed event.
 } TILE_FLAGS;
 
+/**********************************************************//**
+ * @struct TILE
+ * @brief Contains information about one 16*16 region on a
+ * map. This is used by a SENSOR to control motion.
+ **************************************************************/
 typedef struct {
-    TILE_FLAGS Flags;
-    int Argument;
+    TILE_FLAGS Flags;           ///< Describes the tile properties.
+    int Argument;               ///< Indexed TILE_EVENT ID.
 } TILE;
 
+/**********************************************************//**
+ * @struct SENSOR
+ * @brief Contains all the tile information for a map.
+ **************************************************************/
 typedef struct {
-    int Height;
-    int Width;
-    TILE *Sensor;
+    int Height;                 ///< Height in tiles of the map.
+    int Width;                  ///< Width in tiles of the map.
+    TILE *Sensor;               ///< All tile information.
 } SENSOR;
 
+/**********************************************************//**
+ * @struct LOCATION
+ * @brief Stores all information for a LOCATION.
+ **************************************************************/
 typedef struct {
-    COORDINATE Where;
-    COORDINATE Destination;
-    LOCATION_ID Location;
-} WARP;
-
-typedef struct {
-    COORDINATE Where;
-    const char *Text;
-} SIGN;
-
-typedef struct {
-    SPECIES_ID Spectra[3];
-    int Level;
-} BOSS;
-
-typedef struct {
-    char Name[32];
-    MAP_ID Map;
-    COORDINATE Bounds[2];
-    BACKGROUND_ID Background;
-    ENCOUNTER Encounters[8];
-    ENCOUNTER FishingEncounters[8];
+    const char *Name;           ///< Name of the location.
+    MAP_ID Map;                 ///< Map to display for the location.
+    COORDINATE Bounds[2];       ///< Bounding box for the location.
+    BACKGROUND_ID Background;   ///< Battle background used.
+    ENCOUNTER *Encounters;      ///< Overworld SPECIES encounters.
+    ENCOUNTER *Fishing;         ///< Fishing SPECIES encounters.
 } LOCATION;
 
+// TODO Function documentation
 void Warp(MAP_ID id, int x, int y);
 void DrawMap(void);
 void UpdateMap(void);
 
-#endif
+/**************************************************************/
+#endif // _LOCATION_H_
