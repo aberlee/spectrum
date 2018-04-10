@@ -4,11 +4,11 @@
  * @author Rena Shinomiya
  * @date March 6th, 2018
  **************************************************************/
- 
+
 #ifndef _SPECIES_H_
 #define _SPECIES_H_
 
-#include "technique.h"      // TECHNIQUE_ID
+#include "technique.h"          // TECHNIQUE_ID
 
 /**********************************************************//**
  * @enum SPECIES_ID
@@ -17,7 +17,7 @@
  * null value.
  **************************************************************/
 typedef enum {
-    COALSHARK=1,
+    COALSHARK       = 1,
     JAYRAPTOR,
     MINESPHERE,
     HOCUS,
@@ -75,7 +75,7 @@ typedef enum {
  * spectra. These should be kept constant.
  **************************************************************/
 typedef enum {
-    FASTEST,
+    FASTEST         = 1,
     FAST,
     AVERAGE,
     SLOW,
@@ -88,29 +88,29 @@ typedef enum {
  * spectra. These should be kept constant.
  **************************************************************/
 typedef struct {
-    char Name[13];          ///< The official species name.
-    
+    char Name[13];              ///< The official species name.
+
     // Base statistics
-    TYPE_ID Type[2];        ///< The spectra's intrinsic type.
-    int Health;             ///< Base maximum health stat.
-    int Power;              ///< Base maximum power stat.
-    int Attack;             ///< Base attack stat.
-    int Defend;             ///< Base defend stat.
-    int Luck;               ///< Base luck stat.
-    int Evade;              ///< Base evasion stat.
-    
+    TYPE_ID Type[2];            ///< The spectra's intrinsic type.
+    int Health;                 ///< Base maximum health stat.
+    int Power;                  ///< Base maximum power stat.
+    int Attack;                 ///< Base attack stat.
+    int Defend;                 ///< Base defend stat.
+    int Luck;                   ///< Base luck stat.
+    int Evade;                  ///< Base evasion stat.
+
     // Battle statistics
-    EXPERIENCE_TYPE Rate;   ///< Growth rate of the spectra.
-    int CatchRate;          ///< Chance to catch the spectra (0-100).
-    int Experience;         ///< Experience earned by defeating the spectra.
-    int Money;              ///< Money earned by defeating the spectra.
-    
+    EXPERIENCE_TYPE Rate;       ///< Growth rate of the spectra.
+    int CatchRate;              ///< Chance to catch the spectra (0-100).
+    int Experience;             ///< Experience earned by defeating the spectra.
+    int Money;                  ///< Money earned by defeating the spectra.
+
     // Technique moveset
-    int MovesetSize;        ///< The size of the moveset member list.
+    int MovesetSize;            ///< The size of the moveset member list.
     const struct {
         int Level;              ///< Level to learn the technique.
         TECHNIQUE_ID Technique; ///< The technique learned.
-    } Moveset[MOVESET_SIZE];///< The spectra's full moveset.
+    } Moveset[MOVESET_SIZE];    ///< The spectra's full moveset.
 } SPECIES;
 
 /**********************************************************//**
@@ -119,13 +119,14 @@ typedef struct {
  * be inflicted during battle.
  **************************************************************/
 typedef enum {
-    POISONED=1,
+    POISONED        = 1,
     SHOCKED,
     BURIED,
     ASLEEP,
     AFLAME,
 } AILMENT_ID;
 
+/// The number of unique AILMENT_ID elements.
 #define N_AILMENT (AFLAME+1)
 
 /**********************************************************//**
@@ -134,28 +135,29 @@ typedef enum {
  * for each spectra the player has in their party.
  **************************************************************/
 typedef struct {
-    SPECIES_ID Species;     ///< The species of the spectra.
-    
+    SPECIES_ID Species;         ///< The species of the spectra.
+
     // Active stats
-    int MaxHealth;          ///< Active max health.
-    int MaxPower;           ///< Active max power.
-    int Attack;             ///< Active attack.
-    int Defend;             ///< Active defend.
-    int Evade;              ///< Active evade.
-    int Luck;               ///< Active luck.
-    
+    int MaxHealth;              ///< Active max health.
+    int MaxPower;               ///< Active max power.
+    int Attack;                 ///< Active attack.
+    int Defend;                 ///< Active defend.
+    int Evade;                  ///< Active evade.
+    int Luck;                   ///< Active luck.
+
     /// The spectra's active moveset.
-    int MovesetSize;        ///< The number of techniques learned.
     TECHNIQUE_ID Moveset[MOVESET_SIZE];
-    
+    int MovesetSize;            ///< The number of techniques learned.
+
     // Working stats
-    int Health;             ///< Current health of the spectra.
-    int Power;              ///< Current power of the spectra.
-    AILMENT_ID Ailment;     ///< The ailment that afflicts the spectra.
-    int Level;              ///< Current level of the spectra.
-    int Experience;        ///< Current experience of the spectra.
+    int Health;                 ///< Current health of the spectra.
+    int Power;                  ///< Current power of the spectra.
+    AILMENT_ID Ailment;         ///< The ailment that afflicts the spectra.
+    int Level;                  ///< Current level of the spectra.
+    int Experience;             ///< Current experience of the spectra.
 } SPECTRA;
 
+/// The highest SPECTRA level.
 #define LEVEL_MAX 100
 
 /**********************************************************//**
@@ -164,13 +166,13 @@ typedef struct {
  * participating in the battle.
  **************************************************************/
 typedef struct {
-    SPECTRA *Spectra;       ///< Pointer to the spectra, or NULL.
-    
+    SPECTRA *Spectra;           ///< Pointer to the spectra, or NULL.
+
     // Boosts
-    int AttackBoost;        ///< Change to apply to attack stat.
-    int DefendBoost;        ///< Change to apply to defend stat.
-    int EvadeBoost;         ///< Change to apply to evade stat.
-    int LuckBoost;          ///< Change to apply to luck stat.
+    int AttackBoost;            ///< Change to apply to attack stat.
+    int DefendBoost;            ///< Change to apply to defend stat.
+    int EvadeBoost;             ///< Change to apply to evade stat.
+    int LuckBoost;              ///< Change to apply to luck stat.
 } BATTLER;
 
 // SPECIES getters

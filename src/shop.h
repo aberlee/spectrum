@@ -8,8 +8,8 @@
 #ifndef _SHOP_H_
 #define _SHOP_H_
 
-#include <stdbool.h>        // bool
-#include "item.h"           // ITEM, ITEM_ID
+#include <stdbool.h>            // bool
+#include "item.h"               // ITEM, ITEM_ID
 
 /**********************************************************//**
  * @enum SHOP_ID
@@ -17,7 +17,7 @@
  * use.
  **************************************************************/
 typedef enum {
-    VENDING_MACHINE=1,
+    VENDING_MACHINE = 1,
     HERB_SHOP,
     ITALIAN_RESTAURANT,
     HEALTHY_FOOD,
@@ -34,7 +34,7 @@ typedef enum {
  * @brief Contains a shop's inventory.
  **************************************************************/
 typedef struct {
-    ITEM_ID Inventory[10];
+    ITEM_ID Inventory[10];      ///< Items the shop sells.
 } SHOP;
 
 /**************************************************************/

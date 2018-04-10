@@ -8,7 +8,7 @@
 #ifndef _ITEM_H_
 #define _ITEM_H_
 
-#include "effect.h"     // EFFECT_ID
+#include "effect.h"             // EFFECT_ID
 
 /**********************************************************//**
  * @enum ITEM_ID
@@ -17,35 +17,37 @@
  **************************************************************/
 typedef enum {
     // Cure-based items
-    SERUM=1,
+    SERUM           = 1,
     SHOVEL,
     WET_TOWEL,
     REFRESHER,
-    
-    // Foods and drinks
+
+    // Foods
     CHOCOLATE,
-    COFFEE,
-    JUICE,
+    YOGURT,
     SANDWICH,
     BURGER,
     STEAK,
     SALAD,
     SPAGHETTI,
-    TEA,
-    PIE,
     JERKEY,
+    PIE,
     FULL_MEAL,
-    POTION,
-    YOGURT,
-    SODA,
+
+    // Drinks
     WATER_BOTTLE,
-    
+    JUICE,
+    SODA,
+    COFFEE,
+    TEA,
+    POTION,
+
     // Herbs
     STRONG_HERB,
     TOUGH_HERB,
     QUICK_HERB,
     LUCK_HERB,
-    
+
     // Key items
     FISHING_ROD,
 } ITEM_ID;
@@ -66,12 +68,12 @@ typedef enum {
  * @brief Defines constant data for each item in the game.
  **************************************************************/
 typedef struct {
-    char Name[14];
-    int Price;
-    EFFECT_ID Effect;
-    int Argument;
-    ITEM_FLAGS Flags;
-    char Description[128];
+    char Name[13];              ///< Name of the item.
+    int Price;                  ///< Cost of the item.
+    EFFECT_ID Effect;           ///< Menu/battle effect.
+    int Argument;               ///< Argument to the effect.
+    ITEM_FLAGS Flags;           ///< Bitset of ITEM_FLAGS.
+    const char *Description;    ///< Text description of the item.
 } ITEM;
 
 /**************************************************************/

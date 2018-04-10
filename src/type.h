@@ -15,17 +15,18 @@
  * at 1 (0 is invalid).
  **************************************************************/
 typedef enum {
-    BASIC=1,    ///< Basic type - unclassifiable or typeless.
-    FIRE,       ///< Fire type - heat-related.
-    WATER,      ///< Water type - marine life and liquids.
-    ICE,        ///< Ice type - anything cold.
-    WIND,       ///< Wind type - weather and birds.
-    EARTH,      ///< Earth type - geology or dirt related.
-    METAL,      ///< Metal-type - mineral or machine related.
-    LIGHT,      ///< Light-type - based on electricity and energy.
-    DARK,       ///< Dark-type - based on night, poison, and fear.
+    BASIC           = 1,
+    FIRE,
+    WATER,
+    ICE,
+    WIND,
+    EARTH,
+    METAL,
+    LIGHT,
+    DARK,
 } TYPE_ID;
 
+/// The number of unique TYPE_ID members.
 #define N_TYPE (DARK+1)
 
 /**************************************************************/

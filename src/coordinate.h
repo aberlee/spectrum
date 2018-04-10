@@ -13,18 +13,16 @@
  * @brief Defines a 2-D integer coordinate pair.
  **************************************************************/
 typedef struct {
-    int X;
-    int Y;
+    int X;                      ///< X position.
+    int Y;                      ///< Y position.
 } COORDINATE;
-
-#define EXPAND(coordinate) coordinate.X, coordinate.Y
 
 /**********************************************************//**
  * @enum DIRECTION_TYPE
  * @brief Constants for each of the four cardinal directions.
  **************************************************************/
 typedef enum {
-    UP,
+    UP              = 1,
     LEFT,
     DOWN,
     RIGHT,

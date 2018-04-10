@@ -8,8 +8,8 @@
 #ifndef _TECHNIQUE_H_
 #define _TECHNIQUE_H_
 
-#include "type.h"           // TYPE_ID
-#include "effect.h"         // TARGET_ID, EFFECT_ID
+#include "type.h"               // TYPE_ID
+#include "effect.h"             // TARGET_ID, EFFECT_ID
 
 /**********************************************************//**
  * @enum TECHNIQUE_ID
@@ -18,7 +18,7 @@
  **************************************************************/
 typedef enum {
     // Basic techniques
-    BITE=1,
+    BITE            = 1,
     COLLIDE,
     SLICE,
     RAMPAGE,
@@ -38,63 +38,59 @@ typedef enum {
     LURK,
     PROVOKE,
     EXPLOSION,
-    
+    MIND_RAY,
+    BRAINWAVE,
+    HYPNOSIS,
+    CAPTURE,
+    AILMENT,
+
     // Wind techniques
     GUST,
     CYCLONE,
     HURRICANE,
-    
+
     // Fire techniques
     HOT_GUST,
-    FIREWALL,
+    FIRE_BREATH,
     INFERNO,
-    
+    FIREWALL,
+
     // Water techniques
     SWIM_ATTACK,
-    SURGE,
     RIPTIDE,
     MAELSTROM,
+    SURGE,
     TSUNAMI,
-    
+
     // Dark techniques
-    POISON_CLAW,
-    INKY_BANE,
     GUNK_ATTACK,
+    POISON_CLAW,
     POISON_GRIP,
+    INKY_BANE,
     SMOG,
-    
+    OBSCURE,
+    MIND_SCREW,
+
     // Light techniques
     ZAP,
     LIGHTNING,
     THUNDER,
     CHARGE,
-    
+
     // Ice techniques
     COLD_GUST,
     AVALANCHE,
-    
-    // Mind techniques
-    MIND_RAY,
-    BRAINWAVE,
-    HYPNOSIS,
-    MIND_SCREW,
-    OBSCURE,
-    
+
     // Earth techniques
     FRACTURE,
     EARTHQUAKE,
     STRYATION,
-    
+    SOLIDIFY,
+
     // Metal techniques
     CORE_BEAM,
     IRON_ATTACK,
     IRON_HEAVE,
-    SOLIDIFY,
-    
-    // Extra techniques
-    CAPTURE,
-    AILMENT,
-    FIRE_BREATH,
     RECYCLE,
 } TECHNIQUE_ID;
 
@@ -107,19 +103,17 @@ typedef enum {
  * specified with a TECHNIQUE_ID.
  **************************************************************/
 typedef struct {
-    char Name[13];          ///< The name of the technique.
-    TYPE_ID Type;           ///< The type of the technique.
-    int Power;              ///< Technique power (0 is none).
-    int Cost;               ///< Cost of the technique (0 is free).
-    TARGET_TYPE Target;     ///< Who the technique targets.
-    EFFECT_ID Effect;       ///< Effect on the targets.
-    int Argument;           ///< Argument to the effect.
-    
-    /// Describes the technique on the menu.
-    const char Description[128];
+    char Name[13];              ///< The name of the technique.
+    TYPE_ID Type;               ///< The type of the technique.
+    int Power;                  ///< Technique power (0 is none).
+    int Cost;                   ///< Cost of the technique (0 is free).
+    TARGET_TYPE Target;         ///< Who the technique targets.
+    EFFECT_ID Effect;           ///< Effect on the targets.
+    int Argument;               ///< Argument to the effect.
+    const char *Description;    /// Describes the technique on the menu.
 } TECHNIQUE;
 
-/// Gets technique information.
+// Gets technique information.
 extern const TECHNIQUE *TechniqueByID(TECHNIQUE_ID id);
 
 /**************************************************************/
