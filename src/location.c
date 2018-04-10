@@ -99,14 +99,19 @@ void DrawMap(void) {
 void UpdateMap(void) {
     float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTimeElapsed;
     float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTimeElapsed;
-    
+
     // Collision checking
     int x = Position.X/16;
     int y = Position.Y/16;
     int xf = (Position.X+dx)/16;
     int yf = (Position.Y+dy)/16;
     if (Passable(xf, yf)) {
-        // Nothing
+        // AX // Make sure we can't clip across a corner like this,
+        // XB // going from A to B, with X solid.
+        if (!Passable(x, yf) && !Passable(xf, y)) {
+            dx = 0;
+            dy = 0;
+        }
     } else if (Passable(x, yf)) {
         dx = 0;
     } else if (Passable(xf, y)) {
