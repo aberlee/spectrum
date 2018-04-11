@@ -41,6 +41,7 @@ typedef enum {
     EVENT_TEXT,
     EVENT_SHOP,
     EVENT_BOSS,
+    EVENT_REDIRECT,
 } EVENT_TYPE;
 
 /**********************************************************//**
@@ -54,6 +55,7 @@ typedef struct {
         const char *Text;       ///< EVENT_TEXT field.
         SHOP_ID Shop;           ///< EVENT_SHOP field.
         BOSS Boss;              ///< EVENT_BOSS field.
+        int Redirect;           ///< EVENT_REDIRECT
     } Union;                    ///< EVENT data stored as a union.
 } EVENT;
 
