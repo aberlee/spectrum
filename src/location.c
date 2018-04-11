@@ -5,6 +5,9 @@
 #include "assets.h"
 #include "game.h"
 #include "debug.h"
+#include "item.h"
+#include "location.h"
+#include "shop.h"
 
 #include "location.i"
 #include "shop.i"
@@ -43,7 +46,6 @@ static void UseSensor(MAP_ID id) {
             
             // Determine the tile flags
             TILE_FLAGS flags = 0;
-            bool argumentOn = false;
             if (r==239 && g==239 && b==239) {
                 flags = 0;
             } else if (r==132 && g==183 && b==244) {
@@ -51,11 +53,9 @@ static void UseSensor(MAP_ID id) {
             } else if (r==24 && g==119 && b==235) {
                 flags = TILE_WATER;
             } else if (r==0 && g==0 && b==0) {
-                flags = TILE_WARP;
-                argumentOn = true;
+                flags = TILE_EVENT;
             } else if (r==128 && g==128 && b==128) {
-                flags = TILE_SIGN;
-                argumentOn = true;
+                flags = TILE_EVENT;
             } else {
                 eprintf("Invalid color in sensor %d at %d,%d\n", id, x, y);
             }
@@ -63,7 +63,7 @@ static void UseSensor(MAP_ID id) {
             // Load the tile
             Tile(x, y).Flags = flags;
             Tile(x, y).Argument = 0;
-            if (argumentOn) {
+            if (flags == TILE_EVENT) {
                 Tile(x, y).Argument = argument++;
             }
         }
