@@ -17,6 +17,9 @@
  * @brief Defines a constant for each LOCATION.
  **************************************************************/
 typedef enum {
+    // Special
+    OVERWORLD       = -1,
+    
     // Sapling Town
     TRIANGLE_LAKE   = 1,
     SAPLING_TOWN,
@@ -89,6 +92,7 @@ typedef enum {
     GRANITE_STORE_4,
     GRANITE_STORE_5,
     GRANITE_STORE_6,
+    GRANITE_WAREHOUSE,
 
     // Granite Tower
     GRANITE_TOWER_1F,
@@ -166,6 +170,7 @@ typedef enum {
     MAP_GRANITE_STORE_4,
     MAP_GRANITE_STORE_5,
     MAP_GRANITE_STORE_6,
+    MAP_GRANITE_WAREHOUSE,
     MAP_GRANITE_TOWER_1F,
     MAP_GRANITE_TOWER_2F,
     MAP_GRANITE_TOWER_3F,

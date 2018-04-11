@@ -597,6 +597,12 @@ const LOCATION LOCATION_DATA[] = {
         .Map            = MAP_GRANITE_STORE_6,
         .Bounds         = {{0, 0}, {128, 112}},
     },
+    
+    [GRANITE_WAREHOUSE] = {
+        .Name           = "Granite City",
+        .Map            = MAP_GRANITE_WAREHOUSE,
+        .Bounds         = {{0, 0}, {224, 128}},
+    },
 
     ////////////////////////////////////////////////////////
     // Granite Tower
