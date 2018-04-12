@@ -46,16 +46,25 @@ typedef enum {
 /// The number of different window templates defined in WINDOW_ID.
 #define N_WINDOW (OUTPUT_MAP+1)
 
+/**********************************************************//**
+ * @struct OPTIONS
+ * @brief Contains text for displaying choices on a menu.
+ **************************************************************/
 typedef struct {
     char **Option;
     int Index;
 } OPTIONS;
 
+/**************************************************************/
 extern void DrawChoice(const OPTIONS *choice);
 extern void DrawOption(const OPTIONS *choice);
 extern void DrawColumn(const OPTIONS *choice);
 extern void DrawAlert(const char *text);
 extern void DrawWarning(const char *text);
+extern void DrawBar(float percent, int x, int y);
+extern void DrawSpectraDisplay(const SPECTRA *spectra);
+extern void DrawHudUser(const SPECTRA *spectra);
+extern void DrawHudEnemy(const SPECTRA *spectra);
 
 /**************************************************************/
 #endif // _MENU_H_

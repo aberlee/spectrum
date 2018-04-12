@@ -1078,17 +1078,4 @@ const SPECIES SPECIES_DATA[N_SPECIES] = {
 };
 
 /**************************************************************/
-const SPECIES *SpeciesByID(SPECIES_ID id) {
-    return &SPECIES_DATA[id];
-}
-
-const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra) {
-    return &SPECIES_DATA[spectra->Species];
-}
-
-const SPECIES *SpeciesOfBattler(const BATTLER *battler) {
-    return &SPECIES_DATA[battler->Spectra->Species];
-}
-
-/**************************************************************/
 #endif // _SPECIES_I_

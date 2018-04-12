@@ -113,7 +113,7 @@ typedef struct {
     const char *Description;    /// Describes the technique on the menu.
 } TECHNIQUE;
 
-// Gets technique information.
+/**************************************************************/
 extern const TECHNIQUE *TechniqueByID(TECHNIQUE_ID id);
 
 /**************************************************************/

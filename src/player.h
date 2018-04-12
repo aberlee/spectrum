@@ -8,13 +8,18 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
+#include "coordinate.h"         // COORDINATE
+#include "item.h"               // ITEM_ID
+#include "species.h"            // SPECTRA
+#include "location.h"           // LOCATION_ID
+
 /**********************************************************//**
  * @enum COSTUME_ID
  * @brief Defines constants for each costume the player can
  * wear (displays on the battle screen and menu).
  **************************************************************/
 typedef enum {
-    NORMAL=1,
+    NORMAL          = 1,
     BLACK_DRESS,
     RED_DRESS,
     SUIT,

@@ -254,10 +254,10 @@ typedef struct {
     ENCOUNTER *Fishing;         ///< Fishing SPECIES encounters.
 } LOCATION;
 
-// TODO Function documentation
-void Warp(MAP_ID id, int x, int y);
-void DrawMap(void);
-void UpdateMap(void);
+/**************************************************************/
+extern void Warp(MAP_ID id, int x, int y);
+extern void DrawMap(void);
+extern void UpdateMap(void);
 
 /**************************************************************/
 #endif // _LOCATION_H_

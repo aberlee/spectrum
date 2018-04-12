@@ -175,10 +175,14 @@ typedef struct {
     int LuckBoost;              ///< Change to apply to luck stat.
 } BATTLER;
 
-// SPECIES getters
+/**************************************************************/
 extern const SPECIES *SpeciesByID(SPECIES_ID id);
 extern const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra);
 extern const SPECIES *SpeciesOfBattler(const BATTLER *battler);
+extern void UpdateActiveStats(SPECTRA *spectra);
+extern void Recover(SPECTRA *spectra);
+extern int ExperienceNeeded(const SPECTRA *spectra);
+extern void CreateSpectra(SPECTRA *spectra, SPECIES_ID species, int level);
 
 /**************************************************************/
 #endif // _SPECIES_H_
