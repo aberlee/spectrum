@@ -5,39 +5,59 @@
  * @date March 22nd, 2018
  **************************************************************/
 
-// C Standard Library
-#include <string.h>         // strlen
+#include <stddef.h>             // NULL
+#include <stdbool.h>            // bool
 
-// Allegro5
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
-#include "location.h"       // MAP_ID, BACKGROUND_ID
-#include "species.h"        // SPECIES_ID, AILMENT_ID
-#include "menu.h"           // WINDOW_ID
-#include "player.h"         // COSTUME_ID
-#include "assets.h"         // FONT_ID
+#include "assets.h"             // FONT_ID
+#include "location.h"           // MAP_ID, BACKGROUND_ID
+#include "player.h"             // COSTUME_ID
+#include "species.h"            // SPECIES_ID, AILMENT_ID
+#include "menu.h"               // WINDOW_ID
 
-#include "debug.h"          // eprintf
+#include "debug.h"              // eprintf
 
+/**********************************************************//**
+ * @struct IMAGE_ASSET
+ * @brief Stores an image's filename and the image data if
+ * it's loaded into memory.
+ **************************************************************/
 typedef struct {
     char Filename[64];
     ALLEGRO_BITMAP *Image;
 } IMAGE_ASSET;
 
+/**********************************************************//**
+ * @struct FONT_ASSET
+ * @brief Stores a font's file and parameters, and the actual
+ * font data if it's been loaded into memory.
+ **************************************************************/
 typedef struct {
     char Filename[64];
     int Size;
     ALLEGRO_FONT *Font;
 } FONT_ASSET;
 
-#define IMAGE(filename) {"data/image/" filename, NULL}
-#define FONT(filename, size) {"data/font/" filename, size, NULL}
+/**************************************************************/
+/// @brief The path to the game's assets directory relative to
+/// the executable.
+#define DATA "data"
 
-static IMAGE_ASSET BackgroundAssets[N_BACKGROUND] = {
+/// @brief Initializes an IMAGE_ASSET with a standard path.
+#define IMAGE(filename) {DATA "image/" filename, NULL}
+
+/// @brief Initializes a FONT_ASSET with a standard path.
+#define FONT(filename, size) {DATA "font/" filename, size, NULL}
+
+/**********************************************************//**
+ * @brief Indexes BACKGROUND_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET BackgroundAssets[] = {
     [CAVE]              = IMAGE("background/cave.png"),
     [GRASS]             = IMAGE("background/grass.png"),
     [OCEAN]             = IMAGE("background/ocean.png"),
@@ -46,7 +66,10 @@ static IMAGE_ASSET BackgroundAssets[N_BACKGROUND] = {
     [CHARCOAL]          = IMAGE("background/watercolor.png"),
 };
 
-static IMAGE_ASSET SpeciesAssets[N_SPECIES] = {
+/**********************************************************//**
+ * @brief Indexes SPECIES_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET SpeciesAssets[] = {
     [ACISTAR]           = IMAGE("monster/acistar.png"),
     [ASTEROID]          = IMAGE("monster/asteroid.png"),
     [BASSMONSTER]       = IMAGE("monster/bassmonstr.png"),
@@ -85,13 +108,16 @@ static IMAGE_ASSET SpeciesAssets[N_SPECIES] = {
     [TARHEAP]           = IMAGE("monster/tarheap.png"),
     [TELEVIRUS]         = IMAGE("monster/televirus.png"),
     [TOOLFISH]          = IMAGE("monster/toolfish.png"),
-    [TOTEM_POLE]         = IMAGE("monster/totempole.png"),
+    [TOTEM_POLE]        = IMAGE("monster/totempole.png"),
     [VACUUM]            = IMAGE("monster/vacuum.png"),
     [VOLTDRAGON]        = IMAGE("monster/voltdragon.png"),
     [WATERWING]         = IMAGE("monster/waterwing.png"),
 };
 
-static IMAGE_ASSET CostumeAssets[N_COSTUME] = {
+/**********************************************************//**
+ * @brief Indexes COSTUME_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET CostumeAssets[] = {
     [NORMAL]            = IMAGE("costume/normal.png"),
     [BLACK_DRESS]       = IMAGE("costume/black_dress.png"),
     [RED_DRESS]         = IMAGE("costume/red_dress.png"),
@@ -100,31 +126,32 @@ static IMAGE_ASSET CostumeAssets[N_COSTUME] = {
     [PAJAMAS]           = IMAGE("costume/pajamas.png"),
 };
 
+/**********************************************************//**
+ * @brief Indexes WINDOW_ID members to IMAGE_ASSET data.
+ **************************************************************/
 static IMAGE_ASSET WindowAssets[N_WINDOW] = {
     [ALERT]             = IMAGE("window/alert.png"),
     [WARNING]           = IMAGE("window/warning.png"),
-    
     [MENU_CHOICE]       = IMAGE("window/choice.png"),
     [MENU_OPTION]       = IMAGE("window/options.png"),
     [MENU_COLUMN]       = IMAGE("window/shop.png"),
-    
     [HUD_ENEMY]         = IMAGE("window/hud_enemy.png"),
     [HUD_USER]          = IMAGE("window/hud_user.png"),
-    
     [PLAYER_DISPLAY]    = IMAGE("window/player.png"),
     [SPECTRA_DISPLAY]   = IMAGE("window/monster.png"),
     [TECHNIQUE_DISPLAY] = IMAGE("window/technique.png"),
     [ITEM_DISPLAY]      = IMAGE("window/item.png"),
-    
     [SPECTRA_LIST]      = IMAGE("window/monsters.png"),
     [ITEM_LIST]         = IMAGE("window/items.png"),
-    
     [OUTPUT_BATTLE]     = IMAGE("window/output_battle.png"),
     [OUTPUT_MENU]       = IMAGE("window/output_menu.png"),
     [OUTPUT_MAP]        = IMAGE("window/output_overworld.png"),
 };
 
-static IMAGE_ASSET AilmentAssets[N_AILMENT] = {
+/**********************************************************//**
+ * @brief Indexes AILMENT_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET AilmentAssets[] = {
     [POISONED]          = IMAGE("window/ailment/poison.png"),
     [SHOCKED]           = IMAGE("window/ailment/shock.png"),
     [BURIED]            = IMAGE("window/ailment/buried.png"),
@@ -132,7 +159,10 @@ static IMAGE_ASSET AilmentAssets[N_AILMENT] = {
     [AFLAME]            = IMAGE("window/ailment/aflame.png"),
 };
 
-static IMAGE_ASSET TypeAssets[N_TYPE] = {
+/**********************************************************//**
+ * @brief Indexes TYPE_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET TypeAssets[] = {
     [BASIC]             = IMAGE("window/type/basic.png"),
     [FIRE]              = IMAGE("window/type/fire.png"),
     [WATER]             = IMAGE("window/type/water.png"),
@@ -144,9 +174,12 @@ static IMAGE_ASSET TypeAssets[N_TYPE] = {
     [DARK]              = IMAGE("window/type/dark.png"),
 };
 
-static IMAGE_ASSET MapAssets[N_MAP] = {
+/**********************************************************//**
+ * @brief Indexes MAP_ID members to IMAGE_ASSET data for the
+ * overworld maps.
+ **************************************************************/
+static IMAGE_ASSET MapAssets[] = {
     [MAP_OVERWORLD]             = IMAGE("map/kaido.png"),
-    
     [MAP_BOULDER_CAVE]          = IMAGE("map/boulder_cave.png"),
     [MAP_FALLS_CAVE_1F]         = IMAGE("map/falls_cave_1st_floor.png"),
     [MAP_FALLS_CAVE_B1F]        = IMAGE("map/falls_cave_basement.png"),
@@ -154,18 +187,15 @@ static IMAGE_ASSET MapAssets[N_MAP] = {
     [MAP_GRANITE_CAVE_B1F]      = IMAGE("map/granite_cave_basement.png"),
     [MAP_NEW_LAND_CAVE]         = IMAGE("map/new_land_cave.png"),
     [MAP_OXIDE_CRATER]          = IMAGE("map/oxide_crater.png"),
-    
     [MAP_SAPLING_YOUR_HOUSE]    = IMAGE("map/sapling_town/amy_house.png"),
     [MAP_SAPLING_AIRPORT]       = IMAGE("map/sapling_town/airport.png"),
     [MAP_SAPLING_HOSPITAL]      = IMAGE("map/sapling_town/hospital.png"),
     [MAP_SAPLING_CITY_HALL]     = IMAGE("map/sapling_town/city_hall.png"),
     [MAP_SAPLING_GREENHOUSE]    = IMAGE("map/sapling_town/greenhouse.png"),
     [MAP_SAPLING_LABORATORY]    = IMAGE("map/sapling_town/laboratory.png"),
-    
     [MAP_ROYAL_HOSPITAL]        = IMAGE("map/port_royal/hospital.png"),
     [MAP_ROYAL_WAREHOUSE]       = IMAGE("map/port_royal/warehouse.png"),
     [MAP_ROYAL_PORT]            = IMAGE("map/port_royal/port.png"),
-    
     [MAP_SOLAR_AIRPORT]         = IMAGE("map/solar_city/airport.png"),
     [MAP_SOLAR_HOSPITAL]        = IMAGE("map/solar_city/hospital.png"),
     [MAP_SOLAR_EAST_CORP]       = IMAGE("map/solar_city/corporation_east.png"),
@@ -174,11 +204,9 @@ static IMAGE_ASSET MapAssets[N_MAP] = {
     [MAP_SOLAR_INSTITUTE_2F]    = IMAGE("map/solar_city/institute_2nd_floor.png"),
     [MAP_SOLAR_INSTITUTE_3F]    = IMAGE("map/solar_city/institute_3rd_floor.png"),
     [MAP_GENERATOR_ROOM]        = IMAGE("map/solar_city/institute_generator_room.png"),
-    
     [MAP_REST_STOP]             = IMAGE("map/andora_falls/rest_stop.png"),
     [MAP_ANDORA_HOSPITAL]       = IMAGE("map/andora_falls/hospital.png"),
     [MAP_ANDORA_PORT]           = IMAGE("map/andora_falls/port.png"),
-    
     [MAP_GRANITE_AIRPORT]       = IMAGE("map/granite_city/airport.png"),
     [MAP_GRANITE_AIR_EAST]      = IMAGE("map/granite_city/air_tower_east.png"),
     [MAP_GRANITE_AIR_WEST]      = IMAGE("map/granite_city/air_tower_west.png"),
@@ -202,9 +230,12 @@ static IMAGE_ASSET MapAssets[N_MAP] = {
     [MAP_LAVATORY]              = IMAGE("map/granite_city/tower_bathroom.png"),
 };
 
-static IMAGE_ASSET SensorAssets[N_MAP] = {
+/**********************************************************//**
+ * @brief Indexes MAP_ID members to IMAGE_ASSET data for the
+ * overworld map sensor data.
+ **************************************************************/
+static IMAGE_ASSET SensorAssets[] = {
     [MAP_OVERWORLD]             = IMAGE("sensor/kaido.png"),
-    
     [MAP_BOULDER_CAVE]          = IMAGE("sensor/boulder_cave.png"),
     [MAP_FALLS_CAVE_1F]         = IMAGE("sensor/falls_cave_1st_floor.png"),
     [MAP_FALLS_CAVE_B1F]        = IMAGE("sensor/falls_cave_basement.png"),
@@ -212,18 +243,15 @@ static IMAGE_ASSET SensorAssets[N_MAP] = {
     [MAP_GRANITE_CAVE_B1F]      = IMAGE("sensor/granite_cave_basement.png"),
     [MAP_NEW_LAND_CAVE]         = IMAGE("sensor/new_land_cave.png"),
     [MAP_OXIDE_CRATER]          = IMAGE("sensor/oxide_crater.png"),
-    
     [MAP_SAPLING_YOUR_HOUSE]    = IMAGE("sensor/sapling_town/amy_house.png"),
     [MAP_SAPLING_AIRPORT]       = IMAGE("sensor/sapling_town/airport.png"),
     [MAP_SAPLING_HOSPITAL]      = IMAGE("sensor/sapling_town/hospital.png"),
     [MAP_SAPLING_CITY_HALL]     = IMAGE("sensor/sapling_town/city_hall.png"),
     [MAP_SAPLING_GREENHOUSE]    = IMAGE("sensor/sapling_town/greenhouse.png"),
     [MAP_SAPLING_LABORATORY]    = IMAGE("sensor/sapling_town/laboratory.png"),
-    
     [MAP_ROYAL_HOSPITAL]        = IMAGE("sensor/port_royal/hospital.png"),
     [MAP_ROYAL_WAREHOUSE]       = IMAGE("sensor/port_royal/warehouse.png"),
     [MAP_ROYAL_PORT]            = IMAGE("sensor/port_royal/port.png"),
-    
     [MAP_SOLAR_AIRPORT]         = IMAGE("sensor/solar_city/airport.png"),
     [MAP_SOLAR_HOSPITAL]        = IMAGE("sensor/solar_city/hospital.png"),
     [MAP_SOLAR_EAST_CORP]       = IMAGE("sensor/solar_city/corporation_east.png"),
@@ -232,11 +260,9 @@ static IMAGE_ASSET SensorAssets[N_MAP] = {
     [MAP_SOLAR_INSTITUTE_2F]    = IMAGE("sensor/solar_city/institute_2nd_floor.png"),
     [MAP_SOLAR_INSTITUTE_3F]    = IMAGE("sensor/solar_city/institute_3rd_floor.png"),
     [MAP_GENERATOR_ROOM]        = IMAGE("sensor/solar_city/institute_generator_room.png"),
-    
     [MAP_REST_STOP]             = IMAGE("sensor/andora_falls/rest_stop.png"),
     [MAP_ANDORA_HOSPITAL]       = IMAGE("sensor/andora_falls/hospital.png"),
     [MAP_ANDORA_PORT]           = IMAGE("sensor/andora_falls/port.png"),
-    
     [MAP_GRANITE_AIRPORT]       = IMAGE("sensor/granite_city/airport.png"),
     [MAP_GRANITE_AIR_EAST]      = IMAGE("sensor/granite_city/air_tower_east.png"),
     [MAP_GRANITE_AIR_WEST]      = IMAGE("sensor/granite_city/air_tower_west.png"),
@@ -260,15 +286,28 @@ static IMAGE_ASSET SensorAssets[N_MAP] = {
     [MAP_LAVATORY]              = IMAGE("sensor/granite_city/tower_bathroom.png"),
 };
 
-static FONT_ASSET FontAssets[N_FONT] = {
+/**********************************************************//**
+ * @brief Indexes FONT_ID members to FONT_ASSET data.
+ **************************************************************/
+static FONT_ASSET FontAssets[] = {
     [FONT_WINDOW]       = FONT("legacy/legacy.ttf", 10),
 };
 
+/**************************************************************/
+/// @brief Indicates whether all the assets have been loaded
+/// properly. Used as a return value.
 static bool LoadSuccess = true;
 
+/**********************************************************//**
+ * @brief Loads an array of image assets onto the GPU.
+ * @param assets: The array of asset data to load.
+ * @param nAssets: Size of the array. 
+ **************************************************************/
 static void LoadImageAssets(IMAGE_ASSET *assets, int nAssets) {
     for (int i = 0; i < nAssets; i++) {
-        if (assets[i].Filename && strlen(assets[i].Filename) > 0) {
+        // Only load if filename defined and image not loaded
+        // already (pointer initialized to NULL).
+        if (assets[i].Filename && assets[i].Filename[0] && !assets[i].Image) {
             assets[i].Image = al_load_bitmap(assets[i].Filename);
             if (!assets[i].Image) {
                 eprintf("Failed to load image \"%s\"!\n", assets[i].Filename);
@@ -278,15 +317,28 @@ static void LoadImageAssets(IMAGE_ASSET *assets, int nAssets) {
     }
 }
 
+/**********************************************************//**
+ * @brief Removes an array of image assets from memory.
+ * @param assets: The assets to get rid of.
+ * @param nAssets: The number of assets.
+ **************************************************************/
 static void DestroyImageAssets(IMAGE_ASSET *assets, int nAssets) {
     for (int i = 0; i < nAssets; i++) {
+        // Doesn't fail on NULL.
         al_destroy_bitmap(assets[i].Image);
     }
 }
 
+/**********************************************************//**
+ * @brief Loads an array of font assets onto the GPU.
+ * @param assets: Array of font assets.
+ * @param nAssets: Size of the array.
+ **************************************************************/
 static void LoadFontAssets(FONT_ASSET *assets, int nAssets) {
     for (int i = 0; i < nAssets; i++) {
-        if (assets[i].Filename && strlen(assets[i].Filename) > 0) {
+        // Only load if filename defined and font not loaded
+        // already (pointer initialized to NULL).
+        if (assets[i].Filename && assets[i].Filename[0] && !assets[i].Font) {
             assets[i].Font = al_load_ttf_font(assets[i].Filename, assets[i].Size, ALLEGRO_TTF_MONOCHROME);
             if (!assets[i].Font) {
                 eprintf("Failed to load font \"%s\"!\n", assets[i].Filename);
@@ -296,12 +348,23 @@ static void LoadFontAssets(FONT_ASSET *assets, int nAssets) {
     }
 }
 
+/**********************************************************//**
+ * @brief Removes an array of font assets from memory.
+ * @param assets: Array of font assets to get rid of.
+ * @param nAssets: Size of the array
+ **************************************************************/
 static void DestroyFontAssets(FONT_ASSET *assets, int nAssets) {
     for (int i = 0; i < nAssets; i++) {
+        // Doesn't fail on NULL
         al_destroy_font(assets[i].Font);
     }
 }
 
+/**********************************************************//**
+ * @brief Loads all assets from the entire game based on the
+ * static arrays defined in assets.c.
+ * @return Whether the loading succeeded.
+ **************************************************************/
 bool LoadAssets(void) {
     LoadImageAssets(BackgroundAssets, N_BACKGROUND);
     LoadImageAssets(SpeciesAssets, N_SPECIES);
@@ -315,6 +378,9 @@ bool LoadAssets(void) {
     return LoadSuccess;
 }
 
+/**********************************************************//**
+ * @brief Removes all game assets from memory.
+ **************************************************************/
 void DestroyAssets(void) {
     DestroyImageAssets(BackgroundAssets, N_BACKGROUND);
     DestroyImageAssets(SpeciesAssets, N_SPECIES);
@@ -327,38 +393,83 @@ void DestroyAssets(void) {
     DestroyFontAssets(FontAssets, N_FONT);
 }
 
+/**********************************************************//**
+ * @brief Gets a background image asset.
+ * @param id: The identity of the background image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *BackgroundImage(BACKGROUND_ID id) {
     return BackgroundAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a species image asset.
+ * @param id: The identity of the species image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *SpeciesImage(SPECIES_ID id) {
     return SpeciesAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a costume image asset.
+ * @param id: The identity of the costume image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *CostumeImage(COSTUME_ID id) {
     return CostumeAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a window image asset.
+ * @param id: The identity of the window image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *WindowImage(WINDOW_ID id) {
     return WindowAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a ailment image asset.
+ * @param id: The identity of the ailment image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *AilmentImage(AILMENT_ID id) {
     return AilmentAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a type image asset.
+ * @param id: The identity of the type image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *TypeImage(TYPE_ID id) {
     return TypeAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a map image asset.
+ * @param id: The identity of the map image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *MapImage(MAP_ID id) {
     return MapAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a sensor image asset.
+ * @param id: The identity of the sensor image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_BITMAP *SensorImage(MAP_ID id) {
     return SensorAssets[id].Image;
 }
 
+/**********************************************************//**
+ * @brief Gets a font asset.
+ * @param id: The identity of the font asset.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
 ALLEGRO_FONT *Font(FONT_ID id) {
     return FontAssets[id].Font;
 }
