@@ -46,7 +46,7 @@ typedef struct {
 /**************************************************************/
 /// @brief The path to the game's assets directory relative to
 /// the executable.
-#define DATA "data"
+#define DATA "data/"
 
 /// @brief Initializes an IMAGE_ASSET with a standard path.
 #define IMAGE(filename) {DATA "image/" filename, NULL}
