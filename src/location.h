@@ -255,6 +255,7 @@ typedef struct {
 } LOCATION;
 
 /**************************************************************/
+extern const LOCATION *Location(LOCATION_ID id);
 extern void Warp(LOCATION_ID id, int x, int y);
 extern void DrawMap(void);
 extern void UpdateMap(void);

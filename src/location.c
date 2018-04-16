@@ -1,48 +1,130 @@
+/**********************************************************//**
+ * @file location.c
+ * @brief Functionality for the overworld map processing.
+ * @author Rena Shinomiya
+ * @date April 15, 2018
+ **************************************************************/
+
+// World Coordinates refer to pixel positions on the map, and
+// Tile Coordinates refer to individual tiles on the map (tile
+// size is 16*16 pixels).
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
-#include "assets.h"
-#include "game.h"
-#include "debug.h"
-#include "item.h"
-#include "location.h"
-#include "shop.h"
-#include "event.h"
+#include <stdbool.h>            // bool
 
-#include "location.i"
-#include "shop.i"
+#include "game.h"               // KEY
+#include "assets.h"             // MapImage, SensorImage
+#include "location.h"           // MAP_ID, LOCATION
+#include "event.h"              // EVENT, Events
+#include "debug.h"              // eprintf
 
-static MAP_ID CurrentMap = 0;
-static LOCATION_ID CurrentLocation = 0;
-static const EVENT *CurrentEvents = NULL;
-static SENSOR CurrentSensor = {0, 0, NULL};
-static COORDINATE Position = {0, 0};
+#include "location.i"           // LOCATION_DATA
+
+/**************************************************************/
+/// @brief The user's walking speed in pixels/second.
+#define WALK_SPEED 120
+
+/**************************************************************/
+/// @brief The identity of the current location.
+static LOCATION_ID CurrentLocation;
+
+/// @brief The identity of the current map being displayed
+/// (associated with the current location).
+static MAP_ID CurrentMap;
+
+/// @brief Event array for event callbacks from the current
+/// map, associated with the current map.
+static const EVENT *CurrentEvents;
+
+/// @brief Sensor associated to the current map.
+static SENSOR CurrentSensor;
+
+/// @brief Player's position in world coordinates on the
+/// current map.
+static COORDINATE Position;
+
+/// @brief Player's current direction in the current map.
+/// Should default to DOWN, and requires a default.
 static DIRECTION Direction = DOWN;
-static const COORDINATE *CurrentBounds = NULL;
+
+/// @brief Bounding box on the overworld map. Going outside
+/// these bounds on the overworld map will update the current
+/// location.
+static const COORDINATE *CurrentBounds;
 
 #ifdef DEBUG
+/// @brief Turns on map debugging features - displays sensor,
+/// position, tile position, and interact position.
 static bool DebugMap = true;
 #endif
 
-#define Tile(x, y) CurrentSensor.Sensor[y*CurrentSensor.Width+x]
-
-static bool TileInBounds(int x, int y) {
-    return (0 <= x && x < CurrentSensor.Width && 0 <= y && y < CurrentSensor.Height);
-}
-
+/**********************************************************//**
+ * @brief Gets LOCATION data from its ID.
+ * @param id: Identity of the location.
+ * @return Pointer to the constant location data.
+ **************************************************************/
 const LOCATION *Location(LOCATION_ID id) {
     return &LOCATION_DATA[id];
 }
 
-static inline bool InBounds(const COORDINATE *bounds, int x, int y) {
+/**********************************************************//**
+ * @brief Checks if the tile coordinate is in bounds,
+ * according to the current sensor.
+ * @param x: Tile X-position.
+ * @param y: Tile Y-position.
+ * @return True if (x, y) is in bounds.
+ **************************************************************/
+static inline bool TileInBounds(int x, int y) {
+    return 0 <= x && x < CurrentSensor.Width && 0 <= y && y < CurrentSensor.Height;
+}
+
+/**********************************************************//**
+ * @brief Checks if the world coordinate is in bounds.
+ * @param bounds: The bounds to use. Should be an array of 2
+ * COORDINATE structs, with [0] being the upper left, and [1]
+ * being the lower right.
+ * @param x: World X-coordinate to check.
+ * @param y: World Y-coordinate to check.
+ * @return True if (x, y) is in bounds.
+ **************************************************************/
+static inline bool WorldInBounds(const COORDINATE *bounds, int x, int y) {
     return bounds[0].X <= x && x < bounds[1].X && bounds[0].Y <= y && y < bounds[1].Y;
 }
 
+/**********************************************************//**
+ * @brief Convert from Tile to World coordinates.
+ * @param n: Tile coordinate.
+ * @return World coordinate, centered on the tile.
+ **************************************************************/
+static inline int TileToWorld(int n) {
+    return n*16+8;
+}
+
+/**********************************************************//**
+ * @brief Convert from World to Tile coordinates.
+ * @param n: World coordinate. World coordinates less than 0
+ * are illegal.
+ * @return Tile coordinate, containing the world coordinate.
+ * Negative numbers are returned on invalid input, such as if
+ * the world coordinate is out of bounds.
+ **************************************************************/
+static inline int WorldToTile(int n) {
+    return (n<0)? (n/16)-1: (n/16);
+}
+
+/**********************************************************//**
+ * @brief Maps from the special OVERWORLD keyword down to a
+ * LOCATION on the overworld map whose bounding box contains
+ * (x, y).
+ * @param x: World X-coordinate.
+ * @param y: World Y-coordinate.
+ **************************************************************/
 static void SetOverworldLocation(int x, int y) {
     for (int i=1; i < N_LOCATION; i++) {
         const LOCATION *location = Location(i);
-        if (location->Map == MAP_OVERWORLD && InBounds(location->Bounds, x, y)) {
+        if (location->Map == MAP_OVERWORLD && WorldInBounds(location->Bounds, x, y)) {
             CurrentBounds = location->Bounds;
             CurrentLocation = (LOCATION_ID)i;
             return;
@@ -51,21 +133,33 @@ static void SetOverworldLocation(int x, int y) {
     eprintf("Invalid overworld location: (%d, %d)\n", x, y);
 }
 
-static inline int TileToWorld(int n) {
-    return n*16+8;
-}
-
-static inline int WorldToTile(int n) {
-    return (n<0)? (n/16)-1: (n/16);
-}
-
-static inline void CheckCurrentBounds(void) {
-    if (CurrentMap == MAP_OVERWORLD && !InBounds(CurrentBounds, Position.X, Position.Y)) {
+/**********************************************************//**
+ * @brief Updates the overworld LOCATION if the user has gone
+ * out of the previous LOCATION's bounds.
+ **************************************************************/
+static void UpdateOverworldLocation(void) {
+    if (CurrentMap == MAP_OVERWORLD && !WorldInBounds(CurrentBounds, Position.X, Position.Y)) {
         SetOverworldLocation(Position.X, Position.Y);
     }
 }
 
+/**********************************************************//**
+ * @brief Alias for a tile in the current sensor. This
+ * can act as an lvalue or an rvalue.
+ * @param x: Tile X position.
+ * @param y: Tile Y-position.
+ * @return The tile at x,y.
+ * @details No error checking is done.
+ **************************************************************/
+#define Tile(x, y) CurrentSensor.Sensor[y*CurrentSensor.Width+x]
+
+/**********************************************************//**
+ * @brief Installs the sensor for the given map ID. This
+ * controls how tiles on the map behave.
+ * @param id: The map identity.
+ **************************************************************/
 static void UseSensor(MAP_ID id) {
+    // Get rid of old sensor if it exists
     if (CurrentSensor.Sensor) {
         free(CurrentSensor.Sensor);
     }
@@ -114,11 +208,16 @@ static void UseSensor(MAP_ID id) {
             }
         }
     }
-    
-    // Done
     al_unlock_bitmap(sensorImage);
 }
 
+/**********************************************************//**
+ * @brief Warps to another LOCATION immediately, updating all
+ * static resources and sensors.
+ * @param id: The new LOCATION.
+ * @param x: World X-coordinate on the new location.
+ * @param y: World Y-coordinate on the new location.
+ **************************************************************/
 void Warp(LOCATION_ID id, int x, int y) {
     // Set the current map and position
     if (id == OVERWORLD) {
@@ -139,78 +238,98 @@ void Warp(LOCATION_ID id, int x, int y) {
     UseSensor(CurrentMap);
 }
 
-void Interact(void) {
-    int x = WorldToTile(Position.X);
-    int y = WorldToTile(Position.Y);
-    
-    // Interact Position
-    int ix = x;
-    int iy = y;
+/**********************************************************//**
+ * @brief Gets the tile position the user can currently
+ * interact with.
+ * @return 
+ **************************************************************/
+static inline COORDINATE InteractPosition(void) {
+    int ix = WorldToTile(Position.X);
+    int iy = WorldToTile(Position.Y);
     switch (Direction) {
     case UP:
-        iy = y-1;
+        iy--;
         break;
     case DOWN:
-        iy = y+1;
+        iy++;
         break;
     case LEFT:
-        ix = x-1;
+        ix--;
         break;
     case RIGHT:
-        ix = x+1;
+        ix++;
         break;
     }
+    return (COORDINATE){ix, iy};
+}
+
+/**********************************************************//**
+ * @brief Interacts with events on the map at the current
+ * interaction position.
+ **************************************************************/
+static void Interact(void) {
+    COORDINATE interact = InteractPosition();
+    if (!TileInBounds(interact.X, interact.Y)) {
+        return;
+    }
     
-    // Activate any events
-    if (TileInBounds(ix, iy)) {
-        const TILE *tile = &Tile(ix, iy);
-        if (tile->Flags & TILE_EVENT) {
-            const EVENT *event = &CurrentEvents[tile->Argument];
-            
-            // Redirection events (to avoid code duplication)
-            while (event->Type == EVENT_REDIRECT) {
-                event = &CurrentEvents[event->Union.Redirect];
-            }
-            
-            // Normal events
-            const WARP *warp = NULL;
-            switch (event->Type) {
-            case EVENT_WARP:
-                warp = &event->Union.Warp;
-                Warp(
-                    warp->Location,
-                    TileToWorld(warp->Destination.X),
-                    TileToWorld(warp->Destination.Y)
-                );
-                break;
-            case EVENT_TEXT:
-                // TODO
-                break;
-            case EVENT_SHOP:
-                // TODO
-                break;
-            case EVENT_BOSS:
-                // TODO
-                break;
-            default:
-                eprintf("Invalid event type: %d\n", event->Type);
-                break;
-            }
+    // Get the tile properties that map to an event.
+    const TILE *tile = &Tile(interact.X, interact.Y);
+    if (tile->Flags & TILE_EVENT) {
+        const EVENT *event = &CurrentEvents[tile->Argument];
+        
+        // Redirection events (to avoid code duplication)
+        while (event->Type == EVENT_REDIRECT) {
+            event = &CurrentEvents[event->Union.Redirect];
+        }
+        
+        // Normal events
+        const WARP *warp = NULL;
+        switch (event->Type) {
+        case EVENT_WARP:
+            warp = &event->Union.Warp;
+            Warp(warp->Location, TileToWorld(warp->Destination.X), TileToWorld(warp->Destination.Y));
+            break;
+        
+        case EVENT_TEXT:
+            // TODO
+            break;
+        case EVENT_SHOP:
+            // TODO
+            break;
+        case EVENT_BOSS:
+            // TODO
+            break;
+        default:
+            eprintf("Invalid event type: %d\n", event->Type);
+            break;
         }
     }
 }
 
-#define ShadeTile(x, y, color) {\
-    al_draw_filled_rectangle(\
-        DISPLAY_WIDTH/2-Position.X+x,\
-        DISPLAY_HEIGHT/2-Position.Y+y,\
-        DISPLAY_WIDTH/2-Position.X+x+16,\
-        DISPLAY_HEIGHT/2-Position.Y+y+16,\
-        color\
-    );\
+#ifdef DEBUG
+/**********************************************************//**
+ * @brief Shades a tile-sized square on the map for debugging.
+ * @param x: World X-coordinate.
+ * @param y: World Y-coordinate.
+ * @param color: The color to shade.
+ **************************************************************/
+static inline void ShadeTile(int x, int y, ALLEGRO_COLOR color) {
+    al_draw_filled_rectangle(
+        DISPLAY_WIDTH/2-Position.X+x,
+        DISPLAY_HEIGHT/2-Position.Y+y,
+        DISPLAY_WIDTH/2-Position.X+x+16,
+        DISPLAY_HEIGHT/2-Position.Y+y+16,
+        color
+    );
 }
+#endif
 
 #ifdef DEBUG
+/**********************************************************//**
+ * @brief Draws debugging information on the map - shows the
+ * sensor, current position, current tile, and interact tile.
+ **************************************************************/
 void DrawDebugInformation(void) {
     // Sensor visualization
     int centerX = DISPLAY_WIDTH/2-Position.X;
@@ -230,39 +349,41 @@ void DrawDebugInformation(void) {
     ShadeTile(x*16, y*16, al_map_rgb(128, 128, 255));
     
     // Interact Position
-    int ix = x;
-    int iy = y;
-    switch (Direction) {
-    case UP:
-        iy = y-1;
-        break;
-    case DOWN:
-        iy = y+1;
-        break;
-    case LEFT:
-        ix = x-1;
-        break;
-    case RIGHT:
-        ix = x+1;
-        break;
-    }
-    ShadeTile(ix*16, iy*16, al_map_rgb(255, 255, 128));
+    COORDINATE interact = InteractPosition();
+    ShadeTile(interact.X*16, interact.Y*16, al_map_rgb(255, 255, 128));
     
+    // Current position
     ShadeTile(Position.X-8, Position.Y-8, al_map_rgb(255, 128, 128));
 }
 #endif
 
+/**********************************************************//**
+ * @brief Draws the current map (based on static data).
+ **************************************************************/
 void DrawMap(void) {
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
     int centerX = DISPLAY_WIDTH/2-Position.X;
     int centerY = DISPLAY_HEIGHT/2-Position.Y;
     al_draw_bitmap(mapImage, centerX, centerY, 0);
+#ifdef DEBUG
     DrawDebugInformation();
+#endif
 }
 
-#define WALK_SPEED 120
-#define Passable(x, y) (TileInBounds(x, y) && !Tile(x, y).Flags)
+/**********************************************************//**
+ * @brief Checks if the user can walk through the given tile.
+ * @param x: Tile X-coordinate.
+ * @param y: Tile Y-coordinate.
+ * @return True if the user can walk on the tile.
+ **************************************************************/
+static inline bool Passable(int x, int y) {
+    return TileInBounds(x, y) && !Tile(x, y).Flags;
+}
 
+/**********************************************************//**
+ * @brief Parses the user's keyboard input to update the map
+ * position and activate any events.
+ **************************************************************/
 void UpdateMap(void) {
     // Key press reading
     float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTimeElapsed;
@@ -308,4 +429,7 @@ void UpdateMap(void) {
     
     // Event checking
     Interact();
+    //UpdateOverworldLocation();
 }
+
+/**************************************************************/
