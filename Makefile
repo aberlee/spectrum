@@ -5,12 +5,12 @@
 CC := gcc
 CFLAGS := -g -O3 -Wall -Wpedantic -Wextra -std=gnu99
 DFLAGS := -MP -MMD
-LFLAGS := -s -lm
+LFLAGS := -g -lm
 INCLUDE := 
 LIBRARY := 
 
 # debug.h
-CFLAGS += -DVERBOSE
+CFLAGS += -DVERBOSE -DDEBUG
 
 ######### Source code setup #########
 # Directory for all project files.
