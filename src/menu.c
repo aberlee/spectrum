@@ -31,7 +31,7 @@ static inline void DrawText(const char *text, int x, int y) {
 static inline void DrawTitle(const char *text, int x, int y) {
     al_draw_text(
         Font(FONT_WINDOW),
-        al_map_rgb(163, 163, 163),
+        al_map_rgb(226, 226, 226),
         x,
         y-3,
         ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
