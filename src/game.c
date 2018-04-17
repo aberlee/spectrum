@@ -28,6 +28,7 @@
 #include "game.h"
 #include "assets.h"
 #include "menu.h"
+#include "output.h"
 
 const char INTRODUCTION[] = "MY GRANDMOTHER ONCE TOLD ME A STORY,/LONG AGO.*IT WAS ABOUT A GREAT KING WHO/BECAME BLINDED BY HIS POWER.*HIS NAME WAS VARAN.*VARAN WAS THE KING OF THE SPECTRA.*IN THE STORY, A LONE WARRIOR/HAD TO FACE THE GREAT KING VARAN,*WHO HAD ONCE RULED FAIRLY AND/PEACEFULLY, BUT HE BECAME*OBSESSED WITH HIS POWER.*HE BEGAN TO USE IT WRONGLY./HE WANTED ONLY MORE.*VARAN'S POWER GREW SO MUCH, THAT/HIS INFLUENCE BEGAN TO AFFECT LIFE.*GOOD HUSBANDS TURNED ON THEIR FAMILIES./EVERYONE RAN AMOK.*MANY LIVES WERE LOST, MANY WERE KILLED,/BY PEOPLE AND SPECTRA WHO WERE*TOUCHED BY VARAN'S EVIL AURA.*HIS POWER DID NOT AFFECT EVERYONE./SOME PEOPLE WERE STRONGER.*OTHERS WERE ABLE TO BREAK OUT FROM/VARAN'S INFLUENCE.*THESE PEOPLE ROSE FROM THE DEVASTATION/CAUSED BY THE REST.*THEY CALLED THEMSELVES THE REBELLION.*THE LEADER OF THE REBELLION WAS A/BEAUTIFUL WOMAN.*SHE LED HER REBEL ARMY TO THE/PALACE WHERE VARAN LIVED.*AND THEY FOUGHT A GREAT WAR.*MANY PEOPLE DIED IN THAT WAR.*AND THAT IS WHERE THE STORY ENDED.*MY GRANDMA NEVER TOLD ME THE END./SHE SAID I WOULD FIND OUT LATER.*I WAS ALWAYS AFRAID SHE DIED.";
 
@@ -45,6 +46,11 @@ static ALLEGRO_EVENT_QUEUE *EventQueue;
 static ALLEGRO_TIMER *FrameRateTimer;
 static ALLEGRO_KEYBOARD_STATE KeyboardState;
 
+/**********************************************************//**
+ * @brief Determines if the key is pressed.
+ * @param key: The KEY to check.
+ * @return Whether they key is being pressed on this frame.
+ **************************************************************/
 bool KeyDown(KEY key) {
     return al_key_down(&KeyboardState, key);
 }
@@ -67,7 +73,7 @@ static void GameInitialize(void) {
     // Set up the display
     al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, ALLEGRO_REQUIRE);
     al_set_new_window_title("Spectrum Legacy");
-    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+    //al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
     Display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     al_inhibit_screensaver(true);
     
@@ -99,6 +105,10 @@ static void GameInitialize(void) {
 
     // Load game assets
     LoadAssets();
+    
+    Output("Hello world!");
+    Output("Multi-line text output\ntext!");
+    OutputF("Formatted output text: %d", 5);
 }
 
 static void MenuTestUpdate(void) {
@@ -149,16 +159,22 @@ static void MenuTestUpdate(void) {
     al_translate_transform(&trans, 200, 60);
     al_use_transform(&trans);
     DrawHudEnemy(&spectra);
+    
+    al_identity_transform(&trans);
+    al_use_transform(&trans);
+    UpdateOutput();
+    DrawOutputMap();
 }
 
 static void Update(void) {
-    static int yes = 1;
+    MenuTestUpdate();
+/*     static int yes = 1;
     if (yes) {
         Warp(MAP_OVERWORLD, 24*16, 43*16);
         yes = 0;
     }
     UpdateMap();
-    DrawMap();
+    DrawMap(); */
 }
 
 static void GameMainLoop(void) {
