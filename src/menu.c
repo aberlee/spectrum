@@ -28,6 +28,18 @@ static inline void DrawText(const char *text, int x, int y) {
     DrawText(buf, x, y);\
 }
 
+static inline void DrawNumber(int x, int y, int number) {
+    char buf[33];
+    snprintf(buf, 32, "%d", number);
+    al_draw_text(
+        Font(FONT_WINDOW),
+        number? al_map_rgb(0, 0, 0): al_map_rgb(128, 128, 128),
+        x,
+        y-3,
+        ALLEGRO_ALIGN_RIGHT|ALLEGRO_ALIGN_INTEGER,
+        buf);
+}
+
 static inline void DrawTitle(const char *text, int x, int y) {
     al_draw_text(
         Font(FONT_WINDOW),
@@ -124,43 +136,43 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     
     // Spectra title bar
     DrawTitle(species->Name, 4, 4);
-    DrawTitleF(162, 4, "Lv.%d", spectra->Level);
+    DrawTitleF(198, 4, "Lv.%d", spectra->Level);
     
     // Icons
-    al_draw_bitmap(TypeImage(species->Type[0]), 160, 18, 0);
+    al_draw_bitmap(TypeImage(species->Type[0]), 4, 15, 0);
     if (species->Type[1]) {
-        al_draw_bitmap(TypeImage(species->Type[1]), 200, 18, 0);
+        al_draw_bitmap(TypeImage(species->Type[1]), 44, 15, 0);
     }
     if (spectra->Ailment) {
-        al_draw_bitmap(AilmentImage(spectra->Ailment), 193, 31, 0);
+        al_draw_bitmap(AilmentImage(spectra->Ailment), 109, 19, 0);
     }
     
     // Bars
-    DrawBar((float)spectra->Health/spectra->MaxHealth, 22, 21);
-    DrawBar((float)spectra->Power/spectra->MaxPower, 22, 32);
+    DrawBar((float)spectra->Health/spectra->MaxHealth, 19, 30);
+    DrawBar((float)spectra->Power/spectra->MaxPower, 19, 41);
     
     // Stats
-    DrawTextF(22, 21, "%d/%d", spectra->Health, spectra->MaxHealth);
-    DrawTextF(22, 32, "%d/%d", spectra->Power, spectra->MaxPower);
-    DrawTextF(54, 45, "%d", spectra->Attack);
-    DrawTextF(54, 58, "%d", spectra->Defend);
-    DrawTextF(54, 71, "%d", spectra->Evade);
-    DrawTextF(54, 84, "%d", spectra->Luck);
+    DrawTextF(20, 30, "%d/%d", spectra->Health, spectra->MaxHealth);
+    DrawTextF(20, 41, "%d/%d", spectra->Power, spectra->MaxPower);
+    DrawNumber(102, 54, spectra->Attack);
+    DrawNumber(102, 67, spectra->Defend);
+    DrawNumber(102, 80, spectra->Evade);
+    DrawNumber(102, 93, spectra->Luck);
     
     // Moveset
     int i = 0;
     for (i = 0; i < spectra->MovesetSize; i++) {
         const TECHNIQUE *technique = TechniqueByID(spectra->Moveset[i]);
-        DrawText(technique->Name, 7, 101+13*i);
-    }
-    while (i < MOVESET_SIZE) {
-        DrawTitle("None", 7, 101+13*i);
-        i++;
+        DrawText(technique->Name, 4, 150+13*i);
+        al_draw_bitmap(TypeImage(technique->Type), 103, 148+13*i, 0);
+        DrawNumber(190, 150+13*i, technique->Power);
+        DrawNumber(240, 150+13*i, technique->Cost);
+        
     }
     
     // Experience
-    DrawText("???", 185, 179);
-    DrawTextF(185, 192, "%d", spectra->Experience);
+    DrawNumber(102, 109, 0);
+    DrawNumber(102, 122, spectra->Experience);
     
     // Sprite pane
     ALLEGRO_BITMAP *sprite;
@@ -171,9 +183,9 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     }
     int width = al_get_bitmap_width(sprite);
     int height = al_get_bitmap_height(sprite);
-    int xOffset = (127-width)/2;
+    int xOffset = (125-width)/2;
     int yOffset = (123-height)/2;
-    al_draw_bitmap(sprite, 111+xOffset, 48+yOffset, ALLEGRO_FLIP_HORIZONTAL);
+    al_draw_bitmap(sprite, 109+xOffset, 19+yOffset, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void DrawHudUser(const SPECTRA *spectra) {
@@ -212,10 +224,10 @@ void DrawTechniqueDisplay(TECHNIQUE_ID id) {
     const TECHNIQUE *technique = TechniqueByID(id);
     
     DrawTitle(technique->Name, 4, 4);
-    DrawTextF(44, 17, "%d", technique->Power);
-    DrawTextF(112, 17, "%d", technique->Cost);
+    DrawNumber(105, 17, technique->Power);
+    DrawNumber(171, 17, technique->Cost);
     DrawTextBox(technique->Description, 4, 30, 165);
-    al_draw_bitmap(TypeImage(technique->Type), 134, 2, 0);
+    al_draw_bitmap(TypeImage(technique->Type), 2, 15, 0);
 }
 
 static void DrawWaitingIcon(int x, int y) {
