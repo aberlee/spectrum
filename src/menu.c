@@ -1,13 +1,16 @@
 #include <stdio.h>
+#include "math.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
+#include "game.h"
 #include "assets.h"
 #include "species.h"
 #include "technique.h"
+#include "output.h" // GetOutput
 
 static inline void DrawText(const char *text, int x, int y) {
     al_draw_text(
@@ -17,6 +20,12 @@ static inline void DrawText(const char *text, int x, int y) {
         y-3,
         ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
         text);
+}
+
+#define DrawTextF(x, y, format, ...) {\
+    char buf[256];\
+    snprintf(buf, 255, format, __VA_ARGS__);\
+    DrawText(buf, x, y);\
 }
 
 static inline void DrawTitle(const char *text, int x, int y) {
@@ -29,6 +38,12 @@ static inline void DrawTitle(const char *text, int x, int y) {
         text);
 }
 
+#define DrawTitleF(x, y, format, ...) {\
+    char buf[256];\
+    snprintf(buf, 255, format, __VA_ARGS__);\
+    DrawTitle(buf, x, y);\
+}
+
 static inline void DrawTextBox(const char *text, int x, int y, int width) {
     al_draw_multiline_text(
         Font(FONT_WINDOW),
@@ -36,13 +51,24 @@ static inline void DrawTextBox(const char *text, int x, int y, int width) {
         x,
         y-3,
         width,
-        10,
+        13,
         ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
         text);
 }
 
+#define DrawTextBoxF(x, y, width, format, ...) {\
+    char buf[256];\
+    snprintf(buf, 255, format, __VA_ARGS__);\
+    DrawTextBox(buf, x, y, width);\
+}
+
 static inline void DrawSelector(int x, int y, int width, int height) {
     al_draw_filled_rectangle(x, y, x+width, y+height, al_map_rgba(0, 0, 0, 60));
+}
+
+static inline void DrawBar(float percent, int x, int y) {
+    int x0 = x + (int)(percent*81);
+    al_draw_filled_rectangle(x, y, x0, y+8, al_color_hsv(120*percent, 0.5f, 0.8f));
 }
 
 void DrawChoice(const OPTIONS *choice) {
@@ -92,22 +118,13 @@ void DrawColumn(const OPTIONS *options) {
     DrawSelector(2, 2+13*options->Index, 138, 12);
 }
 
-void DrawBar(float percent, int x, int y) {
-    int x0 = x + (int)(percent*81);
-    al_draw_filled_rectangle(x, y, x0, y+8, al_color_hsv(120*percent, 0.5f, 0.8f));
-}
-
 void DrawSpectraDisplay(const SPECTRA *spectra) {
     al_draw_bitmap(WindowImage(SPECTRA_DISPLAY), 0, 0, 0);
-    
-    // Information
     const SPECIES *species = SpeciesOfSpectra(spectra);
-    char buffer[33];
     
     // Spectra title bar
     DrawTitle(species->Name, 4, 4);
-    snprintf(buffer, 32, "Lv.%d", spectra->Level);
-    DrawTitle(buffer, 162, 4);
+    DrawTitleF(162, 4, "Lv.%d", spectra->Level);
     
     // Icons
     al_draw_bitmap(TypeImage(species->Type[0]), 160, 18, 0);
@@ -123,18 +140,12 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     DrawBar((float)spectra->Power/spectra->MaxPower, 22, 32);
     
     // Stats
-    snprintf(buffer, 32, "%d/%d", spectra->Health, spectra->MaxHealth);
-    DrawText(buffer, 22, 21);
-    snprintf(buffer, 32, "%d/%d", spectra->Power, spectra->MaxPower);
-    DrawText(buffer, 22, 32);
-    snprintf(buffer, 32, "%d", spectra->Attack);
-    DrawText(buffer, 54, 45);
-    snprintf(buffer, 32, "%d", spectra->Defend);
-    DrawText(buffer, 54, 58);
-    snprintf(buffer, 32, "%d", spectra->Evade);
-    DrawText(buffer, 54, 71);
-    snprintf(buffer, 32, "%d", spectra->Luck);
-    DrawText(buffer, 54, 84);
+    DrawTextF(22, 21, "%d/%d", spectra->Health, spectra->MaxHealth);
+    DrawTextF(22, 32, "%d/%d", spectra->Power, spectra->MaxPower);
+    DrawTextF(54, 45, "%d", spectra->Attack);
+    DrawTextF(54, 58, "%d", spectra->Defend);
+    DrawTextF(54, 71, "%d", spectra->Evade);
+    DrawTextF(54, 84, "%d", spectra->Luck);
     
     // Moveset
     int i = 0;
@@ -149,8 +160,7 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     
     // Experience
     DrawText("???", 185, 179);
-    snprintf(buffer, 32, "%d", spectra->Experience);
-    DrawText(buffer, 185, 192);
+    DrawTextF(185, 192, "%d", spectra->Experience);
     
     // Sprite pane
     ALLEGRO_BITMAP *sprite;
@@ -168,13 +178,10 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
 
 void DrawHudUser(const SPECTRA *spectra) {
     al_draw_bitmap(WindowImage(HUD_USER), 0, 0, 0);
-    
     const SPECIES *species = SpeciesOfSpectra(spectra);
-    char buffer[33];
     
     DrawText(species->Name, 4, 4);
-    snprintf(buffer, 32, "%d", spectra->Level);
-    DrawText(buffer, 26, 15);
+    DrawTextF(26, 15, "%d", spectra->Level);
     DrawBar((float)spectra->Health/spectra->MaxHealth, 116, 4);
     DrawBar((float)spectra->Power/spectra->MaxPower, 116, 15);
     
@@ -182,21 +189,16 @@ void DrawHudUser(const SPECTRA *spectra) {
         al_draw_bitmap(AilmentImage(spectra->Ailment), 54, 13, 0);
     }
     
-    snprintf(buffer, 32, "%d/%d", spectra->Health, spectra->MaxHealth);
-    DrawText(buffer, 116, 4);
-    snprintf(buffer, 32, "%d/%d", spectra->Power, spectra->MaxPower);
-    DrawText(buffer, 116, 15);
+    DrawTextF(116, 4, "%d/%d", spectra->Health, spectra->MaxHealth);
+    DrawTextF(116, 15, "%d/%d", spectra->Power, spectra->MaxPower);
 }
 
 void DrawHudEnemy(const SPECTRA *spectra) {
     al_draw_bitmap(WindowImage(HUD_ENEMY), 0, 0, 0);
-    
     const SPECIES *species = SpeciesOfSpectra(spectra);
-    char buffer[33];
     
     DrawText(species->Name, 105, 4);
-    snprintf(buffer, 32, "%d", spectra->Level);
-    DrawText(buffer, 127, 15);
+    DrawTextF(127, 15, "%d", spectra->Level);
     DrawBar((float)spectra->Health/spectra->MaxHealth, 19, 4);
     DrawBar((float)spectra->Power/spectra->MaxPower, 19, 15);
     
@@ -204,4 +206,44 @@ void DrawHudEnemy(const SPECTRA *spectra) {
         al_draw_bitmap(AilmentImage(spectra->Ailment), 155, 13, 0);
     }
 }
+
+void DrawTechniqueDisplay(TECHNIQUE_ID id) {
+    al_draw_bitmap(WindowImage(TECHNIQUE_DISPLAY), 0, 0, 0);
+    const TECHNIQUE *technique = TechniqueByID(id);
     
+    DrawTitle(technique->Name, 4, 4);
+    DrawTextF(44, 17, "%d", technique->Power);
+    DrawTextF(112, 17, "%d", technique->Cost);
+    DrawTextBox(technique->Description, 4, 30, 165);
+    al_draw_bitmap(TypeImage(technique->Type), 134, 2, 0);
+}
+
+static void DrawWaitingIcon(int x, int y) {
+    if (sin(TotalTimeElapsed*8)>0) {
+        DrawSelector(x, y, 5, 8);
+    }
+}
+
+void DrawOutputBattle(void) {
+    al_draw_bitmap(WindowImage(OUTPUT_BATTLE), 117, 328, 0);
+    DrawTextBox(GetOutput(), 121, 332, 352);
+    if (OutputWaiting()) {
+        DrawWaitingIcon(468, 345);
+    }
+}
+
+void DrawOutputMenu(void) {
+    al_draw_bitmap(WindowImage(OUTPUT_MENU), 0, 305, 0);
+    DrawTextBox(GetOutput(), 4, 309, 472);
+    if (OutputWaiting()) {
+        DrawWaitingIcon(471, 348);
+    }
+}
+
+void DrawOutputMap() {
+    al_draw_bitmap(WindowImage(OUTPUT_MAP), 147, 328, 0);
+    DrawTextBox(GetOutput(), 151, 332, 322);
+    if (OutputWaiting()) {
+        DrawWaitingIcon(468, 345);
+    }
+}

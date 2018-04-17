@@ -61,10 +61,13 @@ extern void DrawOption(const OPTIONS *choice);
 extern void DrawColumn(const OPTIONS *choice);
 extern void DrawAlert(const char *text);
 extern void DrawWarning(const char *text);
-extern void DrawBar(float percent, int x, int y);
-extern void DrawSpectraDisplay(const SPECTRA *spectra);
 extern void DrawHudUser(const SPECTRA *spectra);
 extern void DrawHudEnemy(const SPECTRA *spectra);
+extern void DrawSpectraDisplay(const SPECTRA *spectra);
+extern void DrawTechniqueDisplay(TECHNIQUE_ID id);
+extern void DrawOutputBattle(void);
+extern void DrawOutputMenu(void);
+extern void DrawOutputMap(void);
 
 /**************************************************************/
 #endif // _MENU_H_
