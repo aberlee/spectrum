@@ -18,6 +18,7 @@
 #include "assets.h"             // MapImage, SensorImage
 #include "location.h"           // MAP_ID, LOCATION
 #include "event.h"              // EVENT, Events
+#include "player.h"             // Player
 #include "debug.h"              // eprintf
 
 #include "location.i"           // LOCATION_DATA
@@ -27,9 +28,6 @@
 #define WALK_SPEED 120
 
 /**************************************************************/
-/// @brief The identity of the current location.
-static LOCATION_ID CurrentLocation;
-
 /// @brief The identity of the current map being displayed
 /// (associated with the current location).
 static MAP_ID CurrentMap;
@@ -40,14 +38,6 @@ static const EVENT *CurrentEvents;
 
 /// @brief Sensor associated to the current map.
 static SENSOR CurrentSensor;
-
-/// @brief Player's position in world coordinates on the
-/// current map.
-static COORDINATE Position;
-
-/// @brief Player's current direction in the current map.
-/// Should default to DOWN, and requires a default.
-static DIRECTION Direction = DOWN;
 
 /// @brief Bounding box on the overworld map. Going outside
 /// these bounds on the overworld map will update the current
@@ -126,7 +116,7 @@ static void SetOverworldLocation(int x, int y) {
         const LOCATION *location = Location(i);
         if (location->Map == MAP_OVERWORLD && WorldInBounds(location->Bounds, x, y)) {
             CurrentBounds = location->Bounds;
-            CurrentLocation = (LOCATION_ID)i;
+            Player->Location = (LOCATION_ID)i;
             return;
         }
     }
@@ -138,8 +128,8 @@ static void SetOverworldLocation(int x, int y) {
  * out of the previous LOCATION's bounds.
  **************************************************************/
 static void UpdateOverworldLocation(void) {
-    if (CurrentMap == MAP_OVERWORLD && !WorldInBounds(CurrentBounds, Position.X, Position.Y)) {
-        SetOverworldLocation(Position.X, Position.Y);
+    if (CurrentMap == MAP_OVERWORLD && !WorldInBounds(CurrentBounds, Player->Position.X, Player->Position.Y)) {
+        SetOverworldLocation(Player->Position.X, Player->Position.Y);
     }
 }
 
@@ -225,14 +215,14 @@ void Warp(LOCATION_ID id, int x, int y) {
         // fragmented into multiple sub-locations.
         SetOverworldLocation(x, y);
     } else {
-        CurrentLocation = id;
+        Player->Location = id;
     }
-    CurrentMap = Location(CurrentLocation)->Map;
+    CurrentMap = Location(Player->Location)->Map;
     CurrentEvents = Events(CurrentMap);
     
     // Offset to center from tile
-    Position.X = x;
-    Position.Y = y;
+    Player->Position.X = x;
+    Player->Position.Y = y;
     
     // Load the sensor at the map
     UseSensor(CurrentMap);
@@ -244,9 +234,9 @@ void Warp(LOCATION_ID id, int x, int y) {
  * @return 
  **************************************************************/
 static inline COORDINATE InteractPosition(void) {
-    int ix = WorldToTile(Position.X);
-    int iy = WorldToTile(Position.Y);
-    switch (Direction) {
+    int ix = WorldToTile(Player->Position.X);
+    int iy = WorldToTile(Player->Position.Y);
+    switch (Player->Direction) {
     case UP:
         iy--;
         break;
@@ -316,10 +306,10 @@ static void Interact(void) {
  **************************************************************/
 static inline void ShadeTile(int x, int y, ALLEGRO_COLOR color) {
     al_draw_filled_rectangle(
-        DISPLAY_WIDTH/2-Position.X+x,
-        DISPLAY_HEIGHT/2-Position.Y+y,
-        DISPLAY_WIDTH/2-Position.X+x+16,
-        DISPLAY_HEIGHT/2-Position.Y+y+16,
+        DISPLAY_WIDTH/2-Player->Position.X+x,
+        DISPLAY_HEIGHT/2-Player->Position.Y+y,
+        DISPLAY_WIDTH/2-Player->Position.X+x+16,
+        DISPLAY_HEIGHT/2-Player->Position.Y+y+16,
         color
     );
 }
@@ -332,8 +322,8 @@ static inline void ShadeTile(int x, int y, ALLEGRO_COLOR color) {
  **************************************************************/
 void DrawDebugInformation(void) {
     // Sensor visualization
-    int centerX = DISPLAY_WIDTH/2-Position.X;
-    int centerY = DISPLAY_HEIGHT/2-Position.Y;
+    int centerX = DISPLAY_WIDTH/2-Player->Position.X;
+    int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
     ALLEGRO_BITMAP *sensor = SensorImage(CurrentMap);
     al_draw_tinted_scaled_bitmap(
         sensor,
@@ -344,8 +334,8 @@ void DrawDebugInformation(void) {
     );
     
     // Position visualization
-    int x = WorldToTile(Position.X);
-    int y = WorldToTile(Position.Y);
+    int x = WorldToTile(Player->Position.X);
+    int y = WorldToTile(Player->Position.Y);
     ShadeTile(x*16, y*16, al_map_rgb(128, 128, 255));
     
     // Interact Position
@@ -353,7 +343,7 @@ void DrawDebugInformation(void) {
     ShadeTile(interact.X*16, interact.Y*16, al_map_rgb(255, 255, 128));
     
     // Current position
-    ShadeTile(Position.X-8, Position.Y-8, al_map_rgb(255, 128, 128));
+    ShadeTile(Player->Position.X-8, Player->Position.Y-8, al_map_rgb(255, 128, 128));
 }
 #endif
 
@@ -362,8 +352,8 @@ void DrawDebugInformation(void) {
  **************************************************************/
 void DrawMap(void) {
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
-    int centerX = DISPLAY_WIDTH/2-Position.X;
-    int centerY = DISPLAY_HEIGHT/2-Position.Y;
+    int centerX = DISPLAY_WIDTH/2-Player->Position.X;
+    int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
     al_draw_bitmap(mapImage, centerX, centerY, 0);
 #ifdef DEBUG
     DrawDebugInformation();
@@ -393,20 +383,20 @@ void UpdateMap(void) {
     // REQUESTED (not if it's possible).
     // Prefer UP/DOWN on diagonal motion.
     if (dy > 0) {
-        Direction = DOWN;
+        Player->Direction = DOWN;
     } else if (dy < 0) {
-        Direction = UP;
+        Player->Direction = UP;
     } else if (dx > 0) {
-        Direction = RIGHT;
+        Player->Direction = RIGHT;
     } else if (dx < 0) {
-        Direction = LEFT;
+        Player->Direction = LEFT;
     }
 
     // Collision checking
-    int x = WorldToTile(Position.X);
-    int y = WorldToTile(Position.Y);
-    int xf = WorldToTile(Position.X+dx);
-    int yf = WorldToTile(Position.Y+dy);
+    int x = WorldToTile(Player->Position.X);
+    int y = WorldToTile(Player->Position.Y);
+    int xf = WorldToTile(Player->Position.X+dx);
+    int yf = WorldToTile(Player->Position.Y+dy);
     if (Passable(xf, yf)) {
         // AX // Make sure we can't clip across a corner like this,
         // XB // going from A to B, with X solid.
@@ -424,8 +414,8 @@ void UpdateMap(void) {
     }
     
     // Update position
-    Position.X += dx;
-    Position.Y += dy;
+    Player->Position.X += dx;
+    Player->Position.Y += dy;
     
     // Event checking
     Interact();

@@ -106,6 +106,7 @@ static void GameInitialize(void) {
     // Load game assets
     LoadAssets();
     
+    NewGame();
     Output("Hello world!");
     Output("Multi-line text output\ntext!");
     OutputF("Formatted output text: %d", 5);
@@ -116,8 +117,7 @@ static void MenuTestUpdate(void) {
     al_identity_transform(&trans);
     al_translate_transform(&trans, 10, 10);
     al_use_transform(&trans);
-    char *choices[12] = {"Yes", "1", "No", "2", "Third", "33", "Fourth", "4", "Fifth", "120", "Cancel", "-"};
-    OPTIONS choice = {choices, 0};
+    OPTIONS choice = {{"Yes", "No", "Third", "Fourth", "Fifth", "Cancel"}, 0};
     DrawChoice(&choice);
     
     al_identity_transform(&trans);
@@ -138,32 +138,42 @@ static void MenuTestUpdate(void) {
     al_identity_transform(&trans);
     al_translate_transform(&trans, 10, 140);
     al_use_transform(&trans);
-    DrawColumn(&choice);
+    DrawColumn(&choice, &choice);
     
     SPECTRA spectra;
-    CreateSpectra(&spectra, COALSHARK, 77);
+    CreateSpectra(&spectra, GLACIALITH, 100);
     spectra.Health /= 2;
     spectra.Power /= 4;
     spectra.Ailment = AFLAME;
     al_identity_transform(&trans);
-    al_translate_transform(&trans, 200, 140);
+    al_translate_transform(&trans, 200, 80);
     al_use_transform(&trans);
     DrawSpectraDisplay(&spectra);
     
     al_identity_transform(&trans);
-    al_translate_transform(&trans, 200, 100);
+    al_translate_transform(&trans, 200, 40);
     al_use_transform(&trans);
     DrawHudUser(&spectra);
     
     al_identity_transform(&trans);
-    al_translate_transform(&trans, 200, 60);
+    al_translate_transform(&trans, 200, 20);
     al_use_transform(&trans);
     DrawHudEnemy(&spectra);
+    
+    al_identity_transform(&trans);
+    al_translate_transform(&trans, 10, 200);
+    al_use_transform(&trans);
+    DrawTechniqueDisplay(INFERNO);
     
     al_identity_transform(&trans);
     al_use_transform(&trans);
     UpdateOutput();
     DrawOutputMap();
+    
+    al_identity_transform(&trans);
+    al_translate_transform(&trans, 10, 10);
+    al_use_transform(&trans);
+    DrawPlayerDisplay();
 }
 
 static void Update(void) {

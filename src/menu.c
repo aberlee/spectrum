@@ -11,6 +11,7 @@
 #include "species.h"
 #include "technique.h"
 #include "output.h" // GetOutput
+#include "player.h" // Player
 
 static inline void DrawText(const char *text, int x, int y) {
     al_draw_text(
@@ -108,26 +109,13 @@ void DrawOption(const OPTIONS *options) {
     DrawSelector(2, 2+13*options->Index, 96, 12);
 }
 
-void DrawColumn(const OPTIONS *options) {
+void DrawColumn(const OPTIONS *first, const OPTIONS *second) {
     al_draw_bitmap(WindowImage(MENU_COLUMN), 0, 0, 0);
-    
-    // Left column
-    DrawText(options->Option[0], 4, 4);
-    DrawText(options->Option[2], 4, 17);
-    DrawText(options->Option[4], 4, 30);
-    DrawText(options->Option[6], 4, 43);
-    DrawText(options->Option[8], 4, 56);
-    DrawText(options->Option[10], 4, 69);
-    
-    // Right column
-    DrawText(options->Option[1], 101, 4);
-    DrawText(options->Option[3], 101, 17);
-    DrawText(options->Option[5], 101, 30);
-    DrawText(options->Option[7], 101, 43);
-    DrawText(options->Option[9], 101, 56);
-    DrawText(options->Option[11], 101, 69);
-    
-    DrawSelector(2, 2+13*options->Index, 138, 12);
+    for (int i=0; i<6; i++) {
+        DrawText(first->Option[i], 4, 4+13*i);
+        DrawText(second->Option[i], 101, 4+13*i);
+    }
+    DrawSelector(2, 2+13*first->Index, 138, 12);
 }
 
 void DrawSpectraDisplay(const SPECTRA *spectra) {
@@ -177,7 +165,7 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     // Sprite pane
     ALLEGRO_BITMAP *sprite;
     if (spectra->Species == AMY) {
-        sprite = CostumeImage(1);
+        sprite = CostumeImage(Player->Costume);
     } else {
         sprite = SpeciesImage(spectra->Species);
     }
@@ -252,10 +240,59 @@ void DrawOutputMenu(void) {
     }
 }
 
-void DrawOutputMap() {
+void DrawOutputMap(void) {
     al_draw_bitmap(WindowImage(OUTPUT_MAP), 147, 328, 0);
     DrawTextBox(GetOutput(), 151, 332, 322);
     if (OutputWaiting()) {
         DrawWaitingIcon(468, 345);
     }
+}
+
+void DrawPlayerDisplay(void) {
+    al_draw_bitmap(WindowImage(PLAYER_DISPLAY), 0, 0, 0);
+    DrawText("Amy", 45, 4);
+    DrawText(Location(Player->Location)->Name, 45, 17);
+    //DrawText("Unused", 45, 30);
+    
+    // Spectra count
+    int spectraCount = 0;
+    for (int i = 0; i < TEAM_SIZE; i++) {
+        if (Player->Spectra[i].Species) {
+            spectraCount++;
+        }
+    }
+    DrawNumber(141, 46, spectraCount);
+    
+    // Item count
+    int itemCount = 0;
+    for (int i = 0; i < INVENTORY_SIZE; i++) {
+        if (Player->Inventory[i]) {
+            itemCount++;
+        }
+    }
+    DrawNumber(141, 59, itemCount);
+    
+    // Time formatting
+    int time = Player->PlayTime + UnaccountedPlayTime();
+    char timeString[10];
+    const char *format = time%2? "%d:%02d": "%d %02d";
+    snprintf(timeString, 9, format, time/3600, time/60%60);
+    al_draw_text(
+        Font(FONT_WINDOW),
+        al_map_rgb(0, 0, 0),
+        141,
+        72-3,
+        ALLEGRO_ALIGN_RIGHT|ALLEGRO_ALIGN_INTEGER,
+        timeString);
+    
+    // Money
+    DrawNumber(141, 85, Player->Money);
+    
+    // Sprite pane
+    ALLEGRO_BITMAP *sprite = CostumeImage(Player->Costume);
+    int width = al_get_bitmap_width(sprite);
+    int height = al_get_bitmap_height(sprite);
+    int xOffset = (32-width)/2;
+    int yOffset = (85-height)/2;
+    al_draw_bitmap(sprite, 6+xOffset, 6+yOffset, 0);
 }

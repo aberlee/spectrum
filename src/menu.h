@@ -51,14 +51,14 @@ typedef enum {
  * @brief Contains text for displaying choices on a menu.
  **************************************************************/
 typedef struct {
-    char **Option;
+    const char *Option[6];
     int Index;
 } OPTIONS;
 
 /**************************************************************/
 extern void DrawChoice(const OPTIONS *choice);
 extern void DrawOption(const OPTIONS *choice);
-extern void DrawColumn(const OPTIONS *choice);
+extern void DrawColumn(const OPTIONS *first, const OPTIONS *second);
 extern void DrawAlert(const char *text);
 extern void DrawWarning(const char *text);
 extern void DrawHudUser(const SPECTRA *spectra);

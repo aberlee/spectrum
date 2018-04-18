@@ -30,22 +30,33 @@ typedef enum {
 /// The number of unique costumes defined by COSTUME_ID.
 #define N_COSTUME (PAJAMAS+1)
 
+#define TEAM_SIZE 10
+#define INVENTORY_SIZE 24
+
 /**********************************************************//**
  * @struct PLAYER
  * @brief Stores all the player's save file data.
  **************************************************************/
 typedef struct {
+    // Player stats
     COSTUME_ID Costume;
-    int InventorySize;
-    ITEM_ID Inventory[20];
-    int SpectraCaught;
-    SPECTRA Spectra[100];
-    SPECTRA *Team[3];
     int Money;
     int PlayTime;
+    
+    // Player collections
+    ITEM_ID Inventory[INVENTORY_SIZE];
+    SPECTRA Spectra[TEAM_SIZE];
+    
+    // Player map data
     LOCATION_ID Location;
-    COORDINATE Where;
+    COORDINATE Position;
+    DIRECTION Direction;
 } PLAYER;
+
+extern PLAYER *const Player;
+
+extern void NewGame(void);
+extern int UnaccountedPlayTime(void);
 
 /**************************************************************/
 #endif // _PLAYER_H_
