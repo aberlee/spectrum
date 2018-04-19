@@ -46,13 +46,25 @@ typedef enum {
 /// The number of different window templates defined in WINDOW_ID.
 #define N_WINDOW (OUTPUT_MAP+1)
 
+typedef enum {
+    MENU_IDLE           = 0,
+    MENU_CONFIRM        = 1,
+    MENU_CANCEL         = 2,
+    MENU_UP             = 3,
+    MENU_DOWN           = 4,
+} MENU_STATE;
+
 /**********************************************************//**
  * @struct OPTIONS
  * @brief Contains text for displaying choices on a menu.
  **************************************************************/
 typedef struct {
-    const char *Option[6];
+    const char *Option[16];
     int Index;
+    int Scroll;
+    int IndexMax;
+    int ScrollMax;
+    MENU_STATE State;
 } OPTIONS;
 
 /**************************************************************/
@@ -68,6 +80,12 @@ extern void DrawTechniqueDisplay(TECHNIQUE_ID id);
 extern void DrawOutputBattle(void);
 extern void DrawOutputMenu(void);
 extern void DrawOutputMap(void);
+extern void DrawPlayerDisplay(void);
+
+extern void UpdateMenu(OPTIONS *options);
+
+extern void DrawMainMenu(void);
+extern void UpdateMainMenu(void);
 
 /**************************************************************/
 #endif // _MENU_H_

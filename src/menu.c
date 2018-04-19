@@ -13,6 +13,8 @@
 #include "output.h" // GetOutput
 #include "player.h" // Player
 
+#include "debug.h"
+
 static inline void DrawText(const char *text, int x, int y) {
     al_draw_text(
         Font(FONT_WINDOW),
@@ -86,8 +88,9 @@ static inline void DrawBar(float percent, int x, int y) {
 
 void DrawChoice(const OPTIONS *choice) {
     al_draw_bitmap(WindowImage(MENU_CHOICE), 0, 0, 0);
-    DrawText(choice->Option[0], 4, 4);
-    DrawText(choice->Option[1], 4, 17);
+    for (int i=0; i<2; i++) {
+        DrawText(choice->Option[choice->Scroll+i], 4, 4+13*i);
+    }
     DrawSelector(2, 2+13*choice->Index, 34, 12);
 }
 
@@ -103,19 +106,64 @@ void DrawWarning(const char *text) {
 
 void DrawOption(const OPTIONS *options) {
     al_draw_bitmap(WindowImage(MENU_OPTION), 0, 0, 0);
-    DrawText(options->Option[0], 4, 4);
-    DrawText(options->Option[1], 4, 17);
-    DrawText(options->Option[2], 4, 30);
+    for (int i=0; i<6; i++) {
+        DrawText(options->Option[options->Scroll+i], 4, 4+13*i);
+    }
     DrawSelector(2, 2+13*options->Index, 96, 12);
 }
 
 void DrawColumn(const OPTIONS *first, const OPTIONS *second) {
     al_draw_bitmap(WindowImage(MENU_COLUMN), 0, 0, 0);
     for (int i=0; i<6; i++) {
-        DrawText(first->Option[i], 4, 4+13*i);
-        DrawText(second->Option[i], 101, 4+13*i);
+        DrawText(first->Option[first->Scroll+i], 4, 4+13*i);
+        DrawText(second->Option[first->Scroll+i], 101, 4+13*i);
     }
     DrawSelector(2, 2+13*first->Index, 138, 12);
+}
+
+void UpdateMenu(OPTIONS *options) {
+    switch (options->State) {
+    case MENU_IDLE:
+        // Respond to scrolling up
+        if (KeyDown(KEY_UP)) {
+            options->State = MENU_UP;
+            if (options->Index > 0) {
+                options->Index--;
+            } else if (options->Scroll > 0) {
+                options->Scroll--;
+            }
+        // Respond to scrolling down
+        } else if (KeyDown(KEY_DOWN)) {
+            options->State = MENU_DOWN;
+            if (options->Index < options->IndexMax) {
+                options->Index++;
+            } else if (options->Scroll < options->ScrollMax) {
+                options->Scroll++;
+            }
+        // Respond to confirm key
+        } else if (KeyDown(KEY_CONFIRM)) {
+            options->State = MENU_CONFIRM;
+        // Respond to cancel key
+        } else if (KeyDown(KEY_DENY)) {
+            options->State = MENU_CANCEL;
+        }
+        break;
+    
+    case MENU_UP:
+    case MENU_DOWN:
+        // Make the menu idle if no scrolling
+        if (!KeyDown(KEY_UP) && !KeyDown(KEY_DOWN)) {
+            options->State = MENU_IDLE;
+        }
+        break;
+    
+    case MENU_CONFIRM:
+    case MENU_CANCEL:
+    default:
+        // Can't use the menu after confirming or cancelling.
+        eprintf("Use of menu after termination.\n");
+        break;
+    }
 }
 
 void DrawSpectraDisplay(const SPECTRA *spectra) {
@@ -218,7 +266,7 @@ void DrawTechniqueDisplay(TECHNIQUE_ID id) {
     al_draw_bitmap(TypeImage(technique->Type), 2, 15, 0);
 }
 
-static void DrawWaitingIcon(int x, int y) {
+static inline void DrawWaitingIcon(int x, int y) {
     if (sin(TotalTimeElapsed*8)>0) {
         DrawSelector(x, y, 5, 8);
     }
@@ -295,4 +343,43 @@ void DrawPlayerDisplay(void) {
     int xOffset = (32-width)/2;
     int yOffset = (85-height)/2;
     al_draw_bitmap(sprite, 6+xOffset, 6+yOffset, 0);
+}
+
+void DrawAt(int x, int y) {
+    ALLEGRO_TRANSFORM trans;
+    al_identity_transform(&trans);
+    al_translate_transform(&trans, x, y);
+    al_use_transform(&trans);
+}
+
+typedef enum {
+    MENU_PARTY,
+    MENU_ITEMS,
+    MENU_PLAYER,
+    MENU_SAVE,
+    MENU_EXIT,
+} MAIN_MENU_OPTION;
+
+static OPTIONS MainMenu = {
+    .Option = {
+        [MENU_PARTY]    = "Party",
+        [MENU_ITEMS]    = "Items",
+        [MENU_PLAYER]   = "Player",
+        [MENU_SAVE]     = "Save",
+        [MENU_EXIT]     = "Exit",
+    },
+    .Index              = 0,
+    .Scroll             = 0,
+    .IndexMax           = 4,
+    .ScrollMax          = 0,
+    .State              = MENU_IDLE,
+};
+
+void DrawMainMenu(void) {
+    DrawAt(326, 92);
+    DrawOption(&MainMenu);
+}
+
+void UpdateMainMenu(void) {
+    UpdateMenu(&MainMenu);
 }
