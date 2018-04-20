@@ -12,6 +12,7 @@
 #include "technique.h"
 #include "output.h" // GetOutput
 #include "player.h" // Player
+#include "item.h"
 
 #include "debug.h"
 
@@ -126,19 +127,41 @@ void UpdateMenu(OPTIONS *options) {
     case MENU_IDLE:
         // Respond to scrolling up
         if (KeyDown(KEY_UP)) {
-            options->State = MENU_UP;
+            options->State = MENU_MOVE;
             if (options->Index > 0) {
                 options->Index--;
             } else if (options->Scroll > 0) {
                 options->Scroll--;
             }
+        // Jump up
+        } else if (options->Jump && KeyDown(KEY_LEFT)) {
+            options->State = MENU_MOVE;
+            options->Index -= options->Jump;
+            if (options->Index < 0) {
+                options->Scroll += options->Index;
+                options->Index = 0;
+                if (options->Scroll < 0) {
+                    options->Scroll = 0;
+                }
+            }
         // Respond to scrolling down
         } else if (KeyDown(KEY_DOWN)) {
-            options->State = MENU_DOWN;
+            options->State = MENU_MOVE;
             if (options->Index < options->IndexMax) {
                 options->Index++;
             } else if (options->Scroll < options->ScrollMax) {
                 options->Scroll++;
+            }
+        // Jump down
+        } else if (options->Jump && KeyDown(KEY_RIGHT)) {
+            options->State = MENU_MOVE;
+            options->Index += options->Jump;
+            if (options->Index > options->IndexMax) {
+                options->Scroll += (options->Index-options->IndexMax);
+                options->Index = options->IndexMax;
+                if (options->Scroll > options->ScrollMax) {
+                    options->Scroll = options->ScrollMax;
+                }
             }
         // Respond to confirm key
         } else if (KeyDown(KEY_CONFIRM)) {
@@ -149,8 +172,7 @@ void UpdateMenu(OPTIONS *options) {
         }
         break;
     
-    case MENU_UP:
-    case MENU_DOWN:
+    case MENU_MOVE:
         // Make the menu idle if no scrolling
         if (!KeyDown(KEY_UP) && !KeyDown(KEY_DOWN)) {
             options->State = MENU_IDLE;
@@ -158,6 +180,8 @@ void UpdateMenu(OPTIONS *options) {
         break;
     
     case MENU_CONFIRM:
+        break;
+
     case MENU_CANCEL:
     default:
         // Can't use the menu after confirming or cancelling.
@@ -352,6 +376,57 @@ void DrawAt(int x, int y) {
     al_use_transform(&trans);
 }
 
+static OPTIONS SpectraControl = {
+    .State              = MENU_IDLE,
+};
+
+static OPTIONS ItemControl = {
+    .Jump               = 8,
+    .State              = MENU_IDLE,
+};
+
+void DrawParty(void) {
+    al_draw_bitmap(WindowImage(SPECTRA_LIST), 0, 0, 0);
+    for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+        // Contend with vertical divider
+        int y;
+        if (i < 3) {
+            y = 17+13*i;
+        } else {
+            y = 72+13*(i-3);
+        }
+        
+        // Display spectra information
+        const SPECTRA *spectra = &Player->Spectra[i];
+        DrawText(SpeciesOfSpectra(spectra)->Name, 4, y);
+        DrawTextF(109, y, "%d", spectra->Level);
+        DrawBar((float)spectra->Health/spectra->MaxHealth, 133, y);
+        DrawBar((float)spectra->Power/spectra->MaxPower, 219, y);
+        DrawTextF(133, y, "%d/%d", spectra->Health, spectra->MaxHealth);
+        DrawTextF(219, y, "%d/%d", spectra->Power, spectra->MaxPower);
+    }
+    DrawSelector(2, 15+SpectraControl.Index*13, 104, 12);
+}
+
+void DrawItems(void) {
+    al_draw_bitmap(WindowImage(ITEM_LIST), 0, 0, 0);
+    int x, y;
+    for (int i=0; i<INVENTORY_SIZE && Player->Inventory[i]; i++) {
+        // Contend with columns
+        x = 4 + 105*(i%3);
+        y = 17 + 13*(i/3);
+        
+        // Get item information
+        //const ITEM *item = Item(Player->Inventory[i]);
+        //DrawText(item->Name, x, y);
+    }
+    
+    // Draw selector
+    x = 2 + 105*(ItemControl.Index%3);
+    y = 15 + 13*(ItemControl.Index/3);
+    DrawSelector(x, y, 104, 12);
+}
+
 typedef enum {
     MENU_PARTY,
     MENU_ITEMS,
@@ -368,18 +443,136 @@ static OPTIONS MainMenu = {
         [MENU_SAVE]     = "Save",
         [MENU_EXIT]     = "Exit",
     },
-    .Index              = 0,
-    .Scroll             = 0,
     .IndexMax           = 4,
-    .ScrollMax          = 0,
     .State              = MENU_IDLE,
 };
 
 void DrawMainMenu(void) {
+    // Errors
+    if (MainMenu.State == MENU_CANCEL) {
+        eprintf("Tried to draw main menu in cancel state.\n");
+    }
+    
+    // Draw main menu
     DrawAt(326, 92);
     DrawOption(&MainMenu);
+    
+    // Draw sub-menus
+    if (MainMenu.State == MENU_CONFIRM) {
+        switch (MainMenu.Index) {
+        case MENU_PARTY:
+            DrawAt(18, 92);
+            DrawParty();
+            break;
+
+        case MENU_ITEMS:
+            DrawAt(4, 92);
+            DrawItems();
+            break;
+
+        case MENU_PLAYER:
+            DrawAt(179, 92);
+            DrawPlayerDisplay();
+            break;
+
+        case MENU_SAVE:
+            // Draw save screen
+            break;
+        default:
+            break;
+        }
+    }
 }
 
+void ResetWait(WAIT *wait) {
+    wait->State = WAIT_BEFORE;
+}
+
+void UpdateWait(WAIT *wait) {
+    switch (wait->State) {
+    case WAIT_BEFORE:
+        if (KeyDown(wait->Key)) {
+            wait->State = WAIT_DURING;
+        }
+        break;
+    
+    case WAIT_DURING:
+        if (!KeyDown(wait->Key)) {
+            wait->State = WAIT_AFTER;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+bool IsWaiting(WAIT *wait) {
+    return wait->State != WAIT_AFTER;
+}
+
+static WAIT Overlay = {KEY_DENY, WAIT_BEFORE};
+
 void UpdateMainMenu(void) {
+    MENU_STATE before = MainMenu.State;
     UpdateMenu(&MainMenu);
+    if (MainMenu.State == MENU_CONFIRM) {
+        // Initialize new menu if just confirmed an option
+        if (before != MainMenu.State) {
+            switch (MainMenu.Index) {
+            case MENU_PARTY:
+                // Update party controls with bounds
+                for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+                    SpectraControl.IndexMax = i;
+                }
+                SpectraControl.State = MENU_IDLE;
+                break;
+            case MENU_ITEMS:
+                // Update item controls with bounds
+                for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+                    ItemControl.IndexMax = i;
+                }
+                ItemControl.State = MENU_IDLE;
+                break;
+
+            case MENU_PLAYER:
+                ResetWait(&Overlay);
+                break;
+            case MENU_SAVE:
+                // Update save menu
+                break;
+            default:
+                break;
+            }
+        // Update existing menu
+        } else if (!KeyDown(KEY_CONFIRM)) {
+            switch (MainMenu.Index) {
+            case MENU_PARTY:
+                UpdateMenu(&SpectraControl);
+                eprintf("Spectra state %d\n", SpectraControl.State);
+                if (SpectraControl.State == MENU_CANCEL && !KeyDown(KEY_DENY)) {
+                    MainMenu.State = MENU_IDLE;
+                }
+                break;
+            case MENU_ITEMS:
+                UpdateMenu(&ItemControl);
+                if (ItemControl.State == MENU_CANCEL && !KeyDown(KEY_DENY)) {
+                    MainMenu.State = MENU_IDLE;
+                }
+                break;
+
+            case MENU_PLAYER:
+                UpdateWait(&Overlay);
+                if (!IsWaiting(&Overlay)) {
+                    MainMenu.State = MENU_IDLE;
+                }
+                break;
+
+            case MENU_SAVE:
+                // Update save menu
+                break;
+            default:
+                break;
+            }
+        }
+    }
 }

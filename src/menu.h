@@ -9,6 +9,8 @@
 #ifndef _MENU_H_
 #define _MENU_H_
 
+#include "game.h"               // KEY
+
 /**********************************************************//**
  * @enum WINDOW_ID
  * @brief Defines constants for each different window template.
@@ -46,12 +48,25 @@ typedef enum {
 /// The number of different window templates defined in WINDOW_ID.
 #define N_WINDOW (OUTPUT_MAP+1)
 
+// TODO split out wait, make OPTIONS named MENU, make
+// OPTIONS be a n Options*[] with a CONTROLLER abstraction
+
+typedef enum {
+    WAIT_BEFORE,
+    WAIT_DURING,
+    WAIT_AFTER,
+} WAIT_STATE;
+
+typedef struct {
+    KEY Key;
+    WAIT_STATE State;
+} WAIT;
+
 typedef enum {
     MENU_IDLE           = 0,
     MENU_CONFIRM        = 1,
     MENU_CANCEL         = 2,
-    MENU_UP             = 3,
-    MENU_DOWN           = 4,
+    MENU_MOVE           = 3,
 } MENU_STATE;
 
 /**********************************************************//**
@@ -64,6 +79,7 @@ typedef struct {
     int Scroll;
     int IndexMax;
     int ScrollMax;
+    int Jump;
     MENU_STATE State;
 } OPTIONS;
 
