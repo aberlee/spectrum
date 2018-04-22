@@ -48,45 +48,61 @@ typedef enum {
 /// The number of different window templates defined in WINDOW_ID.
 #define N_WINDOW (OUTPUT_MAP+1)
 
-// TODO split out wait, make OPTIONS named MENU, make
-// OPTIONS be a n Options*[] with a CONTROLLER abstraction
-
 typedef enum {
-    WAIT_BEFORE,
-    WAIT_DURING,
-    WAIT_AFTER,
-} WAIT_STATE;
+    CONTROL_IDLE        = 0,
+    CONTROL_CONFIRM     = 1,
+    CONTROL_CANCEL      = 2,
+    CONTROL_BUSY        = 3,
+} CONTROL_STATE;
 
 typedef struct {
-    KEY Key;
-    WAIT_STATE State;
-} WAIT;
+    int Index;
+    int IndexMax;
+    int Scroll;
+    int ScrollMax;
+    int Jump;
+    CONTROL_STATE State;
+} CONTROL;
 
-typedef enum {
-    MENU_IDLE           = 0,
-    MENU_CONFIRM        = 1,
-    MENU_CANCEL         = 2,
-    MENU_MOVE           = 3,
-} MENU_STATE;
+static inline void ControlDown(CONTROL *control) {
+    if (control->Index < control->IndexMax) {
+        control->Index++;
+    } else if (control->Scroll < control->ScrollMax) {
+        control->Scroll++;
+    }
+}
+
+static inline void ControlUp(CONTROL *control) {
+    if (control->Index > 0) {
+        control->Index--;
+    } else if (control->Scroll > 0) {
+        control->Scroll--;
+    }
+}
+
+extern void UpdateControl(CONTROL *control);
 
 /**********************************************************//**
- * @struct OPTIONS
+ * @struct MENU
  * @brief Contains text for displaying choices on a menu.
  **************************************************************/
 typedef struct {
     const char *Option[16];
-    int Index;
-    int Scroll;
-    int IndexMax;
-    int ScrollMax;
-    int Jump;
-    MENU_STATE State;
-} OPTIONS;
+    CONTROL Control;
+} MENU;
+
+static inline void UpdateMenu(MENU *menu) {
+    UpdateControl(&menu->Control);
+}
+
+static inline int MenuItem(const MENU *menu) {
+    return menu->Control.Index + menu->Control.Scroll;
+}
 
 /**************************************************************/
-extern void DrawChoice(const OPTIONS *choice);
-extern void DrawOption(const OPTIONS *choice);
-extern void DrawColumn(const OPTIONS *first, const OPTIONS *second);
+extern void DrawChoice(const MENU *choice);
+extern void DrawOption(const MENU *choice);
+extern void DrawColumn(const MENU *first, const MENU *second);
 extern void DrawAlert(const char *text);
 extern void DrawWarning(const char *text);
 extern void DrawHudUser(const SPECTRA *spectra);
@@ -97,8 +113,6 @@ extern void DrawOutputBattle(void);
 extern void DrawOutputMenu(void);
 extern void DrawOutputMap(void);
 extern void DrawPlayerDisplay(void);
-
-extern void UpdateMenu(OPTIONS *options);
 
 extern void DrawMainMenu(void);
 extern void UpdateMainMenu(void);

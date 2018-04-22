@@ -30,6 +30,12 @@ typedef struct {
     WAIT_STATE State;
 } WAIT;
 
+/**********************************************************//**
+ * @brief Static initializer for a WAIT object.
+ * @param key: The key to wait for.
+ **************************************************************/
+#define WAIT_INITIALIZER(key) {key, WAIT_BEFORE}
+
 /**************************************************************/
 extern void ResetWait(WAIT *wait);
 extern void UpdateWait(WAIT *wait);

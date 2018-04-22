@@ -117,7 +117,10 @@ static void MenuTestUpdate(void) {
     al_identity_transform(&trans);
     al_translate_transform(&trans, 10, 10);
     al_use_transform(&trans);
-    OPTIONS choice = {{"Yes", "No", "Third", "Fourth", "Fifth", "Cancel"}, 0};
+    MENU choice = {
+        {"Yes", "No", "Third", "Fourth", "Fifth", "Cancel"},
+        {.IndexMax=5},
+    };
     DrawChoice(&choice);
     
     al_identity_transform(&trans);
