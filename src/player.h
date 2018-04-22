@@ -8,6 +8,8 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
+#include <stdbool.h>            // bool
+
 #include "coordinate.h"         // COORDINATE
 #include "item.h"               // ITEM_ID
 #include "species.h"            // SPECTRA
@@ -56,6 +58,10 @@ typedef struct {
 extern PLAYER *const Player;
 
 extern void NewGame(void);
+extern bool LoadGame(void);
+extern bool SaveGame(void);
+
+extern void StartPlayTime();
 extern int UnaccountedPlayTime(void);
 
 /**************************************************************/

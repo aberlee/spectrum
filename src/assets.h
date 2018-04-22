@@ -27,6 +27,9 @@ typedef enum {
 /// A size big enough for an array to contain every FONT_ID.
 #define N_FONT (FONT_WINDOW+1)
 
+/// @brief Defines the path to the save file.
+#define SAVE "spectrum.save"
+
 /**************************************************************/
 extern bool LoadAssets(void);
 extern void DestroyAssets(void);
