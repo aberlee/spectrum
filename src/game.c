@@ -110,6 +110,17 @@ static void GameInitialize(void) {
     Output("Hello world!");
     Output("Multi-line text output\ntext!");
     OutputF("Formatted output text: %d", 5);
+
+    CreateSpectra(&Player->Spectra[1], COALSHARK, 100);
+    CreateSpectra(&Player->Spectra[2], RAIKEGON, 74);
+    CreateSpectra(&Player->Spectra[3], BUTCHERBIRD, 66);
+    CreateSpectra(&Player->Spectra[4], NESSIE, 8);
+    
+    Player->Inventory[0] = WATER_BOTTLE;
+    Player->Inventory[1] = FISHING_ROD;
+    Player->Inventory[2] = POTION;
+    Player->Inventory[3] = TOUGH_HERB;
+    Player->Inventory[4] = SERUM;
 }
 
 static void MenuTestUpdate(void) {

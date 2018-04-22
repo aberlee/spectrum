@@ -365,16 +365,19 @@ static CONTROL ItemControl = {
     .State              = CONTROL_IDLE,
 };
 
+static inline int PartyY(int index) {
+    if (index < 3) {
+        return 17+13*index;
+    } else {
+        return 72+13*(index-3);
+    }
+}
+
 void DrawParty(void) {
     al_draw_bitmap(WindowImage(SPECTRA_LIST), 0, 0, 0);
     for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
         // Contend with vertical divider
-        int y;
-        if (i < 3) {
-            y = 17+13*i;
-        } else {
-            y = 72+13*(i-3);
-        }
+        int y = PartyY(i);
         
         // Display spectra information
         const SPECTRA *spectra = &Player->Spectra[i];
@@ -385,7 +388,7 @@ void DrawParty(void) {
         DrawTextF(133, y, "%d/%d", spectra->Health, spectra->MaxHealth);
         DrawTextF(219, y, "%d/%d", spectra->Power, spectra->MaxPower);
     }
-    DrawSelector(2, 15+SpectraControl.Index*13, 104, 12);
+    DrawSelector(2, PartyY(SpectraControl.Index)-2, 104, 12);
 }
 
 void DrawItems(void) {
@@ -393,17 +396,17 @@ void DrawItems(void) {
     int x, y;
     for (int i=0; i<INVENTORY_SIZE && Player->Inventory[i]; i++) {
         // Contend with columns
-        x = 4 + 105*(i%3);
-        y = 17 + 13*(i/3);
+        x = 4 + 105*(i/8);
+        y = 17 + 13*(i%8);
         
         // Get item information
-        //const ITEM *item = Item(Player->Inventory[i]);
-        //DrawText(item->Name, x, y);
+        const ITEM *item = ItemByID(Player->Inventory[i]);
+        DrawText(item->Name, x, y);
     }
     
     // Draw selector
-    x = 2 + 105*(ItemControl.Index%3);
-    y = 15 + 13*(ItemControl.Index/3);
+    x = 2 + 105*(ItemControl.Index/8);
+    y = 15 + 13*(ItemControl.Index%8);
     DrawSelector(x, y, 104, 12);
 }
 
@@ -488,9 +491,16 @@ void UpdateMainMenu(void) {
             case MENU_PLAYER:
                 ResetWait(&Overlay);
                 break;
+            
             case MENU_SAVE:
                 // Update save menu
                 break;
+            
+            case MENU_EXIT:
+                // Immediately cancel menu
+                MainMenu.Control.State = CONTROL_CANCEL;
+                break;
+            
             default:
                 break;
             }
@@ -499,7 +509,6 @@ void UpdateMainMenu(void) {
             switch (MenuItem(&MainMenu)) {
             case MENU_PARTY:
                 UpdateControl(&SpectraControl);
-                eprintf("Spectra state %d\n", SpectraControl.State);
                 if (SpectraControl.State == CONTROL_CANCEL && !KeyDown(KEY_DENY)) {
                     MainMenu.Control.State = CONTROL_IDLE;
                 }
@@ -512,15 +521,13 @@ void UpdateMainMenu(void) {
                 break;
 
             case MENU_PLAYER:
+            case MENU_SAVE:
                 UpdateWait(&Overlay);
                 if (!IsWaiting(&Overlay)) {
                     MainMenu.Control.State = CONTROL_IDLE;
                 }
                 break;
-
-            case MENU_SAVE:
-                // Update save menu
-                break;
+            
             default:
                 break;
             }
