@@ -59,8 +59,10 @@ typedef enum {
  **************************************************************/
 typedef enum {
     REUSABLE        = 0x0001,
-    MENU_USE        = 0x0002,
-    BATTLE_USE      = 0x0004,
+    MENU_ONLY       = 0x0002,
+    BATTLE_ONLY     = 0x0004,
+    ANYWHERE        = 0x0006,
+    IMPORTANT       = 0x0009,
 } ITEM_FLAGS;
 
 /**********************************************************//**
@@ -70,11 +72,14 @@ typedef enum {
 typedef struct {
     char Name[13];              ///< Name of the item.
     int Price;                  ///< Cost of the item.
-    EFFECT_ID Effect;           ///< Menu/battle effect.
+    EFFECT_ID Effect;           ///< Battle effect.
     int Argument;               ///< Argument to the effect.
     ITEM_FLAGS Flags;           ///< Bitset of ITEM_FLAGS.
     const char *Description;    ///< Text description of the item.
 } ITEM;
+
+/**************************************************************/
+extern const ITEM *ItemByID(ITEM_ID id);
 
 /**************************************************************/
 #endif // _ITEM_H_
