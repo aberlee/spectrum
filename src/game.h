@@ -46,5 +46,12 @@ extern double TotalTimeElapsed;
 /**************************************************************/
 extern bool KeyDown(KEY key);
 
+/**********************************************************//**
+ * @brief Checks if the key is not being pressed.
+ * @param key: They key to check.
+ * @return True if the key isn't pressed.
+ **************************************************************/
+#define KeyUp(key) (!KeyDown(key))
+
 /**************************************************************/
 #endif // _GAME_H_
