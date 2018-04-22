@@ -44,7 +44,15 @@ static int ScaleX, ScaleY, ScaleW, ScaleH;
 // Allegro static variables
 static ALLEGRO_EVENT_QUEUE *EventQueue;
 static ALLEGRO_TIMER *FrameRateTimer;
-static ALLEGRO_KEYBOARD_STATE KeyboardState;
+
+typedef enum {
+    KEY_STATE_UP              = 0x00,
+    KEY_STATE_DOWN            = 0x01,
+    KEY_STATE_JUST_UP         = 0x10,
+    KEY_STATE_JUST_DOWN       = 0x11,
+} KEY_STATE;
+
+static KEY_STATE KeyboardState[ALLEGRO_KEY_MAX];
 
 /**********************************************************//**
  * @brief Determines if the key is pressed.
@@ -52,7 +60,15 @@ static ALLEGRO_KEYBOARD_STATE KeyboardState;
  * @return Whether they key is being pressed on this frame.
  **************************************************************/
 bool KeyDown(KEY key) {
-    return al_key_down(&KeyboardState, key);
+    return KeyboardState[key] & KEY_STATE_DOWN;
+}
+
+bool KeyJustDown(KEY key) {
+    return KeyboardState[key] == KEY_STATE_JUST_DOWN;
+}
+
+bool KeyJustUp(KEY key) {
+    return KeyboardState[key] == KEY_STATE_JUST_UP;
 }
 
 static void AllegroInstall(void) {
@@ -242,12 +258,23 @@ static void GameMainLoop(void) {
                 al_draw_scaled_bitmap(ScaleBuffer, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, ScaleX, ScaleY, ScaleW, ScaleH, 0);
                 al_flip_display();
             }
+            
+            // Remove "Just" events
+            for (int i=0; i<ALLEGRO_KEY_MAX; i++) {
+                KeyboardState[i] &= 0x01;
+            }
             break;
         
         case ALLEGRO_EVENT_KEY_DOWN:
+            KeyboardState[event.keyboard.keycode] = KEY_STATE_JUST_DOWN;
+            break;
+        
         case ALLEGRO_EVENT_KEY_CHAR:
+            KeyboardState[event.keyboard.keycode] = KEY_STATE_JUST_DOWN;
+            break;
+            
         case ALLEGRO_EVENT_KEY_UP:
-            al_get_keyboard_state(&KeyboardState);
+            KeyboardState[event.keyboard.keycode] = KEY_STATE_JUST_UP;
             break;
             
         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:

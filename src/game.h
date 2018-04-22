@@ -45,6 +45,8 @@ extern double TotalTimeElapsed;
 
 /**************************************************************/
 extern bool KeyDown(KEY key);
+extern bool KeyJustDown(KEY key);
+extern bool KeyJustUp(KEY key);
 
 /**********************************************************//**
  * @brief Checks if the key is not being pressed.
