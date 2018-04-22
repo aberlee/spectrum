@@ -270,6 +270,15 @@ void DrawTechniqueDisplay(TECHNIQUE_ID id) {
     al_draw_bitmap(TypeImage(technique->Type), 2, 15, 0);
 }
 
+void DrawItemDisplay(ITEM_ID id) {
+    al_draw_bitmap(WindowImage(ITEM_DISPLAY), 0, 0, 0);
+    const ITEM *item = ItemByID(id);
+    
+    DrawTitle(item->Name, 4, 4);
+    DrawTextF(39, 17, "$%d.00", item->Price);
+    DrawTextBox(item->Description, 4, 30, 165);
+}
+
 static inline void DrawWaitingIcon(int x, int y) {
     if (sin(TotalTimeElapsed*8)>0) {
         DrawSelector(x, y, 5, 8);
@@ -414,6 +423,7 @@ typedef enum {
     MENU_PARTY,
     MENU_ITEMS,
     MENU_PLAYER,
+    MENU_INFO,
     MENU_SAVE,
     MENU_EXIT,
 } MAIN_MENU_OPTION;
@@ -423,6 +433,7 @@ static MENU MainMenu = {
         [MENU_PARTY]    = "Party",
         [MENU_ITEMS]    = "Items",
         [MENU_PLAYER]   = "Player",
+        [MENU_INFO]     = "Info",
         [MENU_SAVE]     = "Save",
         [MENU_EXIT]     = "Exit",
     },
@@ -448,6 +459,8 @@ void DrawMainMenu(void) {
         case MENU_ITEMS:
             DrawAt(4, 92);
             DrawItems();
+            DrawAt(4, 216);
+            DrawItemDisplay(Player->Inventory[ControlItem(&ItemControl)]);
             break;
 
         case MENU_PLAYER:
@@ -489,6 +502,7 @@ void UpdateMainMenu(void) {
                 break;
 
             case MENU_PLAYER:
+            case MENU_INFO:
                 ResetWait(&Overlay);
                 break;
             
@@ -521,13 +535,14 @@ void UpdateMainMenu(void) {
                 break;
 
             case MENU_PLAYER:
-            case MENU_SAVE:
+            case MENU_INFO:
                 UpdateWait(&Overlay);
                 if (!IsWaiting(&Overlay)) {
                     MainMenu.Control.State = CONTROL_IDLE;
                 }
                 break;
             
+            case MENU_SAVE:
             default:
                 break;
             }

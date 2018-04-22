@@ -64,6 +64,10 @@ typedef struct {
     CONTROL_STATE State;
 } CONTROL;
 
+static inline int ControlItem(const CONTROL *control) {
+    return control->Index + control->Scroll;
+}
+
 static inline void ControlDown(CONTROL *control) {
     if (control->Index < control->IndexMax) {
         control->Index++;
@@ -96,7 +100,7 @@ static inline void UpdateMenu(MENU *menu) {
 }
 
 static inline int MenuItem(const MENU *menu) {
-    return menu->Control.Index + menu->Control.Scroll;
+    return ControlItem(&menu->Control);
 }
 
 /**************************************************************/
