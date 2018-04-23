@@ -37,9 +37,17 @@ typedef struct {
 #define WAIT_INITIALIZER(key) {key, WAIT_BEFORE}
 
 /**************************************************************/
-extern void ResetWait(WAIT *wait);
+extern void ResetWaitTo(WAIT *wait, WAIT_STATE state);
 extern void UpdateWait(WAIT *wait);
 extern bool IsWaiting(const WAIT *wait);
+
+/**********************************************************//**
+ * @brief Reset the wait to the beginning.
+ * @param wait: WAIT data to reset.
+ **************************************************************/
+static inline void ResetWait(WAIT *wait) {
+    ResetWaitTo(wait, WAIT_BEFORE);
+}
 
 /**************************************************************/
 #endif // _WAIT_H_

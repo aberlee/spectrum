@@ -13,9 +13,10 @@
 /**********************************************************//**
  * @brief Reset the WAIT state so it can begin waiting again.
  * @param wait: The WAIT data to reset.
+ * @param state: The state to reset to.
  **************************************************************/
-void ResetWait(WAIT *wait) {
-    wait->State = WAIT_BEFORE;
+void ResetWaitTo(WAIT *wait, WAIT_STATE state) {
+    wait->State = state;
 }
 
 /**********************************************************//**
@@ -26,13 +27,12 @@ void ResetWait(WAIT *wait) {
 void UpdateWait(WAIT *wait) {
     switch (wait->State) {
     case WAIT_BEFORE:
-        if (KeyDown(wait->Key)) {
+        if (KeyJustDown(wait->Key)) {
             wait->State = WAIT_DURING;
         }
         break;
-    
     case WAIT_DURING:
-        if (!KeyDown(wait->Key)) {
+        if (KeyJustUp(wait->Key)) {
             wait->State = WAIT_AFTER;
         }
         break;
