@@ -127,38 +127,27 @@ void UpdateControl(CONTROL *control) {
     switch (control->State) {
     case CONTROL_IDLE:
         // Respond to scrolling up
-        if (KeyDown(KEY_UP)) {
-            control->State = CONTROL_BUSY;
+        if (KeyJustDown(KEY_UP)) {
             ControlUp(control);
         // Jump up
-        } else if (control->Jump && KeyDown(KEY_LEFT)) {
-            control->State = CONTROL_BUSY;
+        } else if (control->Jump && KeyJustDown(KEY_LEFT)) {
             for (int i=0; i<control->Jump; i++) {
                 ControlUp(control);
             }
         // Respond to scrolling down
-        } else if (KeyDown(KEY_DOWN)) {
-            control->State = CONTROL_BUSY;
+        } else if (KeyJustDown(KEY_DOWN)) {
             ControlDown(control);
         // Jump down
-        } else if (control->Jump && KeyDown(KEY_RIGHT)) {
-            control->State = CONTROL_BUSY;
+        } else if (control->Jump && KeyJustDown(KEY_RIGHT)) {
             for (int i=0; i<control->Jump; i++) {
                 ControlDown(control);
             }
         // Respond to confirm key
-        } else if (KeyDown(KEY_CONFIRM)) {
+        } else if (KeyJustDown(KEY_CONFIRM)) {
             control->State = CONTROL_CONFIRM;
         // Respond to cancel key
-        } else if (KeyDown(KEY_DENY)) {
+        } else if (KeyJustDown(KEY_DENY)) {
             control->State = CONTROL_CANCEL;
-        }
-        break;
-    
-    case CONTROL_BUSY:
-        // Make the menu idle if no scrolling
-        if (KeyUp(KEY_UP) && KeyUp(KEY_DOWN) && KeyUp(KEY_LEFT) && KeyUp(KEY_RIGHT)) {
-            control->State = CONTROL_IDLE;
         }
         break;
     
