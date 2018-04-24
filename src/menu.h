@@ -52,7 +52,6 @@ typedef enum {
     CONTROL_IDLE        = 0,
     CONTROL_CONFIRM     = 1,
     CONTROL_CANCEL      = 2,
-    CONTROL_BUSY        = 3,
 } CONTROL_STATE;
 
 typedef struct {
