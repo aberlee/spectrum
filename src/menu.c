@@ -438,11 +438,16 @@ void DrawMainMenu(void) {
     DrawOption(&MainMenu);
     
     // Draw sub-menus
-    if (MainMenu.Control.State == CONTROL_CONFIRM) {
+    switch (MainMenu.Control.State) {
+    case CONTROL_CONFIRM:
         switch (MenuItem(&MainMenu)) {
         case MENU_PARTY:
             DrawAt(18, 92);
             DrawParty();
+            if (SpectraControl.State == CONTROL_CONFIRM) {
+                DrawAt(26, 100);
+                DrawSpectraDisplay(&Player->Spectra[ControlItem(&SpectraControl)]);
+            }
             break;
 
         case MENU_ITEMS:
@@ -463,78 +468,97 @@ void DrawMainMenu(void) {
         default:
             break;
         }
+        break;
+
+    default:
+        break;
     }
 }
 
 static WAIT Overlay = WAIT_INITIALIZER(KEY_DENY);
 
 void UpdateMainMenu(void) {
-    CONTROL_STATE before = MainMenu.Control.State;
-    UpdateMenu(&MainMenu);
-    if (MainMenu.Control.State == CONTROL_CONFIRM) {
-        // Initialize new menu if just confirmed an option
-        if (before != MainMenu.Control.State) {
+    switch (MainMenu.Control.State) {
+    // Cases where a submenu is currently open:
+    // Party, Items, Player, Info, and Save screens.
+    case CONTROL_CONFIRM:
+        switch (MenuItem(&MainMenu)) {
+        case MENU_PARTY:
+            switch (SpectraControl.State) {
+            case CONTROL_CONFIRM:
+                if (KeyJustUp(KEY_DENY)) {
+                    SpectraControl.State = CONTROL_IDLE;
+                }
+                break;
+            case CONTROL_CANCEL:
+                MainMenu.Control.State = CONTROL_IDLE;
+                break;
+            case CONTROL_IDLE:
+                UpdateControl(&SpectraControl);
+                break;
+            }
+            break;
+        
+        case MENU_ITEMS:
+            switch (ItemControl.State) {
+            case CONTROL_CONFIRM:
+                // Use item
+                break;
+            case CONTROL_CANCEL:
+                MainMenu.Control.State = CONTROL_IDLE;
+                break;
+            case CONTROL_IDLE:
+                UpdateControl(&ItemControl);
+                break;
+            }
+            break;
+        
+        case MENU_PLAYER:
+        case MENU_INFO:
+            UpdateWait(&Overlay);
+            if (!IsWaiting(&Overlay)) {
+                MainMenu.Control.State = CONTROL_IDLE;
+            }
+            break;
+        
+        case MENU_SAVE:
+            // Perform save
+            break;
+        }
+        break;
+     
+     // The player can use the main menu currently.
+     case CONTROL_IDLE:
+        // Update menu and initialize new submenu if needed
+        UpdateMenu(&MainMenu);
+        if (MainMenu.Control.State == CONTROL_CONFIRM) {
             switch (MenuItem(&MainMenu)) {
             case MENU_PARTY:
-                // Update party controls with bounds
                 for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
                     SpectraControl.IndexMax = i;
                 }
                 SpectraControl.State = CONTROL_IDLE;
                 break;
             case MENU_ITEMS:
-                // Update item controls with bounds
                 for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
                     ItemControl.IndexMax = i;
                 }
                 ItemControl.State = CONTROL_IDLE;
                 break;
-
             case MENU_PLAYER:
             case MENU_INFO:
                 ResetWait(&Overlay);
                 break;
-            
-            case MENU_SAVE:
-                // Update save menu
-                break;
-            
             case MENU_EXIT:
-                // Immediately cancel menu
+                // Immediately cancel out of menu
                 MainMenu.Control.State = CONTROL_CANCEL;
-                break;
-            
-            default:
-                break;
-            }
-        // Update existing menu
-        } else if (!KeyDown(KEY_CONFIRM)) {
-            switch (MenuItem(&MainMenu)) {
-            case MENU_PARTY:
-                UpdateControl(&SpectraControl);
-                if (SpectraControl.State == CONTROL_CANCEL && !KeyDown(KEY_DENY)) {
-                    MainMenu.Control.State = CONTROL_IDLE;
-                }
-                break;
-            case MENU_ITEMS:
-                UpdateControl(&ItemControl);
-                if (ItemControl.State == CONTROL_CANCEL && !KeyDown(KEY_DENY)) {
-                    MainMenu.Control.State = CONTROL_IDLE;
-                }
-                break;
-
-            case MENU_PLAYER:
-            case MENU_INFO:
-                UpdateWait(&Overlay);
-                if (!IsWaiting(&Overlay)) {
-                    MainMenu.Control.State = CONTROL_IDLE;
-                }
-                break;
-            
-            case MENU_SAVE:
-            default:
                 break;
             }
         }
+        break;
+    
+    // The menu has been cancelled.
+    case CONTROL_CANCEL:
+        break;
     }
 }
