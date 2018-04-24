@@ -244,7 +244,7 @@ static const ITEM ITEM_DATA[] = {
         .Name           = "Fishing Rod",
         .Price          = 48,
         .Effect         = 0,
-        .Flags          = REUSABLE|IMPORTANT|MENU_ONLY,
+        .Flags          = REUSABLE|IMPORTANT|MENU_ONLY|SPECIAL,
         .Description    = "A fishing rod for finding spectra.",
     },
 };

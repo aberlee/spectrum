@@ -427,10 +427,23 @@ static MENU MainMenu = {
         [MENU_EXIT]     = "Exit",
     },
     .Control = {
-        .IndexMax       = 4,
-        .State          = CONTROL_IDLE,
+        .IndexMax       = 5,
     },
 };
+
+typedef enum {
+    ITEM_USE,
+    ITEM_TOSS,
+} ITEM_MENU_OPTION;
+
+void InitializeMainMenu(void) {
+    for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+        SpectraControl.IndexMax = i;
+    }
+    for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+        ItemControl.IndexMax = i;
+    }
+}
 
 void DrawMainMenu(void) {
     // Draw main menu
@@ -438,8 +451,7 @@ void DrawMainMenu(void) {
     DrawOption(&MainMenu);
     
     // Draw sub-menus
-    switch (MainMenu.Control.State) {
-    case CONTROL_CONFIRM:
+    if (MainMenu.Control.State == CONTROL_CONFIRM) {
         switch (MenuItem(&MainMenu)) {
         case MENU_PARTY:
             DrawAt(18, 92);
@@ -455,6 +467,10 @@ void DrawMainMenu(void) {
             DrawItems();
             DrawAt(4, 216);
             DrawItemDisplay(Player->Inventory[ControlItem(&ItemControl)]);
+            if (ItemControl.State == CONTROL_CONFIRM) {
+                DrawAt(12, 100);
+                DrawParty();
+            }
             break;
 
         case MENU_PLAYER:
@@ -465,13 +481,7 @@ void DrawMainMenu(void) {
         case MENU_SAVE:
             // Draw save screen
             break;
-        default:
-            break;
         }
-        break;
-
-    default:
-        break;
     }
 }
 
@@ -502,13 +512,34 @@ void UpdateMainMenu(void) {
         case MENU_ITEMS:
             switch (ItemControl.State) {
             case CONTROL_CONFIRM:
-                // Use item
+                // Select a spectra to use the item on
+                switch (SpectraControl.State) {
+                case CONTROL_CONFIRM:
+                    // Use the item
+                    break;
+                case CONTROL_CANCEL:
+                    ItemControl.State = CONTROL_IDLE;
+                    break;
+                case CONTROL_IDLE:
+                    UpdateControl(&SpectraControl);
+                    break;
+                }
                 break;
             case CONTROL_CANCEL:
                 MainMenu.Control.State = CONTROL_IDLE;
                 break;
             case CONTROL_IDLE:
                 UpdateControl(&ItemControl);
+                // Initialize spectra choice submenu
+                if (ItemControl.State == CONTROL_CONFIRM) {
+                    // Ensure the item can be used from the menu
+                    const ITEM *item = ItemByID(Player->Inventory[ControlItem(&ItemControl)]);
+                    if (item->Flags & MENU_ONLY) {
+                        ResetControl(&SpectraControl);
+                    } else {
+                        ItemControl.State = CONTROL_IDLE;
+                    }
+                }
                 break;
             }
             break;
@@ -530,20 +561,15 @@ void UpdateMainMenu(void) {
      // The player can use the main menu currently.
      case CONTROL_IDLE:
         // Update menu and initialize new submenu if needed
+        InitializeMainMenu();
         UpdateMenu(&MainMenu);
         if (MainMenu.Control.State == CONTROL_CONFIRM) {
             switch (MenuItem(&MainMenu)) {
             case MENU_PARTY:
-                for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
-                    SpectraControl.IndexMax = i;
-                }
-                SpectraControl.State = CONTROL_IDLE;
+                ResetControl(&SpectraControl);
                 break;
             case MENU_ITEMS:
-                for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
-                    ItemControl.IndexMax = i;
-                }
-                ItemControl.State = CONTROL_IDLE;
+                ResetControl(&ItemControl);
                 break;
             case MENU_PLAYER:
             case MENU_INFO:

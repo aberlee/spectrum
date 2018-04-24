@@ -85,6 +85,12 @@ static inline void ControlUp(CONTROL *control) {
 
 extern void UpdateControl(CONTROL *control);
 
+static inline void ResetControl(CONTROL *control) {
+    control->Index = 0;
+    control->Scroll = 0;
+    control->State = CONTROL_IDLE;
+}
+
 /**********************************************************//**
  * @struct MENU
  * @brief Contains text for displaying choices on a menu.
