@@ -443,6 +443,7 @@ void InitializeMainMenu(void) {
     for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
         ItemControl.IndexMax = i;
     }
+    ResetControl(&MainMenu.Control);
 }
 
 void DrawMainMenu(void) {
@@ -561,7 +562,6 @@ void UpdateMainMenu(void) {
      // The player can use the main menu currently.
      case CONTROL_IDLE:
         // Update menu and initialize new submenu if needed
-        InitializeMainMenu();
         UpdateMenu(&MainMenu);
         if (MainMenu.Control.State == CONTROL_CONFIRM) {
             switch (MenuItem(&MainMenu)) {
@@ -587,4 +587,8 @@ void UpdateMainMenu(void) {
     case CONTROL_CANCEL:
         break;
     }
+}
+
+bool MainMenuClosed(void) {
+    return MainMenu.Control.State == CONTROL_CANCEL;
 }

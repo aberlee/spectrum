@@ -50,6 +50,8 @@ static const COORDINATE *CurrentBounds;
 static bool DebugMap = true;
 #endif
 
+static bool MainMenuOpen = false;
+
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
  * @param id: Identity of the location.
@@ -351,6 +353,7 @@ void DrawDebugInformation(void) {
  * @brief Draws the current map (based on static data).
  **************************************************************/
 void DrawMap(void) {
+    DrawAt(0, 0);
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
     int centerX = DISPLAY_WIDTH/2-Player->Position.X;
     int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
@@ -358,6 +361,12 @@ void DrawMap(void) {
 #ifdef DEBUG
     DrawDebugInformation();
 #endif
+    
+    // Main menu overlay
+    if (MainMenuOpen) {
+        DrawAt(0, 0);
+        DrawMainMenu();
+    }
 }
 
 /**********************************************************//**
@@ -370,11 +379,29 @@ static inline bool Passable(int x, int y) {
     return TileInBounds(x, y) && !Tile(x, y).Flags;
 }
 
+
+
 /**********************************************************//**
  * @brief Parses the user's keyboard input to update the map
  * position and activate any events.
  **************************************************************/
 void UpdateMap(void) {
+    // Main menu initialization
+    if (!MainMenuOpen && KeyJustUp(KEY_MENU)) {
+        MainMenuOpen = true;
+        InitializeMainMenu();
+        return;
+    }
+    
+    // Main menu processing pre-empts map processing
+    if (MainMenuOpen) {
+        UpdateMainMenu();
+        if (MainMenuClosed()) {
+            MainMenuOpen = false;
+        }
+        return;
+    }
+    
     // Key press reading
     float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTimeElapsed;
     float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTimeElapsed;

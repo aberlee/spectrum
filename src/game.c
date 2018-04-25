@@ -208,15 +208,15 @@ static void MenuTestUpdate(void) {
 
 static void Update(void) {
 /*     MenuTestUpdate(); */
-/*     static int yes = 1;
+    static int yes = 1;
     if (yes) {
         Warp(MAP_OVERWORLD, 24*16, 43*16);
         yes = 0;
     }
     UpdateMap();
-    DrawMap(); */
-    UpdateMainMenu();
-    DrawMainMenu();
+    DrawMap();
+/*     UpdateMainMenu();
+    DrawMainMenu(); */
 }
 
 static void GameMainLoop(void) {

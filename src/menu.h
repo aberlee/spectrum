@@ -123,8 +123,10 @@ extern void DrawOutputMenu(void);
 extern void DrawOutputMap(void);
 extern void DrawPlayerDisplay(void);
 
+extern void InitializeMainMenu(void);
 extern void DrawMainMenu(void);
 extern void UpdateMainMenu(void);
+extern bool MainMenuClosed(void);
 
 /**************************************************************/
 #endif // _MENU_H_
