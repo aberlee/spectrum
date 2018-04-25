@@ -1,22 +1,34 @@
-#include <stdio.h>
-#include "math.h"
+/**********************************************************//**
+ * @file menu.c
+ * @brief Implements menu and main menu processing.
+ * @author Rena Shinomiya
+ * @date April 24, 2018
+ **************************************************************/
+
+#include <stdio.h>              // snprintf
+#include <math.h>               // sin
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
-#include "game.h"
-#include "assets.h"
-#include "species.h"
-#include "technique.h"
-#include "output.h" // GetOutput
-#include "player.h" // Player
-#include "item.h"
+#include "game.h"               // KEY
+#include "assets.h"             // Font, WindowImage
+#include "species.h"            // SpeciesByID
+#include "technique.h"          // TechniqueByID
+#include "item.h"               // ItemByID
+#include "player.h"             // Player
+#include "output.h"             // GetOutput
 #include "wait.h"               // WAIT
+#include "debug.h"              // eprintf
 
-#include "debug.h"
-
+/**********************************************************//**
+ * @brief Draws standard text on the screen.
+ * @param text: String to draw.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ **************************************************************/
 static inline void DrawText(const char *text, int x, int y) {
     al_draw_text(
         Font(FONT_WINDOW),
@@ -27,15 +39,29 @@ static inline void DrawText(const char *text, int x, int y) {
         text);
 }
 
+/**********************************************************//**
+ * @brief Calls DrawText with printf-style formatting.
+ * @param x: X position to draw at.
+ * @param y : Y position to draw at.
+ * @param format: printf-style format string.
+ * @param ...: printf-style arguments.
+ **************************************************************/
 #define DrawTextF(x, y, format, ...) {\
     char buf[256];\
     snprintf(buf, 255, format, __VA_ARGS__);\
     DrawText(buf, x, y);\
 }
 
+/**********************************************************//**
+ * @brief Draws a number on the screen. This is right-aligned.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ * @param number: Number to draw.
+ **************************************************************/
 static inline void DrawNumber(int x, int y, int number) {
-    char buf[33];
-    snprintf(buf, 32, "%d", number);
+    const int BUF_SIZE = 32;
+    char buf[BUF_SIZE+1];
+    snprintf(buf, BUF_SIZE, "%d", number);
     al_draw_text(
         Font(FONT_WINDOW),
         number? al_map_rgb(0, 0, 0): al_map_rgb(128, 128, 128),
@@ -45,6 +71,12 @@ static inline void DrawNumber(int x, int y, int number) {
         buf);
 }
 
+/**********************************************************//**
+ * @brief Like DrawText, but uses window title styling.
+ * @param text: String to draw.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ **************************************************************/
 static inline void DrawTitle(const char *text, int x, int y) {
     al_draw_text(
         Font(FONT_WINDOW),
@@ -55,12 +87,26 @@ static inline void DrawTitle(const char *text, int x, int y) {
         text);
 }
 
+/**********************************************************//**
+ * @brief Calls DrawTitle with printf-style formatting.
+ * @param x: X position to draw at.
+ * @param y : Y position to draw at.
+ * @param format: printf-style format string.
+ * @param ...: printf-style arguments.
+ **************************************************************/
 #define DrawTitleF(x, y, format, ...) {\
     char buf[256];\
     snprintf(buf, 255, format, __VA_ARGS__);\
     DrawTitle(buf, x, y);\
 }
 
+/**********************************************************//**
+ * @brief Draws a text box using DrawText styling.
+ * @param text: String to draw.
+ * @param x: X position to draw at.
+ * @param y : Y position to draw at.
+ * @param width: Width in pixels of the text box.
+ **************************************************************/
 static inline void DrawTextBox(const char *text, int x, int y, int width) {
     al_draw_multiline_text(
         Font(FONT_WINDOW),
@@ -73,21 +119,48 @@ static inline void DrawTextBox(const char *text, int x, int y, int width) {
         text);
 }
 
+/**********************************************************//**
+ * @brief Like DrawTextBox, but uses printf-style formatting.
+ * @param x: X position to draw at.
+ * @param y : Y position to draw at.
+ * @param width: Width in pixels of the text box.
+ * @param format: printf-style format string.
+ * @param ...: printf-style arguments.
+ **************************************************************/
 #define DrawTextBoxF(x, y, width, format, ...) {\
     char buf[256];\
     snprintf(buf, 255, format, __VA_ARGS__);\
     DrawTextBox(buf, x, y, width);\
 }
 
+/**********************************************************//**
+ * @brief Draw a greyed-out box denoting an item has been
+ * selected by the user.
+ * @param x: Upper-left X position.
+ * @param y: Upper-left Y position.
+ * @param width: Width of the selector box.
+ * @param height: Height of the seelctor box.
+ **************************************************************/
 static inline void DrawSelector(int x, int y, int width, int height) {
     al_draw_filled_rectangle(x, y, x+width, y+height, al_map_rgba(0, 0, 0, 60));
 }
 
+/**********************************************************//**
+ * @brief Draws a colored health bar.
+ * @param percent: Percent of health (in 0...1)
+ * @param x: Upper-left X position.
+ * @param y: Upper-left Y position.
+ **************************************************************/
 static inline void DrawBar(float percent, int x, int y) {
     int x0 = x + (int)(percent*81);
     al_draw_filled_rectangle(x, y, x0, y+8, al_color_hsv(120*percent, 0.5f, 0.8f));
 }
 
+/**********************************************************//**
+ * @brief Draws a small two-index menu on the screen, with
+ * scrolling enabled.
+ * @param choice: MENU choices of 4 or less characters each.
+ **************************************************************/
 void DrawChoice(const MENU *choice) {
     al_draw_bitmap(WindowImage(MENU_CHOICE), 0, 0, 0);
     for (int i=0; i<2; i++) {
@@ -96,16 +169,28 @@ void DrawChoice(const MENU *choice) {
     DrawSelector(2, 2+13*choice->Control.Index, 34, 12);
 }
 
+/**********************************************************//**
+ * @brief Draws an alert box on the screen.
+ * @param text: Text to put in the alert.
+ **************************************************************/
 void DrawAlert(const char *text) {
     al_draw_bitmap(WindowImage(ALERT), 0, 0, 0);
     DrawTextBox(text, 4, 17, 120);
 }
 
+/**********************************************************//**
+ * @brief Draws a warning box on the screen.
+ * @param text: Text to put in the warning.
+ **************************************************************/
 void DrawWarning(const char *text) {
     al_draw_bitmap(WindowImage(WARNING), 0, 0, 0);
     DrawTextBox(text, 4, 17, 120);
 }
 
+/**********************************************************//**
+ * @brief Draws a 6-index menu with scrolling on the screen.
+ * @param options: MENU items to draw.
+ **************************************************************/
 void DrawOption(const MENU *options) {
     al_draw_bitmap(WindowImage(MENU_OPTION), 0, 0, 0);
     for (int i=0; i<6; i++) {
@@ -114,6 +199,12 @@ void DrawOption(const MENU *options) {
     DrawSelector(2, 2+13*options->Control.Index, 96, 12);
 }
 
+/**********************************************************//**
+ * @brief Draws a 2-column menu on the screen. The control of
+ * the first item supercedes the control of the second.
+ * @param first: Items to put in the first column.
+ * @param second: Items to put in the second column.
+ **************************************************************/
 void DrawColumn(const MENU *first, const MENU *second) {
     al_draw_bitmap(WindowImage(MENU_COLUMN), 0, 0, 0);
     for (int i=0; i<6; i++) {
@@ -123,6 +214,12 @@ void DrawColumn(const MENU *first, const MENU *second) {
     DrawSelector(2, 2+13*first->Control.Index, 138, 12);
 }
 
+/**********************************************************//**
+ * @brief Harnesses user input to update the state and
+ * position of a CONTROL. Nothing is done if the control
+ * isn't idle.
+ * @param control: CONTROL to update.
+ **************************************************************/
 void UpdateControl(CONTROL *control) {
     switch (control->State) {
     case CONTROL_IDLE:
@@ -159,6 +256,10 @@ void UpdateControl(CONTROL *control) {
     }
 }
 
+/**********************************************************//**
+ * @brief Draws a stat sheet for a SPECTRA.
+ * @param spectra: Spectra to display stats for.
+ **************************************************************/
 void DrawSpectraDisplay(const SPECTRA *spectra) {
     al_draw_bitmap(WindowImage(SPECTRA_DISPLAY), 0, 0, 0);
     const SPECIES *species = SpeciesOfSpectra(spectra);
@@ -217,6 +318,10 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     al_draw_bitmap(sprite, 109+xOffset, 19+yOffset, ALLEGRO_FLIP_HORIZONTAL);
 }
 
+/**********************************************************//**
+ * @brief Draw a HUD for a SPECTRA from the user's perspective.
+ * @param spectra: SPECTRA to show.
+ **************************************************************/
 void DrawHudUser(const SPECTRA *spectra) {
     al_draw_bitmap(WindowImage(HUD_USER), 0, 0, 0);
     const SPECIES *species = SpeciesOfSpectra(spectra);
@@ -234,6 +339,10 @@ void DrawHudUser(const SPECTRA *spectra) {
     DrawTextF(116, 15, "%d/%d", spectra->Power, spectra->MaxPower);
 }
 
+/**********************************************************//**
+ * @brief Draw a HUD for a SPECTRA from the enemy's perspective.
+ * @param spectra: SPECTRA to show.
+ **************************************************************/
 void DrawHudEnemy(const SPECTRA *spectra) {
     al_draw_bitmap(WindowImage(HUD_ENEMY), 0, 0, 0);
     const SPECIES *species = SpeciesOfSpectra(spectra);
@@ -248,6 +357,10 @@ void DrawHudEnemy(const SPECTRA *spectra) {
     }
 }
 
+/**********************************************************//**
+ * @brief Draw information for a TECHNIQUE.
+ * @param id: ID of a TECHNIQUE.
+ **************************************************************/
 void DrawTechniqueDisplay(TECHNIQUE_ID id) {
     al_draw_bitmap(WindowImage(TECHNIQUE_DISPLAY), 0, 0, 0);
     const TECHNIQUE *technique = TechniqueByID(id);
@@ -259,6 +372,10 @@ void DrawTechniqueDisplay(TECHNIQUE_ID id) {
     al_draw_bitmap(TypeImage(technique->Type), 2, 15, 0);
 }
 
+/**********************************************************//**
+ * @brief Draw information for an ITEM.
+ * @param id: ID of an ITEM.
+ **************************************************************/
 void DrawItemDisplay(ITEM_ID id) {
     al_draw_bitmap(WindowImage(ITEM_DISPLAY), 0, 0, 0);
     const ITEM *item = ItemByID(id);
@@ -268,12 +385,21 @@ void DrawItemDisplay(ITEM_ID id) {
     DrawTextBox(item->Description, 4, 30, 165);
 }
 
+/**********************************************************//**
+ * @brief Draw the animated wait icon for output.
+ * @param x: X position of the icon.
+ * @param y: Y position of the icon.
+ **************************************************************/
 static inline void DrawWaitingIcon(int x, int y) {
     if (sin(TotalTimeElapsed*8)>0) {
         DrawSelector(x, y, 5, 8);
     }
 }
 
+/**********************************************************//**
+ * @brief Draw the current output, formatted for the battle
+ * screen.
+ **************************************************************/
 void DrawOutputBattle(void) {
     al_draw_bitmap(WindowImage(OUTPUT_BATTLE), 117, 328, 0);
     DrawTextBox(GetOutput(), 121, 332, 352);
@@ -282,6 +408,10 @@ void DrawOutputBattle(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Draw the current output, formatted for the menu
+ * screen.
+ **************************************************************/
 void DrawOutputMenu(void) {
     al_draw_bitmap(WindowImage(OUTPUT_MENU), 0, 305, 0);
     DrawTextBox(GetOutput(), 4, 309, 472);
@@ -290,6 +420,10 @@ void DrawOutputMenu(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Draw the current output, formatted for the map
+ * screen.
+ **************************************************************/
 void DrawOutputMap(void) {
     al_draw_bitmap(WindowImage(OUTPUT_MAP), 147, 328, 0);
     DrawTextBox(GetOutput(), 151, 332, 322);
@@ -298,6 +432,9 @@ void DrawOutputMap(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Draw the player's information on the screen.
+ **************************************************************/
 void DrawPlayerDisplay(void) {
     al_draw_bitmap(WindowImage(PLAYER_DISPLAY), 0, 0, 0);
     DrawText("Amy", 45, 4);
@@ -347,6 +484,12 @@ void DrawPlayerDisplay(void) {
     al_draw_bitmap(sprite, 6+xOffset, 6+yOffset, 0);
 }
 
+/**********************************************************//**
+ * @brief Set the upper-left corner of the subsequent menus
+ * to be drawn. Use DrawAt(0, 0) to return to normal.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ **************************************************************/
 void DrawAt(int x, int y) {
     ALLEGRO_TRANSFORM trans;
     al_identity_transform(&trans);
@@ -354,15 +497,24 @@ void DrawAt(int x, int y) {
     al_use_transform(&trans);
 }
 
+/**************************************************************/
+/// @brief Controls the spectra menu.
 static CONTROL SpectraControl = {
+    .Jump               = 3,
     .State              = CONTROL_IDLE,
 };
 
+/// @brief Controls the items menu.
 static CONTROL ItemControl = {
     .Jump               = 8,
     .State              = CONTROL_IDLE,
 };
 
+/**********************************************************//**
+ * @brief Gets the Y offset into the party screen.
+ * @param index: Index of spectra in the party.
+ * @return The Y position to offset to.
+ **************************************************************/
 static inline int PartyY(int index) {
     if (index < 3) {
         return 17+13*index;
@@ -371,6 +523,9 @@ static inline int PartyY(int index) {
     }
 }
 
+/**********************************************************//**
+ * @brief Draws the party menu on the screen.
+ **************************************************************/
 void DrawParty(void) {
     al_draw_bitmap(WindowImage(SPECTRA_LIST), 0, 0, 0);
     for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
@@ -389,6 +544,9 @@ void DrawParty(void) {
     DrawSelector(2, PartyY(SpectraControl.Index)-2, 104, 12);
 }
 
+/**********************************************************//**
+ * @brief Draws the items menu on the screen.
+ **************************************************************/
 void DrawItems(void) {
     al_draw_bitmap(WindowImage(ITEM_LIST), 0, 0, 0);
     int x, y;
@@ -408,6 +566,10 @@ void DrawItems(void) {
     DrawSelector(x, y, 104, 12);
 }
 
+/**********************************************************//**
+ * @enum MAIN_MENU_OPTION
+ * @brief Enumerates options in the main menu.
+ **************************************************************/
 typedef enum {
     MENU_PARTY,
     MENU_ITEMS,
@@ -417,6 +579,8 @@ typedef enum {
     MENU_EXIT,
 } MAIN_MENU_OPTION;
 
+/**************************************************************/
+/// @brief Defines the main menu and its control structure.
 static MENU MainMenu = {
     .Option = {
         [MENU_PARTY]    = "Party",
@@ -431,11 +595,12 @@ static MENU MainMenu = {
     },
 };
 
-typedef enum {
-    ITEM_USE,
-    ITEM_TOSS,
-} ITEM_MENU_OPTION;
+/// @brief Wait data for when the main menu opens an overlay.
+static WAIT Overlay = WAIT_INITIALIZER(KEY_DENY);
 
+/**********************************************************//**
+ * @brief Sets up the main menu when it's opened.
+ **************************************************************/
 void InitializeMainMenu(void) {
     for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
         SpectraControl.IndexMax = i;
@@ -446,6 +611,10 @@ void InitializeMainMenu(void) {
     ResetControl(&MainMenu.Control);
 }
 
+/**********************************************************//**
+ * @brief Draws the main menu and any of its descendants
+ * on the screen.
+ **************************************************************/
 void DrawMainMenu(void) {
     // Draw main menu
     DrawAt(326, 92);
@@ -486,8 +655,9 @@ void DrawMainMenu(void) {
     }
 }
 
-static WAIT Overlay = WAIT_INITIALIZER(KEY_DENY);
-
+/**********************************************************//**
+ * @brief Updates the main menu and any of its descendants.
+ **************************************************************/
 void UpdateMainMenu(void) {
     switch (MainMenu.Control.State) {
     // Cases where a submenu is currently open:
@@ -589,6 +759,13 @@ void UpdateMainMenu(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Check if the main menu was cancelled and processing
+ * should return to whatever invoked the menu.
+ * @return True if the main menu is closed.
+ **************************************************************/
 bool MainMenuClosed(void) {
     return MainMenu.Control.State == CONTROL_CANCEL;
 }
+
+/**************************************************************/

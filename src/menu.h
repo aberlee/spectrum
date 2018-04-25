@@ -17,7 +17,7 @@
  **************************************************************/
 typedef enum {
     // Warnings
-    ALERT=1,
+    ALERT               = 1,
     WARNING,
     
     // User options
@@ -48,25 +48,43 @@ typedef enum {
 /// The number of different window templates defined in WINDOW_ID.
 #define N_WINDOW (OUTPUT_MAP+1)
 
+/**********************************************************//**
+ * @enum CONTROL_STATE
+ * @brief Defines constants for each state a CONTROL can be.
+ **************************************************************/
 typedef enum {
-    CONTROL_IDLE        = 0,
-    CONTROL_CONFIRM     = 1,
-    CONTROL_CANCEL      = 2,
+    CONTROL_IDLE        = 0,    ///< Control isn't doing anything.
+    CONTROL_CONFIRM     = 1,    ///< Current item has been selected.
+    CONTROL_CANCEL      = 2,    ///< User wants to cancel control.
 } CONTROL_STATE;
 
+/**********************************************************//**
+ * @struct CONTROL
+ * @brief Defines information for a menu control - supports
+ * scrolling around through a list of information.
+ **************************************************************/
 typedef struct {
-    int Index;
-    int IndexMax;
-    int Scroll;
-    int ScrollMax;
-    int Jump;
-    CONTROL_STATE State;
+    int Index;                  ///< Current position on visible items.
+    int IndexMax;               ///< Index <= IndexMax
+    int Scroll;                 ///< Current scroll position of items.
+    int ScrollMax;              ///< Scroll <= ScrollMax
+    int Jump;                   ///< Number of items to jump using Left/Right.
+    CONTROL_STATE State;        ///< What the control is doing.
 } CONTROL;
 
+/**********************************************************//**
+ * @brief Gets the item selected with the control.
+ * @param control: CONTROL structure to read.
+ * @return Integer from 0 to Index+Scroll.
+ **************************************************************/
 static inline int ControlItem(const CONTROL *control) {
     return control->Index + control->Scroll;
 }
 
+/**********************************************************//**
+ * @brief Move the control down one item, if possible.
+ * @param control: CONTROL to edit.
+ **************************************************************/
 static inline void ControlDown(CONTROL *control) {
     if (control->Index < control->IndexMax) {
         control->Index++;
@@ -75,6 +93,10 @@ static inline void ControlDown(CONTROL *control) {
     }
 }
 
+/**********************************************************//**
+ * @brief Move the control up one item, if possible.
+ * @param control: CONTROL to edit.
+ **************************************************************/
 static inline void ControlUp(CONTROL *control) {
     if (control->Index > 0) {
         control->Index--;
@@ -83,13 +105,18 @@ static inline void ControlUp(CONTROL *control) {
     }
 }
 
-extern void UpdateControl(CONTROL *control);
-
+/**********************************************************//**
+ * @brief Reset a CONTROL to the initial state.
+ * @param control: CONTROL to reset.
+ **************************************************************/
 static inline void ResetControl(CONTROL *control) {
     control->Index = 0;
     control->Scroll = 0;
     control->State = CONTROL_IDLE;
 }
+
+/**************************************************************/
+extern void UpdateControl(CONTROL *control);
 
 /**********************************************************//**
  * @struct MENU
@@ -100,15 +127,25 @@ typedef struct {
     CONTROL Control;
 } MENU;
 
+/**********************************************************//**
+ * @brief Updates the MENU's CONTROL with user input.
+ * @param menu: MENU to update.
+ **************************************************************/
 static inline void UpdateMenu(MENU *menu) {
     UpdateControl(&menu->Control);
 }
 
+/**********************************************************//**
+ * @brief Gets the item currently selected on the menu.
+ * @param menu: MENU to read.
+ * @return Index of item selected.
+ **************************************************************/
 static inline int MenuItem(const MENU *menu) {
     return ControlItem(&menu->Control);
 }
 
 /**************************************************************/
+extern void DrawAt(int x, int y);
 extern void DrawChoice(const MENU *choice);
 extern void DrawOption(const MENU *choice);
 extern void DrawColumn(const MENU *first, const MENU *second);
@@ -123,6 +160,7 @@ extern void DrawOutputMenu(void);
 extern void DrawOutputMap(void);
 extern void DrawPlayerDisplay(void);
 
+/**************************************************************/
 extern void InitializeMainMenu(void);
 extern void DrawMainMenu(void);
 extern void UpdateMainMenu(void);
