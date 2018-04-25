@@ -9,7 +9,7 @@
 #define _GAME_H_
 
 #include <stdbool.h>            // bool
-#include <allegro5/allegro.h>   // ALLEGRO_KEY_*
+#include <allegro5/allegro.h>
 
 /**************************************************************/
 /// Size of the game window in pixels.

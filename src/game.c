@@ -1,62 +1,70 @@
+/**********************************************************//**
+ * @file game.c
+ * @brief Controls the entire game.
+ * @author Rena Shinomiya
+ * @date April 24, 2018
+ **************************************************************/
 
-// C standard library
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
+#include <stddef.h>             // NULL
+#include <stdbool.h>            // bool
+#include <assert.h>             // assert
 
-// Main Allegro5 platform
 #include <allegro5/allegro.h>
-
-// Allegro5 graphics processing
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
-
-// Allegro5 audio processing
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
-
-// Allegro5 font processing
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
-// This project
-#include "game.h"
-#include "assets.h"
+#include "game.h"               // KEY
+#include "assets.h"             // LoadAssets, DestroyAssets
+#include "debug.h"              // assert
+
+// Included for debugging purposes - not final
 #include "menu.h"
 #include "output.h"
-#include "debug.h"
 
-const char INTRODUCTION[] = "MY GRANDMOTHER ONCE TOLD ME A STORY,/LONG AGO.*IT WAS ABOUT A GREAT KING WHO/BECAME BLINDED BY HIS POWER.*HIS NAME WAS VARAN.*VARAN WAS THE KING OF THE SPECTRA.*IN THE STORY, A LONE WARRIOR/HAD TO FACE THE GREAT KING VARAN,*WHO HAD ONCE RULED FAIRLY AND/PEACEFULLY, BUT HE BECAME*OBSESSED WITH HIS POWER.*HE BEGAN TO USE IT WRONGLY./HE WANTED ONLY MORE.*VARAN'S POWER GREW SO MUCH, THAT/HIS INFLUENCE BEGAN TO AFFECT LIFE.*GOOD HUSBANDS TURNED ON THEIR FAMILIES./EVERYONE RAN AMOK.*MANY LIVES WERE LOST, MANY WERE KILLED,/BY PEOPLE AND SPECTRA WHO WERE*TOUCHED BY VARAN'S EVIL AURA.*HIS POWER DID NOT AFFECT EVERYONE./SOME PEOPLE WERE STRONGER.*OTHERS WERE ABLE TO BREAK OUT FROM/VARAN'S INFLUENCE.*THESE PEOPLE ROSE FROM THE DEVASTATION/CAUSED BY THE REST.*THEY CALLED THEMSELVES THE REBELLION.*THE LEADER OF THE REBELLION WAS A/BEAUTIFUL WOMAN.*SHE LED HER REBEL ARMY TO THE/PALACE WHERE VARAN LIVED.*AND THEY FOUGHT A GREAT WAR.*MANY PEOPLE DIED IN THAT WAR.*AND THAT IS WHERE THE STORY ENDED.*MY GRANDMA NEVER TOLD ME THE END./SHE SAID I WOULD FIND OUT LATER.*I WAS ALWAYS AFRAID SHE DIED.";
+/**************************************************************/
+/// @brief Main game display object.
+static ALLEGRO_DISPLAY *Display;
 
-// Allegro global variables
-ALLEGRO_DISPLAY *Display;
-ALLEGRO_BITMAP *ScaleBuffer;
+/// @brief Bitmap for scaling pixel art to different screen
+/// sizes and resolutions (namely, fullscreen mode).
+static ALLEGRO_BITMAP *ScaleBuffer;
+
+/// @brief Time spent in last frame, used for animation.
 double LastFrameTimeElapsed = 0.0;
+
+/// @brief Total uptime of the game spent within frames.
 double TotalTimeElapsed = 0.0;
-bool StopGame = false;
 
-static int ScaleX, ScaleY, ScaleW, ScaleH;
+/// @brief Whether the game should be terminated. Causes
+/// the game to end on the next frame.
+static bool StopGame = false;
 
-// Allegro static variables
+// ScaleBuffer data
+static int ScaleX;      ///< X offset for ScaleBuffer.
+static int ScaleY;      ///< Y offset for ScaleBuffer.
+static int ScaleW;      ///< Width scaling in ScaleBuffer.
+static int ScaleH;      ///< Height scaling in ScaleBuffer.
+
+/// @brief Main event queue for the game - tied to frame
+/// timer, key events, etc...
 static ALLEGRO_EVENT_QUEUE *EventQueue;
+
+/// @brief Ensures an event is generated at rate equal to
+/// the FRAME_RATE parameter from game.h.
 static ALLEGRO_TIMER *FrameRateTimer;
 
-typedef enum {
-    KEY_STATE_UP              = 0x00,
-    KEY_STATE_DOWN            = 0x01,
-    KEY_STATE_JUST_UP         = 0x10,
-    KEY_STATE_JUST_DOWN       = 0x11,
-} KEY_STATE;
-
-static KEY_STATE KeyboardState[ALLEGRO_KEY_MAX];
-
+/// @brief True if the game is in fullscreen-window mode.
 static bool Fullscreen = false;
 
-void ResizeScreen(void) {
+/**********************************************************//**
+ * @brief Updates the ScaleBuffer when the screen changes.
+ **************************************************************/
+static void ResizeScreen(void) {
     if (ScaleBuffer) {
         al_destroy_bitmap(ScaleBuffer);
     }
@@ -77,6 +85,21 @@ void ResizeScreen(void) {
 }
 
 /**********************************************************//**
+ * @enum KEY_STATE
+ * @brief Used to determine if a key is up, down, and if that
+ * change happened on this frame or not.
+ **************************************************************/
+typedef enum {
+    KEY_STATE_UP              = 0x00,
+    KEY_STATE_DOWN            = 0x01,
+    KEY_STATE_JUST_UP         = 0x10,
+    KEY_STATE_JUST_DOWN       = 0x11,
+} KEY_STATE;
+
+/// @brief Buffer for keyboard states.
+static KEY_STATE KeyboardState[ALLEGRO_KEY_MAX];
+
+/**********************************************************//**
  * @brief Determines if the key is pressed.
  * @param key: The KEY to check.
  * @return Whether they key is being pressed on this frame.
@@ -85,14 +108,27 @@ bool KeyDown(KEY key) {
     return KeyboardState[key] & KEY_STATE_DOWN;
 }
 
+/**********************************************************//**
+ * @brief Determines if the key was just pressed this frame.
+ * @param key: The KEY to check.
+ * @return True if the key was just pressed this frame.
+ **************************************************************/
 bool KeyJustDown(KEY key) {
     return KeyboardState[key] == KEY_STATE_JUST_DOWN;
 }
 
+/**********************************************************//**
+ * @brief Determines if the key was just released this frame.
+ * @param key: The KEY to check.
+ * @return True if the key was just released this frame.
+ **************************************************************/
 bool KeyJustUp(KEY key) {
     return KeyboardState[key] == KEY_STATE_JUST_UP;
 }
 
+/**********************************************************//**
+ * @brief Initializes the Allegro5 platform.
+ **************************************************************/
 static void AllegroInstall(void) {
     // Initialize Allegro5 platform
     assert(al_init());
@@ -107,6 +143,9 @@ static void AllegroInstall(void) {
     assert(al_init_ttf_addon());
 }
 
+/**********************************************************//**
+ * @brief Initializes the game before the main loop begins.
+ **************************************************************/
 static void GameInitialize(void) {
     // Set up the display
     al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, ALLEGRO_REQUIRE);
@@ -116,7 +155,6 @@ static void GameInitialize(void) {
     }
     Display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     al_inhibit_screensaver(true);
-    
     ResizeScreen();
     
     // Force display to render black screen; this eliminates
@@ -134,6 +172,7 @@ static void GameInitialize(void) {
     // Load game assets
     LoadAssets();
     
+    // TODO Debug information goes here... Remove!
     NewGame();
     Output("Hello world!");
     Output("Multi-line text output\ntext!");
@@ -151,6 +190,7 @@ static void GameInitialize(void) {
     Player->Inventory[4] = SERUM;
 }
 
+// TODO Debug function... Remove!
 static void MenuTestUpdate(void) {
     ALLEGRO_TRANSFORM trans;
     al_identity_transform(&trans);
@@ -218,6 +258,9 @@ static void MenuTestUpdate(void) {
     DrawPlayerDisplay();
 }
 
+/**********************************************************//**
+ * @brief Updates and renders the screen on one frame.
+ **************************************************************/
 static void Update(void) {
 /*     MenuTestUpdate(); */
     static int yes = 1;
@@ -231,6 +274,9 @@ static void Update(void) {
     DrawMainMenu(); */
 }
 
+/**********************************************************//**
+ * @brief Executes the main game loop until the game stops.
+ **************************************************************/
 static void GameMainLoop(void) {
     // State variables
     ALLEGRO_EVENT event;
@@ -316,6 +362,10 @@ static void GameMainLoop(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Get rid of stuff the game created in preparation
+ * for shutting down.
+ **************************************************************/
 static void GameDestroy(void) {
     // Get rid of the assets
     DestroyAssets();
@@ -329,6 +379,10 @@ static void GameDestroy(void) {
     al_destroy_display(Display);
 }
 
+/**********************************************************//**
+ * @brief Get rid of Allegro5 in preparation for shutting
+ * down the game.
+ **************************************************************/
 static void AllegroUninstall(void) {
     // Remove addons
     al_shutdown_font_addon();
@@ -341,6 +395,12 @@ static void AllegroUninstall(void) {
     al_uninstall_system();
 }
 
+/**********************************************************//**
+ * @brief Main game function and program entry point.
+ * @param argc: Command-line argument count.
+ * @param argv: Command-line argument strings.
+ * @return Exit code.
+ **************************************************************/
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
@@ -351,3 +411,5 @@ int main(int argc, char **argv) {
     AllegroUninstall();
     return 0;
 }
+
+/**************************************************************/
