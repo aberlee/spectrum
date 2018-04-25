@@ -15,6 +15,14 @@
 #include "species.h"            // SPECTRA
 #include "location.h"           // LOCATION_ID
 
+/**************************************************************/
+/// @brief Number of Spectra that can be on the player's
+/// team at one time.
+#define TEAM_SIZE 10
+
+/// @brief Number of items the player can carry at once.
+#define INVENTORY_SIZE 24
+
 /**********************************************************//**
  * @enum COSTUME_ID
  * @brief Defines constants for each costume the player can
@@ -31,9 +39,6 @@ typedef enum {
 
 /// The number of unique costumes defined by COSTUME_ID.
 #define N_COSTUME (PAJAMAS+1)
-
-#define TEAM_SIZE 10
-#define INVENTORY_SIZE 24
 
 /**********************************************************//**
  * @struct PLAYER
@@ -55,13 +60,15 @@ typedef struct {
     DIRECTION Direction;
 } PLAYER;
 
+/**************************************************************/
+/// @brief Pointer to the current player's data.
 extern PLAYER *const Player;
 
+/**************************************************************/
 extern void NewGame(void);
 extern bool LoadGame(void);
 extern bool SaveGame(void);
-
-extern void StartPlayTime();
+extern void StartPlayTime(void);
 extern int UnaccountedPlayTime(void);
 
 /**************************************************************/
