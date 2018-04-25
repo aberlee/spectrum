@@ -54,6 +54,28 @@ typedef enum {
 
 static KEY_STATE KeyboardState[ALLEGRO_KEY_MAX];
 
+static bool Fullscreen = false;
+
+void ResizeScreen(void) {
+    if (ScaleBuffer) {
+        al_destroy_bitmap(ScaleBuffer);
+    }
+    
+    // Set up scaling backbuffer
+    ScaleBuffer = al_create_bitmap(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    int windowWidth = al_get_display_width(Display);
+    int windowHeight = al_get_display_height(Display);
+    int sx = windowWidth / (float)DISPLAY_WIDTH;
+    int sy = windowHeight / (float)DISPLAY_HEIGHT;
+    int scale = (sx>sy)? sy: sx;
+    
+    // Calculate scaling
+    ScaleW = DISPLAY_WIDTH*scale;
+    ScaleH = DISPLAY_HEIGHT*scale;
+    ScaleX = (windowWidth-ScaleW)/2;
+    ScaleY = (windowHeight-ScaleH)/2;
+}
+
 /**********************************************************//**
  * @brief Determines if the key is pressed.
  * @param key: The KEY to check.
@@ -89,23 +111,13 @@ static void GameInitialize(void) {
     // Set up the display
     al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, ALLEGRO_REQUIRE);
     al_set_new_window_title("Spectrum Legacy");
-    //al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+    if (Fullscreen) {
+        al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+    }
     Display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     al_inhibit_screensaver(true);
     
-    // Set up scaling backbuffer
-    ScaleBuffer = al_create_bitmap(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    int windowWidth = al_get_display_width(Display);
-    int windowHeight = al_get_display_height(Display);
-    int sx = windowWidth / (float)DISPLAY_WIDTH;
-    int sy = windowHeight / (float)DISPLAY_HEIGHT;
-    int scale = (sx>sy)? sy: sx;
-    
-    // Calculate scaling
-    ScaleW = DISPLAY_WIDTH*scale;
-    ScaleH = DISPLAY_HEIGHT*scale;
-    ScaleX = (windowWidth-ScaleW)/2;
-    ScaleY = (windowHeight-ScaleH)/2;
+    ResizeScreen();
     
     // Force display to render black screen; this eliminates
     // garbage display data.
@@ -266,7 +278,15 @@ static void GameMainLoop(void) {
             break;
         
         case ALLEGRO_EVENT_KEY_DOWN:
-            KeyboardState[event.keyboard.keycode] = KEY_STATE_JUST_DOWN;
+            // Game control keys
+            if (event.keyboard.keycode == ALLEGRO_KEY_F11) {
+                if (al_set_display_flag(Display, ALLEGRO_FULLSCREEN_WINDOW, !Fullscreen)) {
+                    Fullscreen = !Fullscreen;
+                    ResizeScreen();
+                }
+            } else {
+                KeyboardState[event.keyboard.keycode] = KEY_STATE_JUST_DOWN;
+            }
             break;
         
         case ALLEGRO_EVENT_KEY_CHAR:
