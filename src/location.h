@@ -30,6 +30,7 @@ typedef enum {
     SAPLING_CITY_HALL,
     SAPLING_GREENHOUSE,
     SAPLING_LABORATORY,
+    SAPLING_OUTSKIRTS,
 
     // Port Royal buildings
     PORT_ROYAL,
@@ -49,6 +50,7 @@ typedef enum {
     SOLAR_EAST_CORPORATION,
     SOLAR_WEST_CORPORATION,
     SOLAR_CITY_OUTSKIRTS,
+    SOLAR_PORT,
 
     // Solar Institute
     SOLAR_INSTITUTE_1F,

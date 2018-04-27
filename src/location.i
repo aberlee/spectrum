@@ -95,6 +95,19 @@ const LOCATION LOCATION_DATA[] = {
         .Map            = MAP_SAPLING_LABORATORY,
         .Bounds         = {{0, 0}, {128, 128}},
     },
+    
+    [SAPLING_OUTSKIRTS] = {
+        .Name           = "Sapling Outskirts",
+        .Map            = MAP_OVERWORLD,
+        .Bounds         = {{816, 560}, {1312, 912}},
+        .Background     = GRASS,
+        .Encounters     = (ENCOUNTER[]){
+            {50, JAYRAPTOR,     { 6,  8}},
+            {25, FLOPJELLY,     { 5,  6}},
+            {20, SSSNAKE,       { 5,  6}},
+            { 5, HOCUS,         { 6,  6}},
+        },
+    },
 
     ////////////////////////////////////////////////////////
     // Port Royal area
@@ -170,7 +183,7 @@ const LOCATION LOCATION_DATA[] = {
     },
 
     [OXIDE_CAVE] = {
-        .Name           = "Oxide Crater Cave",
+        .Name           = "Oxide Crater",
         .Map            = MAP_OXIDE_CRATER,
         .Bounds         = {{0, 0}, {768, 640}},
         .Background     = OXIDE,
@@ -247,6 +260,30 @@ const LOCATION LOCATION_DATA[] = {
             {20, TOOLFISH,      {14, 16}},
         },
     },
+    
+    [SOLAR_PORT] = {
+        .Name           = "Solar City Port",
+        .Map            = MAP_OVERWORLD,
+        .Bounds         = {{620, 1808}, {1392, 2304}},
+        .Background     = WATER,
+        .Encounters     = (ENCOUNTER[]){
+            {40, OSCILLATE,     { 9, 15}},
+            {30, REPLICA,       {12, 20}},
+            {20, LEKTRON,       { 8, 16}},
+            { 5, CUMULUS,       {10, 18}},
+            { 4, VOLTDRAGON,    {15, 21}},
+            { 1, LAUNCHPAD,     {21, 22}},
+        },
+        .Fishing        = (ENCOUNTER[]){
+            {30, CATFISH,       {10, 18}},
+            {20, GARPIKE,       {12, 18}},
+            {20, BASSMONSTER,   {12, 13}},
+            {10, TOOLFISH,      {14, 16}},
+            { 5, MINESPHERE,    {20, 20}},
+            { 4, COALSHARK,     {18, 18}},
+            { 1, CATFISH,       {30, 30}},
+        },
+    },
 
     ////////////////////////////////////////////////////////
     // Solar Institute
@@ -301,7 +338,7 @@ const LOCATION LOCATION_DATA[] = {
     ////////////////////////////////////////////////////////
     // New Land Cave
     [NEW_LAND_CAVE_OUTSKIRTS] = {
-        .Name           = "New Land Cave Outskirts",
+        .Name           = "New Land Cave",
         .Map            = MAP_OVERWORLD,
         .Bounds         = {{1680, 2304}, {2320, 2880}},
         .Background     = GRASS,
@@ -687,7 +724,7 @@ const LOCATION LOCATION_DATA[] = {
     ////////////////////////////////////////////////////////
     // Boulder Park
     [BOULDER_CAVE] = {
-        .Name           = "Boulder Park Cave",
+        .Name           = "Boulder Cave",
         .Map            = MAP_BOULDER_CAVE,
         .Bounds         = {{0, 0}, {624, 416}},
         .Background     = CAVE,
