@@ -447,8 +447,7 @@ void DrawPopupBar(const char *text) {
 void DrawPlayerDisplay(void) {
     al_draw_bitmap(WindowImage(PLAYER_DISPLAY), 0, 0, 0);
     DrawText("Amy", 45, 4);
-    DrawText(Location(Player->Location)->Name, 45, 17);
-    //DrawText("Unused", 45, 30);
+    DrawTextBox(Location(Player->Location)->Name, 45, 17, 94);
     
     // Spectra count
     int spectraCount = 0;
