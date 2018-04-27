@@ -16,9 +16,9 @@
  * @brief State flags for a WAIT process.
  **************************************************************/
 typedef enum {
-    WAIT_BEFORE,
-    WAIT_DURING,
-    WAIT_AFTER,
+    WAIT_BEFORE     = 0,
+    WAIT_DURING     = 1,
+    WAIT_AFTER      = 2,
 } WAIT_STATE;
 
 /**********************************************************//**

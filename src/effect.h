@@ -15,12 +15,12 @@
  * technique or item can be used on in battle (0 is invalid).
  **************************************************************/
 typedef enum {
-    YOURSELF        = 1,        ///< Hits the user of the technique.
-    ENEMY,                      ///< Hits one enemy.
-    ALLY,                       ///< Hits one teammate, or the user.
-    ANYONE,                     ///< Hits any one spectra.
-    ALL_ENEMIES,                ///< Hits each enemy.
-    EVERYONE_ELSE,              ///< Hits everyone but the user.
+    YOURSELF        = 0x0001,  ///< Hits the user of the technique.
+    ENEMY           = 0x0100,  ///< Hits one enemy.
+    ALLY            = 0x0011,  ///< Hits one teammate, or the user.
+    ANYONE          = 0x0111,  ///< Hits any one spectra.
+    ALL_ENEMIES     = 0x1100,  ///< Hits each enemy.
+    EVERYONE_ELSE   = 0x1110,  ///< Hits everyone but the user.
 } TARGET_TYPE;
 
 /**********************************************************//**
@@ -31,7 +31,7 @@ typedef enum {
  **************************************************************/
 typedef enum {
     // Ailment afflict
-    AFFLICT_BURY=1,             ///< Buries the target in the ground. Expects a chance percentage.
+    AFFLICT_BURY    =  1,       ///< Buries the target in the ground. Expects a chance percentage.
     AFFLICT_AFLAME,             ///< Sets the target on fire. Expects a chance percentage.
     AFFLICT_POISON,             ///< Poisons the target. Expects a chance percentage.
     AFFLICT_SHOCK,              ///< Shocks the target. Expects a chance percentage.

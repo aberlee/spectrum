@@ -17,7 +17,7 @@
  * use.
  **************************************************************/
 typedef enum {
-    VENDING_MACHINE = 1,
+    VENDING_MACHINE     = 1,
     HERB_SHOP,
     ITALIAN_RESTAURANT,
     HEALTHY_FOOD,
@@ -27,7 +27,7 @@ typedef enum {
 } SHOP_ID;
 
 /// Defines a size large enough for an array to hold each SHOP_ID.
-#define N_SHOP (CONVENIENCE_STORE+1)
+#define N_SHOP 8
 
 /**********************************************************//**
  * @struct SHOP

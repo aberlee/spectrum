@@ -17,7 +17,7 @@
  **************************************************************/
 typedef enum {
     // Warnings
-    ALERT               = 1,
+    ALERT               =  1,
     WARNING,
     
     // User options

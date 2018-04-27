@@ -18,10 +18,10 @@
  **************************************************************/
 typedef enum {
     // Special
-    OVERWORLD       = -1,
+    OVERWORLD                   = 255,
     
     // Sapling Town
-    TRIANGLE_LAKE   = 1,
+    TRIANGLE_LAKE               = 1,
     SAPLING_TOWN,
     YOUR_HOUSE,
     SAPLING_AIRPORT,
@@ -116,7 +116,7 @@ typedef enum {
  **************************************************************/
 typedef enum {
     // Overworld
-    MAP_OVERWORLD   = 1,
+    MAP_OVERWORLD               = 1,
 
     // Caves
     MAP_BOULDER_CAVE,

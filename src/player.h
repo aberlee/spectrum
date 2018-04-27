@@ -30,15 +30,15 @@
  **************************************************************/
 typedef enum {
     NORMAL          = 1,
-    BLACK_DRESS,
     RED_DRESS,
+    BLACK_DRESS,
+    PAJAMAS,
     SUIT,
     SWIMSUIT,
-    PAJAMAS,
 } COSTUME_ID;
 
 /// The number of unique costumes defined by COSTUME_ID.
-#define N_COSTUME (PAJAMAS+1)
+#define N_COSTUME 7
 
 /**********************************************************//**
  * @struct PLAYER
