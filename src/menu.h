@@ -43,10 +43,15 @@ typedef enum {
     OUTPUT_BATTLE,
     OUTPUT_MENU,
     OUTPUT_MAP,
+    
+    // Popups
+    POPUP_WINDOW,
+    POPUP_BAR,
+    POPUP_DETAIL,
 } WINDOW_ID;
 
 /// The number of different window templates defined in WINDOW_ID.
-#define N_WINDOW (OUTPUT_MAP+1)
+#define N_WINDOW (POPUP_DETAIL+1)
 
 /**********************************************************//**
  * @enum CONTROL_STATE
@@ -159,6 +164,7 @@ extern void DrawOutputBattle(void);
 extern void DrawOutputMenu(void);
 extern void DrawOutputMap(void);
 extern void DrawPlayerDisplay(void);
+extern void DrawPopupBar(const char *text);
 
 /**************************************************************/
 extern void InitializeMainMenu(void);

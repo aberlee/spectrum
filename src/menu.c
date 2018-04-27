@@ -433,6 +433,15 @@ void DrawOutputMap(void) {
 }
 
 /**********************************************************//**
+ * @brief Draws a popup bar on the screen.
+ * @param text: Text to put in the popup.
+ **************************************************************/
+void DrawPopupBar(const char *text) {
+    al_draw_bitmap(WindowImage(POPUP_BAR), 0, 0, 0);
+    DrawText(text, 4, 4);
+}
+
+/**********************************************************//**
  * @brief Draw the player's information on the screen.
  **************************************************************/
 void DrawPlayerDisplay(void) {

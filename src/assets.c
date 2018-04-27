@@ -146,6 +146,9 @@ static IMAGE_ASSET WindowAssets[N_WINDOW] = {
     [OUTPUT_BATTLE]     = IMAGE("window/output_battle.png"),
     [OUTPUT_MENU]       = IMAGE("window/output_menu.png"),
     [OUTPUT_MAP]        = IMAGE("window/output_overworld.png"),
+    [POPUP_WINDOW]      = IMAGE("window/popup.png"),
+    [POPUP_BAR]         = IMAGE("window/popup_bar.png"),
+    [POPUP_DETAIL]      = IMAGE("window/popup_detail.png"),
 };
 
 /**********************************************************//**

@@ -55,6 +55,8 @@ static bool MainMenuOpen = false;
 
 static int PlayerWalkFrame = 0;
 
+static double LocationPopupTime = 0.0;
+
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
  * @param id: Identity of the location.
@@ -135,7 +137,13 @@ static void SetOverworldLocation(int x, int y) {
 static void UpdateOverworldLocation(void) {
     if (CurrentMap == MAP_OVERWORLD) {
         if(!CurrentBounds || !WorldInBounds(CurrentBounds, Player->Position.X, Player->Position.Y)) {
+            const char *oldLocation = Location(Player->Location)->Name;
+            
             SetOverworldLocation(Player->Position.X, Player->Position.Y);
+            
+            if (strcmp(oldLocation, Location(Player->Location)->Name)) {
+                LocationPopupTime = al_get_time();
+            }
         }
     }
 }
@@ -216,6 +224,12 @@ static void UseSensor(MAP_ID id) {
  * @param y: World Y-coordinate on the new location.
  **************************************************************/
 void Warp(LOCATION_ID id, int x, int y) {
+    // Old location name
+    const char *oldLocation = NULL;
+    if (Player->Location) {
+        oldLocation = Location(Player->Location)->Name;
+    }
+    
     // Set the current map and position
     if (id == OVERWORLD) {
         // Special mapping for OVERWORLD because it's one large map
@@ -226,6 +240,11 @@ void Warp(LOCATION_ID id, int x, int y) {
     }
     CurrentMap = Location(Player->Location)->Map;
     CurrentEvents = Events(CurrentMap);
+    
+    // Location entry popup - display if the name is new.
+    if (!oldLocation || strcmp(oldLocation, Location(Player->Location)->Name)) {
+        LocationPopupTime = al_get_time();
+    }
     
     // Offset to center from tile
     Player->Position.X = x;
@@ -355,6 +374,23 @@ void DrawDebugInformation(void) {
 #endif
 
 /**********************************************************//**
+ * @brief Draws the location popup on the screen, if it's
+ * been less than 2 seconds since location names changed.
+ **************************************************************/
+void DrawLocationPopup(void) {
+    double popup = al_get_time()-LocationPopupTime;
+    if (popup < 4) {
+        if (popup < 1.5) {
+            DrawAt(4, 4);
+        } else {
+            // Retract popup
+            DrawAt(4, 4-40*(popup-1.5));
+        }
+        DrawPopupBar(Location(Player->Location)->Name);
+    }
+}
+
+/**********************************************************//**
  * @brief Draws the current map (based on static data).
  **************************************************************/
 void DrawMap(void) {
@@ -375,6 +411,11 @@ void DrawMap(void) {
     DrawAt(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2);
     DrawPlayer(PlayerWalkFrame/8%4);
     
+    // Location popup
+    if (!MainMenuOpen) {
+        DrawLocationPopup();
+    }
+
     // Main menu overlay
     if (MainMenuOpen) {
         DrawAt(0, 0);
