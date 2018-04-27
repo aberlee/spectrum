@@ -420,7 +420,6 @@ void UpdateMap(void) {
     // Set the player's direction if any motion is
     // REQUESTED (not if it's possible).
     // Prefer UP/DOWN on diagonal motion.
-    bool motion = true;
     if (dy > 0) {
         Player->Direction = DOWN;
     } else if (dy < 0) {
@@ -429,15 +428,6 @@ void UpdateMap(void) {
         Player->Direction = RIGHT;
     } else if (dx < 0) {
         Player->Direction = LEFT;
-    } else {
-        motion = false;
-    }
-    
-    // Update player walk frame
-    if (motion) {
-        PlayerWalkFrame++;
-    } else {
-        PlayerWalkFrame = 0;
     }
 
     // Collision checking
@@ -461,11 +451,18 @@ void UpdateMap(void) {
         dy = 0;
     }
     
-    // Diagonal motion?
+    // Normalize diagonal motion
+    // Approximately sqrt(2)/2
     if (dx != 0 && dy != 0) {
-        // Approximately sqrt(2)/2
         dx *= 0.7;
         dy *= 0.7;
+    }
+    
+    // Update walk frame
+    if (dx != 0 || dy != 0) {
+        PlayerWalkFrame++;
+    } else {
+        PlayerWalkFrame = 0;
     }
     
     // Update position
