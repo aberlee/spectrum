@@ -133,8 +133,10 @@ static void SetOverworldLocation(int x, int y) {
  * out of the previous LOCATION's bounds.
  **************************************************************/
 static void UpdateOverworldLocation(void) {
-    if (CurrentMap == MAP_OVERWORLD && !WorldInBounds(CurrentBounds, Player->Position.X, Player->Position.Y)) {
-        SetOverworldLocation(Player->Position.X, Player->Position.Y);
+    if (CurrentMap == MAP_OVERWORLD) {
+        if(!CurrentBounds || !WorldInBounds(CurrentBounds, Player->Position.X, Player->Position.Y)) {
+            SetOverworldLocation(Player->Position.X, Player->Position.Y);
+        }
     }
 }
 
@@ -472,7 +474,7 @@ void UpdateMap(void) {
     
     // Event checking
     Interact();
-    //UpdateOverworldLocation();
+    UpdateOverworldLocation();
 }
 
 /**************************************************************/
