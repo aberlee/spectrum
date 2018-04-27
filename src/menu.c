@@ -543,7 +543,7 @@ void DrawParty(void) {
         // Display spectra information
         const SPECTRA *spectra = &Player->Spectra[i];
         DrawText(SpeciesOfSpectra(spectra)->Name, 4, y);
-        DrawTextF(109, y, "%d", spectra->Level);
+        DrawNumber(130, y, spectra->Level);
         DrawBar((float)spectra->Health/spectra->MaxHealth, 133, y);
         DrawBar((float)spectra->Power/spectra->MaxPower, 219, y);
         DrawTextF(133, y, "%d/%d", spectra->Health, spectra->MaxHealth);
