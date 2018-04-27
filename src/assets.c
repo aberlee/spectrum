@@ -287,6 +287,14 @@ static IMAGE_ASSET SensorAssets[] = {
 };
 
 /**********************************************************//**
+ * @brief Indexes PERSON_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET PersonAssets[] = {
+    [AMY_NORMAL]        = IMAGE("person/costume/normal.png"),
+    // TODO
+};
+
+/**********************************************************//**
  * @brief Indexes FONT_ID members to FONT_ASSET data.
  **************************************************************/
 static FONT_ASSET FontAssets[] = {
@@ -374,6 +382,7 @@ bool LoadAssets(void) {
     LoadImageAssets(TypeAssets, N_TYPE);
     LoadImageAssets(MapAssets, N_MAP);
     LoadImageAssets(SensorAssets, N_MAP);
+    LoadImageAssets(PersonAssets, N_PERSON);
     LoadFontAssets(FontAssets, N_FONT);
     return LoadSuccess;
 }
@@ -390,6 +399,7 @@ void DestroyAssets(void) {
     DestroyImageAssets(TypeAssets, N_TYPE);
     DestroyImageAssets(MapAssets, N_MAP);
     DestroyImageAssets(SensorAssets, N_MAP);
+    DestroyImageAssets(PersonAssets, N_PERSON);
     DestroyFontAssets(FontAssets, N_FONT);
 }
 
@@ -463,6 +473,15 @@ ALLEGRO_BITMAP *MapImage(MAP_ID id) {
  **************************************************************/
 ALLEGRO_BITMAP *SensorImage(MAP_ID id) {
     return SensorAssets[id].Image;
+}
+
+/**********************************************************//**
+ * @brief Gets a person image asset.
+ * @param id: The identity of the person image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
+ALLEGRO_BITMAP *PersonImage(PERSON_ID id) {
+    return PersonAssets[id].Image;
 }
 
 /**********************************************************//**

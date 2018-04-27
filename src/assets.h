@@ -38,6 +38,7 @@ extern ALLEGRO_BITMAP *AilmentImage(AILMENT_ID id);
 extern ALLEGRO_BITMAP *TypeImage(TYPE_ID id);
 extern ALLEGRO_BITMAP *MapImage(MAP_ID id);
 extern ALLEGRO_BITMAP *SensorImage(MAP_ID id);
+extern ALLEGRO_BITMAP *PersonImage(PERSON_ID id);
 extern ALLEGRO_FONT *Font(FONT_ID id);
 
 /**************************************************************/

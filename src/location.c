@@ -14,9 +14,9 @@
 
 #include <stdbool.h>            // bool
 
+#include "location.h"           // MAP_ID, LOCATION
 #include "game.h"               // KEY
 #include "assets.h"             // MapImage, SensorImage
-#include "location.h"           // MAP_ID, LOCATION
 #include "event.h"              // EVENT, Events
 #include "player.h"             // Player
 #include "debug.h"              // eprintf
@@ -50,7 +50,10 @@ static const COORDINATE *CurrentBounds;
 static bool DebugMap = true;
 #endif
 
+/// @brief Set if the main menu is open on the map.
 static bool MainMenuOpen = false;
+
+static int PlayerWalkFrame = 0;
 
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
@@ -353,14 +356,22 @@ void DrawDebugInformation(void) {
  * @brief Draws the current map (based on static data).
  **************************************************************/
 void DrawMap(void) {
-    DrawAt(0, 0);
+    // Draw the map
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
     int centerX = DISPLAY_WIDTH/2-Player->Position.X;
     int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
-    al_draw_bitmap(mapImage, centerX, centerY, 0);
-#ifdef DEBUG
+    DrawAt(centerX, centerY);
+    al_draw_bitmap(mapImage, 0, 0, 0);
+    
+#ifdef FUCK
+    // Debug overlays
+    DrawAt(0, 0);
     DrawDebugInformation();
 #endif
+    
+    // Draw the player moving
+    DrawAt(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2);
+    DrawPlayer(PlayerWalkFrame/8%4);
     
     // Main menu overlay
     if (MainMenuOpen) {
@@ -378,8 +389,6 @@ void DrawMap(void) {
 static inline bool Passable(int x, int y) {
     return TileInBounds(x, y) && !Tile(x, y).Flags;
 }
-
-
 
 /**********************************************************//**
  * @brief Parses the user's keyboard input to update the map
@@ -409,6 +418,7 @@ void UpdateMap(void) {
     // Set the player's direction if any motion is
     // REQUESTED (not if it's possible).
     // Prefer UP/DOWN on diagonal motion.
+    bool motion = true;
     if (dy > 0) {
         Player->Direction = DOWN;
     } else if (dy < 0) {
@@ -417,6 +427,15 @@ void UpdateMap(void) {
         Player->Direction = RIGHT;
     } else if (dx < 0) {
         Player->Direction = LEFT;
+    } else {
+        motion = false;
+    }
+    
+    // Update player walk frame
+    if (motion) {
+        PlayerWalkFrame++;
+    } else {
+        PlayerWalkFrame = 0;
     }
 
     // Collision checking

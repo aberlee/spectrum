@@ -9,8 +9,9 @@
 #ifndef _LOCATION_H_
 #define _LOCATION_H_
 
-#include "coordinate.h"         // COORDINATE
+#include "coordinate.h"         // COORDINATE, DIRECTION
 #include "species.h"            // SPECIES_ID
+#include "person.h"             // PERSON_ID
 
 /**********************************************************//**
  * @enum LOCATION_ID
