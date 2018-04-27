@@ -18,14 +18,14 @@ typedef struct {
 } COORDINATE;
 
 /**********************************************************//**
- * @enum DIRECTION_TYPE
+ * @enum DIRECTION
  * @brief Constants for each of the four cardinal directions.
  **************************************************************/
 typedef enum {
-    UP              = 1,
-    LEFT,
-    DOWN,
-    RIGHT,
+    DOWN            = 0,
+    LEFT            = 1,
+    UP              = 2,
+    RIGHT           = 3,
 } DIRECTION;
 
 /**************************************************************/
