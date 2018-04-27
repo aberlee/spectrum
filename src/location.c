@@ -459,6 +459,13 @@ void UpdateMap(void) {
         dy = 0;
     }
     
+    // Diagonal motion?
+    if (dx != 0 && dy != 0) {
+        // Approximately sqrt(2)/2
+        dx *= 0.7;
+        dy *= 0.7;
+    }
+    
     // Update position
     Player->Position.X += dx;
     Player->Position.Y += dy;
