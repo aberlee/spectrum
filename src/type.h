@@ -11,23 +11,22 @@
 
 /**********************************************************//**
  * @enum TYPE_ID
- * @brief Defines a constant for each type used, starting
- * at 1 (0 is invalid).
+ * @brief Defines a constant for each type used.
  **************************************************************/
 typedef enum {
     BASIC           = 1,
-    FIRE,
-    WATER,
-    ICE,
-    WIND,
-    EARTH,
-    METAL,
-    LIGHT,
-    DARK,
+    FIRE            = 2,
+    WATER           = 9,
+    ICE             = 3,
+    WIND            = 4,
+    EARTH           = 5,
+    METAL           = 7,
+    LIGHT           = 6,
+    DARK            = 8,
 } TYPE_ID;
 
 /// The number of unique TYPE_ID members.
-#define N_TYPE (DARK+1)
+#define N_TYPE 10
 
 /**************************************************************/
 #endif // _TYPE_H_

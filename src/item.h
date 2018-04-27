@@ -17,39 +17,39 @@
  **************************************************************/
 typedef enum {
     // Cure-based items
-    SERUM           = 1,
-    SHOVEL,
-    WET_TOWEL,
-    REFRESHER,
+    SERUM           =  1,
+    SHOVEL          =  3,
+    WET_TOWEL       =  4,
+    REFRESHER       =  6,
 
     // Foods
-    CHOCOLATE,
-    YOGURT,
-    SANDWICH,
-    BURGER,
-    STEAK,
-    SALAD,
-    SPAGHETTI,
-    JERKEY,
-    PIE,
-    FULL_MEAL,
+    CHOCOLATE       =  7,
+    YOGURT          = 26,
+    SANDWICH        = 10,
+    BURGER          = 11,
+    STEAK           = 12,
+    SALAD           = 13,
+    SPAGHETTI       = 14,
+    JERKEY          = 17,
+    PIE             = 16,
+    FULL_MEAL       = 18,
 
     // Drinks
-    WATER_BOTTLE,
-    JUICE,
-    SODA,
-    COFFEE,
-    TEA,
-    POTION,
+    WATER_BOTTLE    = 29,
+    JUICE           =  9,
+    SODA            = 27,
+    COFFEE          =  8,
+    TEA             = 15,
+    POTION          = 19,
 
     // Herbs
-    STRONG_HERB,
-    TOUGH_HERB,
-    QUICK_HERB,
-    LUCK_HERB,
+    STRONG_HERB     = 31,
+    TOUGH_HERB      = 32,
+    QUICK_HERB      = 33,
+    LUCK_HERB       = 25,
 
     // Key items
-    FISHING_ROD,
+    FISHING_ROD     = 39,
 } ITEM_ID;
 
 /**********************************************************//**

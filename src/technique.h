@@ -18,84 +18,84 @@
  **************************************************************/
 typedef enum {
     // Basic techniques
-    BITE            = 1,
-    COLLIDE,
-    SLICE,
-    RAMPAGE,
-    ENGULF,
-    MANGLE,
-    BOMBARD,
-    TRI_BEAM,
-    FLATTEN,
-    CRUSH,
-    RECOVER,
-    PURGE,
-    DISPEL,
-    SHARPEN,
-    SNIPER,
-    PREVENT,
-    DISARM,
-    LURK,
-    PROVOKE,
-    EXPLOSION,
-    MIND_RAY,
-    BRAINWAVE,
-    HYPNOSIS,
-    CAPTURE,
-    AILMENT,
+    BITE            =  1,
+    COLLIDE         =  2,
+    SLICE           =  3,
+    RAMPAGE         =  4,
+    ENGULF          =  5,
+    MANGLE          =  6,
+    BOMBARD         =  8,
+    TRI_BEAM        =  9,
+    FLATTEN         = 10,
+    CRUSH           = 11,
+    RECOVER         = 12,
+    PURGE           = 13,
+    DISPEL          = 14,
+    SHARPEN         = 16,
+    SNIPER          = 18,
+    PREVENT         = 19,
+    DISARM          = 21,
+    LURK            = 22,
+    PROVOKE         = 23,
+    EXPLOSION       = 24,
+    MIND_RAY        = 56,
+    BRAINWAVE       = 57,
+    HYPNOSIS        = 59,
+    CAPTURE         = 72,
+    AILMENT         = 73,
 
     // Wind techniques
-    GUST,
-    CYCLONE,
-    HURRICANE,
+    GUST            = 25,
+    CYCLONE         = 26,
+    HURRICANE       = 28,
 
     // Fire techniques
-    HOT_GUST,
-    FIRE_BREATH,
-    INFERNO,
-    FIREWALL,
+    HOT_GUST        = 31,
+    FIRE_BREATH     = 79,
+    INFERNO         = 36,
+    FIREWALL        = 34,
 
     // Water techniques
-    SWIM_ATTACK,
-    RIPTIDE,
-    MAELSTROM,
-    SURGE,
-    TSUNAMI,
+    SWIM_ATTACK     = 37,
+    RIPTIDE         = 39,
+    MAELSTROM       = 40,
+    SURGE           = 38,
+    TSUNAMI         = 41,
 
     // Dark techniques
-    GUNK_ATTACK,
-    POISON_CLAW,
-    POISON_GRIP,
-    INKY_BANE,
-    SMOG,
-    OBSCURE,
-    MIND_SCREW,
+    GUNK_ATTACK     = 44,
+    POISON_CLAW     = 42,
+    POISON_GRIP     = 45,
+    INKY_BANE       = 43,
+    SMOG            = 46,
+    OBSCURE         = 61,
+    MIND_SCREW      = 60,
 
     // Light techniques
-    ZAP,
-    LIGHTNING,
-    THUNDER,
-    CHARGE,
+    ZAP             = 47,
+    LIGHTNING       = 50,
+    THUNDER         = 51,
+    CHARGE          = 52,
 
     // Ice techniques
-    COLD_GUST,
-    AVALANCHE,
+    COLD_GUST       = 53,
+    AVALANCHE       = 55,
 
     // Earth techniques
-    FRACTURE,
-    EARTHQUAKE,
-    STRYATION,
-    SOLIDIFY,
+    FRACTURE        = 62,
+    EARTHQUAKE      = 63,
+    STRYATION       = 64,
+    SOLIDIFY        = 69,
 
     // Metal techniques
-    CORE_BEAM,
-    IRON_ATTACK,
-    IRON_HEAVE,
-    RECYCLE,
+    CORE_BEAM       = 65,
+    IRON_ATTACK     = 67,
+    IRON_HEAVE      = 68,
+    RECYCLE         = 80,
 } TECHNIQUE_ID;
 
 /// A size large enough to contain every TECHNIQUE_ID in an array.
-#define N_TECHNIQUES (RECYCLE+1)
+#define N_TECHNIQUES 81
 
 /**********************************************************//**
  * @struct TECHNIQUE
