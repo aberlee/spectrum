@@ -174,9 +174,6 @@ static void GameInitialize(void) {
     
     // TODO Debug information goes here... Remove!
     NewGame();
-    Output("Hello world!");
-    Output("Multi-line text output\ntext!");
-    OutputF("Formatted output text: %d", 5);
 
     CreateSpectra(&Player->Spectra[1], COALSHARK, 100);
     CreateSpectra(&Player->Spectra[2], RAIKEGON, 74);

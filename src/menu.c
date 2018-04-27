@@ -594,7 +594,7 @@ static MENU MainMenu = {
         [MENU_PARTY]    = "Party",
         [MENU_ITEMS]    = "Items",
         [MENU_PLAYER]   = "Player",
-        [MENU_INFO]     = "Info",
+        [MENU_INFO]     = "Options",
         [MENU_SAVE]     = "Save",
         [MENU_EXIT]     = "Exit",
     },

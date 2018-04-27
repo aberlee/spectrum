@@ -14,7 +14,7 @@
 
 /**************************************************************/
 /// @brief Number of characters typed per second.
-#define TYPING_SPEED 16
+#define TYPING_SPEED 32
 
 /**************************************************************/
 /// @brief Queue for output messages.
@@ -38,10 +38,34 @@ static bool WaitingForUser = false;
  * @param text: The message.
  **************************************************************/
 void Output(const char *text) {
-    strncpy(Log[Tail], text, MESSAGE_SIZE);
+    int length = strlen(text);
+    strncpy(Log[Tail], text, (length<MESSAGE_SIZE)? length: MESSAGE_SIZE);
     Tail = (Tail+1)%LOG_SIZE;
     if (Head == Tail) {
         eprintf("Output queue overflow.");
+    }
+}
+
+void OutputSplitByCR(const char *text) {
+    char page[MESSAGE_SIZE+1];
+    char *p = page;
+    for (const char *t=text; *t; t++) {
+        if (*t == '\r') {
+            *p = '\0';
+            Output(page);
+            p = page;
+        } else {
+            *p = *t;
+            if (p-page < (ptrdiff_t)MESSAGE_SIZE) {
+                p++;
+            } else {
+                eprintf("Buffer overflow.");
+            }
+        }
+    }
+    if (p != page) {
+        *p = '\0';
+        Output(page);
     }
 }
 
@@ -50,38 +74,28 @@ void Output(const char *text) {
  * duration of the previous frame.
  **************************************************************/
 void UpdateOutput(void) {
-    static bool isDown = false;
     static float Progress = 0.0;
     int max = strlen(Log[Head]);
     if (Head == Tail) {
+        if (KeyJustUp(KEY_CONFIRM)) {
+            WaitingForUser = false;
+        }
         return;
     }
     
-    // User intracts by pressing the space bar once -
-    // can't speed through everything on one press though!
-    bool activateKey = false;
-    if (!isDown && KeyDown(KEY_CONFIRM)) {
-        activateKey = true;
-        isDown = true;
-    } else if (isDown && !KeyDown(KEY_CONFIRM)) {
-        isDown = false;
-    }
-    
     // Done typing - wait for user to press CONFIRM
-    WaitingForUser = false;
+    WaitingForUser = true;
     if (CurrentCharacter == max) {
-        if (activateKey) {
+        if (KeyJustDown(KEY_CONFIRM)) {
             Head = (Head+1) % LOG_SIZE;
             // Reset the progress for the next output
             Progress = 0.0;
             CurrentCharacter = 0;
-        } else {
-            WaitingForUser = true;
         }
     } else {
         // Update the progress of the typing
         Progress += TYPING_SPEED*LastFrameTimeElapsed;
-        if (Progress > max || activateKey) {
+        if (Progress > max || KeyJustDown(KEY_CONFIRM)) {
             CurrentCharacter = max;
         } else {
             CurrentCharacter = (int)Progress;
@@ -109,7 +123,7 @@ const char *GetOutput(void) {
  * @return True if there's no more output.
  **************************************************************/
 bool OutputDone(void) {
-    return Head == Tail;
+    return Head == Tail && !WaitingForUser;
 }
 
 /**********************************************************//**

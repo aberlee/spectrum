@@ -19,6 +19,7 @@
 #include "assets.h"             // MapImage, SensorImage
 #include "event.h"              // EVENT, Events
 #include "player.h"             // Player
+#include "output.h"             // Output
 #include "debug.h"              // eprintf
 
 #include "location.i"           // LOCATION_DATA
@@ -279,11 +280,19 @@ static inline COORDINATE InteractPosition(void) {
     return (COORDINATE){ix, iy};
 }
 
+static inline const EVENT *GetEvent(int argument) {
+    const EVENT *event = &CurrentEvents[argument];
+    while (event->Type == EVENT_REDIRECT) {
+        event = &CurrentEvents[event->Union.Redirect];
+    }
+    return event;
+}
+
 /**********************************************************//**
  * @brief Interacts with events on the map at the current
  * interaction position.
  **************************************************************/
-static void Interact(void) {
+static void InteractUser(void) {
     COORDINATE interact = InteractPosition();
     if (!TileInBounds(interact.X, interact.Y)) {
         return;
@@ -292,23 +301,10 @@ static void Interact(void) {
     // Get the tile properties that map to an event.
     const TILE *tile = &Tile(interact.X, interact.Y);
     if (tile->Flags & TILE_EVENT) {
-        const EVENT *event = &CurrentEvents[tile->Argument];
-        
-        // Redirection events (to avoid code duplication)
-        while (event->Type == EVENT_REDIRECT) {
-            event = &CurrentEvents[event->Union.Redirect];
-        }
-        
-        // Normal events
-        const WARP *warp = NULL;
+        const EVENT *event = GetEvent(tile->Argument);
         switch (event->Type) {
-        case EVENT_WARP:
-            warp = &event->Union.Warp;
-            Warp(warp->Location, TileToWorld(warp->Destination.X), TileToWorld(warp->Destination.Y));
-            break;
-        
         case EVENT_TEXT:
-            // TODO
+            OutputSplitByCR(event->Union.Text);
             break;
         case EVENT_SHOP:
             // TODO
@@ -316,9 +312,29 @@ static void Interact(void) {
         case EVENT_BOSS:
             // TODO
             break;
+        case EVENT_WARP:
+            // Warps processed by InteractAutomatic
+            break;
         default:
             eprintf("Invalid event type: %d\n", event->Type);
             break;
+        }
+    }
+}
+
+static void InteractAutomatic(void) {
+    COORDINATE interact = InteractPosition();
+    if (!TileInBounds(interact.X, interact.Y)) {
+        return;
+    }
+    
+    // Get the tile properties that map to an event.
+    const TILE *tile = &Tile(interact.X, interact.Y);
+    if (tile->Flags & TILE_EVENT) {
+        const EVENT *event = GetEvent(tile->Argument);
+        if (event->Type == EVENT_WARP) {
+            const WARP *warp = &event->Union.Warp;
+            Warp(warp->Location, TileToWorld(warp->Destination.X), TileToWorld(warp->Destination.Y));
         }
     }
 }
@@ -415,6 +431,12 @@ void DrawMap(void) {
     if (!MainMenuOpen) {
         DrawLocationPopup();
     }
+    
+    // Output
+    if (!OutputDone()) {
+        DrawAt(0, 0);
+        DrawOutputMap();
+    }
 
     // Main menu overlay
     if (MainMenuOpen) {
@@ -438,6 +460,12 @@ static inline bool Passable(int x, int y) {
  * position and activate any events.
  **************************************************************/
 void UpdateMap(void) {
+    // Output processing pre-empts all
+    if (!OutputDone()) {
+        UpdateOutput();
+        return;
+    }
+    
     // Main menu initialization
     if (!MainMenuOpen && KeyJustUp(KEY_MENU)) {
         MainMenuOpen = true;
@@ -451,6 +479,12 @@ void UpdateMap(void) {
         if (MainMenuClosed()) {
             MainMenuOpen = false;
         }
+        return;
+    }
+    
+    // Interact processing pre-empts map processing
+    if (KeyJustUp(KEY_CONFIRM)) {
+        InteractUser();
         return;
     }
     
@@ -509,10 +543,8 @@ void UpdateMap(void) {
     // Update position
     Player->Position.X += dx;
     Player->Position.Y += dy;
-    
-    // Event checking
-    Interact();
     UpdateOverworldLocation();
+    InteractAutomatic();
 }
 
 /**************************************************************/

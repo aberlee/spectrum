@@ -31,6 +31,7 @@
 
 /**************************************************************/
 extern void Output(const char *text);
+extern void OutputSplitByCR(const char *text);
 extern void UpdateOutput(void);
 extern const char *GetOutput(void);
 extern bool OutputDone(void);
