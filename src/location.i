@@ -107,6 +107,7 @@ const LOCATION LOCATION_DATA[] = {
             {20, SSSNAKE,       { 5,  6}},
             { 5, HOCUS,         { 6,  6}},
         },
+        .Fishing        = NULL,
     },
 
     ////////////////////////////////////////////////////////
