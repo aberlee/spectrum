@@ -40,9 +40,7 @@ typedef enum {
     ITEM_LIST,
     
     // Output frames
-    OUTPUT_BATTLE,
-    OUTPUT_MENU,
-    OUTPUT_MAP,
+    OUTPUT,
     
     // Popups
     POPUP_WINDOW,
@@ -160,9 +158,7 @@ extern void DrawHudUser(const SPECTRA *spectra);
 extern void DrawHudEnemy(const SPECTRA *spectra);
 extern void DrawSpectraDisplay(const SPECTRA *spectra);
 extern void DrawTechniqueDisplay(TECHNIQUE_ID id);
-extern void DrawOutputBattle(void);
-extern void DrawOutputMenu(void);
-extern void DrawOutputMap(void);
+extern void DrawOutput(void);
 extern void DrawPlayerDisplay(void);
 extern void DrawPopupBar(const char *text);
 

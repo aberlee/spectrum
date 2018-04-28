@@ -477,7 +477,7 @@ void DrawMap(void) {
     // Output
     if (!OutputDone()) {
         DrawAt(0, 0);
-        DrawOutputMap();
+        DrawOutput();
     }
 
     // Main menu overlay

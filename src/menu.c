@@ -397,36 +397,11 @@ static inline void DrawWaitingIcon(int x, int y) {
 }
 
 /**********************************************************//**
- * @brief Draw the current output, formatted for the battle
- * screen.
+ * @brief Draw the current output.
  **************************************************************/
-void DrawOutputBattle(void) {
-    al_draw_bitmap(WindowImage(OUTPUT_BATTLE), 117, 328, 0);
-    DrawTextBox(GetOutput(), 121, 332, 352);
-    if (OutputWaiting()) {
-        DrawWaitingIcon(468, 345);
-    }
-}
-
-/**********************************************************//**
- * @brief Draw the current output, formatted for the menu
- * screen.
- **************************************************************/
-void DrawOutputMenu(void) {
-    al_draw_bitmap(WindowImage(OUTPUT_MENU), 0, 305, 0);
-    DrawTextBox(GetOutput(), 4, 309, 472);
-    if (OutputWaiting()) {
-        DrawWaitingIcon(471, 348);
-    }
-}
-
-/**********************************************************//**
- * @brief Draw the current output, formatted for the map
- * screen.
- **************************************************************/
-void DrawOutputMap(void) {
-    al_draw_bitmap(WindowImage(OUTPUT_MAP), 147, 328, 0);
-    DrawTextBox(GetOutput(), 151, 332, 322);
+void DrawOutput(void) {
+    al_draw_bitmap(WindowImage(OUTPUT), 4, 328, 0);
+    DrawTextBox(GetOutput(), 8, 332, 464);
     if (OutputWaiting()) {
         DrawWaitingIcon(468, 345);
     }
