@@ -51,7 +51,7 @@ void NewGame(void) {
     for (int i = 0; i < TEAM_SIZE; i++) {
         Player->Spectra[i].Species = 0;
     }
-    CreateSpectra(&Player->Spectra[0], AMY, 1);
+    CreateSpectra(&Player->Spectra[0], AMY, 5);
     
     // Reset locations
     Warp(YOUR_HOUSE, 2, 3);
