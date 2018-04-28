@@ -102,11 +102,11 @@ static const EVENT *(EVENT_DATA[]) = {
         [ 50] = REDIRECT(46),
         [ 51] = REDIRECT(46),
         [ 52] = REDIRECT(46),
-        [ 53] = TEXT(
+        [ 53] = WARP(SOLAR_GENERATOR_ROOM, 3, 6),
+        [ 54] = TEXT(
             "Solar Institute\n"
             "Researching and providing solar energy."
         ),
-        [ 54] = WARP(SOLAR_GENERATOR_ROOM, 3, 6),
         [ 55] = TEXT(
             "BEWARE - The generator is dangerous\n"
             "when active!"
@@ -449,7 +449,7 @@ static const EVENT *(EVENT_DATA[]) = {
         [  2] = WARP(SOLAR_INSTITUTE_1F, 13, 3),
     },
     [MAP_SOLAR_INSTITUTE_3F] = (EVENT[]){
-        [  1] = WARP(SOLAR_INSTITUTE_2F, 13, 3),
+        [  1] = WARP(SOLAR_INSTITUTE_2F, 12, 3),
     },
     [MAP_GENERATOR_ROOM] = (EVENT[]){
         [  1] = WARP(OVERWORLD, 112, 133),

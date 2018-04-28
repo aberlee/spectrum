@@ -80,7 +80,7 @@ const LOCATION LOCATION_DATA[] = {
 
     [SAPLING_GREENHOUSE] = {
         .Name           = "Sapling Town",
-        .Map            = MAP_SAPLING_HOSPITAL,
+        .Map            = MAP_SAPLING_GREENHOUSE,
         .Bounds         = {{0, 0}, {208, 144}},
         .Background     = GRASS,
         .Encounters     = (ENCOUNTER[]){
