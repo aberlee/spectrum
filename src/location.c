@@ -394,14 +394,21 @@ void DrawDebugInformation(void) {
  * been less than 2 seconds since location names changed.
  **************************************************************/
 void DrawLocationPopup(void) {
+    static float popupY = -20;
     double popup = al_get_time()-LocationPopupTime;
-    if (popup < 4) {
-        if (popup < 1.5) {
-            DrawAt(4, 4);
-        } else {
-            // Retract popup
-            DrawAt(4, 4-40*(popup-1.5));
+    if (popup < 1) {
+        popupY += LastFrameTimeElapsed*80;
+        if (popupY > 4) {
+            popupY = 4;
         }
+    } else {
+        popupY -= LastFrameTimeElapsed*80;
+        if (popupY < -20) {
+            popupY = -20;
+        }
+    }
+    if (popupY > -20) {
+        DrawAt(4, popupY);
         DrawPopupBar(Location(Player->Location)->Name);
     }
 }
