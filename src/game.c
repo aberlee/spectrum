@@ -126,6 +126,10 @@ bool KeyJustUp(KEY key) {
     return KeyboardState[key] == KEY_STATE_JUST_UP;
 }
 
+ALLEGRO_BITMAP *Screenshot(void) {
+    return al_clone_bitmap(al_get_backbuffer(Display));
+}
+
 /**********************************************************//**
  * @brief Initializes the Allegro5 platform.
  **************************************************************/
@@ -149,6 +153,7 @@ static void AllegroInstall(void) {
 static void GameInitialize(void) {
     // Set up the display
     al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, ALLEGRO_REQUIRE);
+    al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
     al_set_new_window_title("Spectrum Legacy");
     if (Fullscreen) {
         al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
@@ -156,6 +161,9 @@ static void GameInitialize(void) {
     Display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     al_inhibit_screensaver(true);
     ResizeScreen();
+    
+    // Blender
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
     
     // Force display to render black screen; this eliminates
     // garbage display data.
@@ -259,16 +267,11 @@ static void MenuTestUpdate(void) {
  * @brief Updates and renders the screen on one frame.
  **************************************************************/
 static void Update(void) {
-/*     MenuTestUpdate(); */
-    static int yes = 1;
-    if (yes) {
-        Warp(MAP_OVERWORLD, 24*16, 43*16);
-        yes = 0;
-    }
     UpdateMap();
+}
+
+static void Draw(void) {
     DrawMap();
-/*     UpdateMainMenu();
-    DrawMainMenu(); */
 }
 
 /**********************************************************//**
@@ -306,8 +309,9 @@ static void GameMainLoop(void) {
             // Frame rendering
             if (!paused) {
                 al_set_target_bitmap(ScaleBuffer);
-                al_clear_to_color(al_map_rgb(0, 0, 0));
                 Update();
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+                Draw();
                 al_set_target_backbuffer(Display);
                 al_clear_to_color(al_map_rgb(0, 0, 0));
                 al_draw_scaled_bitmap(ScaleBuffer, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, ScaleX, ScaleY, ScaleW, ScaleH, 0);

@@ -55,5 +55,7 @@ extern bool KeyJustUp(KEY key);
  **************************************************************/
 #define KeyUp(key) (!KeyDown(key))
 
+extern ALLEGRO_BITMAP *Screenshot(void);
+
 /**************************************************************/
 #endif // _GAME_H_

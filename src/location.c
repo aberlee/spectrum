@@ -58,6 +58,10 @@ static int PlayerWalkFrame = 0;
 
 static double LocationPopupTime = 0.0;
 
+static ALLEGRO_BITMAP *WarpPreimage = NULL;
+
+static double TimeOfLastWarp = -2;
+
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
  * @param id: Identity of the location.
@@ -221,8 +225,8 @@ static void UseSensor(MAP_ID id) {
  * @brief Warps to another LOCATION immediately, updating all
  * static resources and sensors.
  * @param id: The new LOCATION.
- * @param x: World X-coordinate on the new location.
- * @param y: World Y-coordinate on the new location.
+ * @param x: Tile X-coordinate on the new location.
+ * @param y: Tile Y-coordinate on the new location.
  **************************************************************/
 void Warp(LOCATION_ID id, int x, int y) {
     // Old location name
@@ -235,7 +239,7 @@ void Warp(LOCATION_ID id, int x, int y) {
     if (id == OVERWORLD) {
         // Special mapping for OVERWORLD because it's one large map
         // fragmented into multiple sub-locations.
-        SetOverworldLocation(x, y);
+        SetOverworldLocation(TileToWorld(x), TileToWorld(y));
     } else {
         Player->Location = id;
     }
@@ -248,11 +252,22 @@ void Warp(LOCATION_ID id, int x, int y) {
     }
     
     // Offset to center from tile
-    Player->Position.X = x;
-    Player->Position.Y = y;
+    Player->Position.X = TileToWorld(x);
+    Player->Position.Y = TileToWorld(y);
     
     // Load the sensor at the map
     UseSensor(CurrentMap);
+    
+    TimeOfLastWarp = al_get_time();
+    WarpPreimage = Screenshot();
+}
+
+static bool WarpInProgress(void) {
+    return al_get_time()-TimeOfLastWarp < 1;
+}
+
+void SkipWarpFadeIn(void) {
+    TimeOfLastWarp = al_get_time()-0.5;
 }
 
 /**********************************************************//**
@@ -334,7 +349,7 @@ static void InteractAutomatic(void) {
         const EVENT *event = GetEvent(tile->Argument);
         if (event->Type == EVENT_WARP) {
             const WARP *warp = &event->Union.Warp;
-            Warp(warp->Location, TileToWorld(warp->Destination.X), TileToWorld(warp->Destination.Y));
+            Warp(warp->Location, warp->Destination.X, warp->Destination.Y);
         }
     }
 }
@@ -396,7 +411,7 @@ void DrawDebugInformation(void) {
 void DrawLocationPopup(void) {
     static float popupY = -20;
     double popup = al_get_time()-LocationPopupTime;
-    if (popup < 1) {
+    if (popup < 2 && !WarpInProgress()) {
         popupY += LastFrameTimeElapsed*80;
         if (popupY > 4) {
             popupY = 4;
@@ -413,10 +428,24 @@ void DrawLocationPopup(void) {
     }
 }
 
+void DrawScreenFade(float opacity) {
+    DrawAt(0, 0);
+    al_draw_filled_rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, al_map_rgba_f(0, 0, 0, opacity));
+}
+
 /**********************************************************//**
  * @brief Draws the current map (based on static data).
  **************************************************************/
 void DrawMap(void) {
+    // Warp pre-processing
+    double warpTime = al_get_time()-TimeOfLastWarp;
+    if (warpTime < 0.5) {
+        DrawAt(0, 0);
+        al_draw_bitmap(WarpPreimage, 0, 0, 0);
+        DrawScreenFade(2*warpTime);
+        return;
+    }
+    
     // Draw the map
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
     int centerX = DISPLAY_WIDTH/2-Player->Position.X;
@@ -437,6 +466,12 @@ void DrawMap(void) {
     // Location popup
     if (!MainMenuOpen) {
         DrawLocationPopup();
+    }
+    
+    // Warp post-processing
+    if (warpTime < 1) {
+        DrawScreenFade(2-warpTime*2);
+        return;
     }
     
     // Output
@@ -470,6 +505,11 @@ void UpdateMap(void) {
     // Output processing pre-empts all
     if (!OutputDone()) {
         UpdateOutput();
+        return;
+    }
+    
+    // Warp processing
+    if (WarpInProgress()) {
         return;
     }
     
