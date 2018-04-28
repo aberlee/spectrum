@@ -92,7 +92,15 @@ int ExperienceNeeded(const SPECTRA *spectra) {
     int levelSquared = spectra->Level*spectra->Level;
     const SPECIES *species = SpeciesOfSpectra(spectra);
     int rate = EXPERIENCE_RATE_DATA[species->Rate];
-    return rate*levelSquared;
+    return 1 + rate*levelSquared/100;
+}
+
+int ExperienceTotal(const SPECTRA *spectra) {
+    int levelCubed = spectra->Level*spectra->Level*spectra->Level;
+    const SPECIES *species = SpeciesOfSpectra(spectra);
+    int rate = EXPERIENCE_RATE_DATA[species->Rate];
+    int currentLevel = ExperienceNeeded(spectra)-spectra->Experience;
+    return spectra->Level-1 + rate*levelCubed/300 + currentLevel;
 }
 
 /**********************************************************//**

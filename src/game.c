@@ -175,10 +175,10 @@ static void GameInitialize(void) {
     // TODO Debug information goes here... Remove!
     NewGame();
 
-    CreateSpectra(&Player->Spectra[1], COALSHARK, 100);
-    CreateSpectra(&Player->Spectra[2], RAIKEGON, 74);
-    CreateSpectra(&Player->Spectra[3], BUTCHERBIRD, 66);
-    CreateSpectra(&Player->Spectra[4], NESSIE, 8);
+    CreateSpectra(&Player->Spectra[1], GLACIALITH, 100);
+    CreateSpectra(&Player->Spectra[2], KARDA, 100);
+    CreateSpectra(&Player->Spectra[3], FLOPJELLY, 100);
+    CreateSpectra(&Player->Spectra[4], COALSHARK, 100);
     
     Player->Inventory[0] = WATER_BOTTLE;
     Player->Inventory[1] = FISHING_ROD;

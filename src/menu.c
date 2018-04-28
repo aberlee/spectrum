@@ -301,8 +301,8 @@ void DrawSpectraDisplay(const SPECTRA *spectra) {
     }
     
     // Experience
-    DrawNumber(102, 109, 0);
-    DrawNumber(102, 122, spectra->Experience);
+    DrawNumber(102, 109, ExperienceTotal(spectra));
+    DrawNumber(102, 122, (spectra->Level==LEVEL_MAX)? 0: spectra->Experience);
     
     // Sprite pane
     ALLEGRO_BITMAP *sprite;

@@ -182,6 +182,7 @@ extern const SPECIES *SpeciesOfBattler(const BATTLER *battler);
 extern void UpdateActiveStats(SPECTRA *spectra);
 extern void Recover(SPECTRA *spectra);
 extern int ExperienceNeeded(const SPECTRA *spectra);
+extern int ExperienceTotal(const SPECTRA *spectra);
 extern void CreateSpectra(SPECTRA *spectra, SPECIES_ID species, int level);
 
 /**************************************************************/
