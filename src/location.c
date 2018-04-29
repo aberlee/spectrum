@@ -221,6 +221,14 @@ static void UseSensor(MAP_ID id) {
     al_unlock_bitmap(sensorImage);
 }
 
+void InitializeLocation(void) {
+    CurrentMap = Location(Player->Location)->Map;
+    CurrentEvents = Events(CurrentMap);
+    LocationPopupTime = al_get_time();
+    UseSensor(CurrentMap);
+    UpdateOverworldLocation();
+}
+
 /**********************************************************//**
  * @brief Warps to another LOCATION immediately, updating all
  * static resources and sensors.
@@ -228,7 +236,7 @@ static void UseSensor(MAP_ID id) {
  * @param x: Tile X-coordinate on the new location.
  * @param y: Tile Y-coordinate on the new location.
  **************************************************************/
-void Warp(LOCATION_ID id, int x, int y) {
+void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     // Old location name
     const char *oldLocation = NULL;
     if (Player->Location) {
@@ -254,6 +262,7 @@ void Warp(LOCATION_ID id, int x, int y) {
     // Offset to center from tile
     Player->Position.X = TileToWorld(x);
     Player->Position.Y = TileToWorld(y);
+    Player->Direction = direction;
     
     // Load the sensor at the map
     UseSensor(CurrentMap);
@@ -349,7 +358,7 @@ static void InteractAutomatic(void) {
         const EVENT *event = GetEvent(tile->Argument);
         if (event->Type == EVENT_WARP) {
             const WARP *warp = &event->Union.Warp;
-            Warp(warp->Location, warp->Destination.X, warp->Destination.Y);
+            Warp(warp->Location, warp->Destination.X, warp->Destination.Y, warp->Direction);
         }
     }
 }

@@ -54,7 +54,7 @@ void NewGame(void) {
     CreateSpectra(&Player->Spectra[0], AMY, 5);
     
     // Reset locations
-    Warp(YOUR_HOUSE, 2, 3);
+    Warp(YOUR_HOUSE, 2, 3, DOWN);
 }
 
 /**********************************************************//**
@@ -83,7 +83,10 @@ bool LoadGame(void) {
     if (saveFile) {
         int nRead = fread(&PlayerData, sizeof(PLAYER), 1, saveFile);
         fclose(saveFile);
-        return nRead == sizeof(PLAYER);
+        if (nRead == 1) {
+            InitializeLocation();
+            return true;
+        }
     }
     return false;
 }
@@ -94,11 +97,11 @@ bool LoadGame(void) {
  * @return True if the save succeeded.
  **************************************************************/
 bool SaveGame(void) {
-    FILE *saveFile = fopen(SAVE_FILE, "r");
+    FILE *saveFile = fopen(SAVE_FILE, "w");
     if (saveFile) {
         int nWrite = fwrite(&PlayerData, sizeof(PLAYER), 1, saveFile);
         fclose(saveFile);
-        return nWrite == sizeof(PLAYER);
+        return nWrite == 1;
     }
     return false;
 }

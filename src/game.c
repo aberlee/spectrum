@@ -181,18 +181,20 @@ static void GameInitialize(void) {
     LoadAssets();
     
     // TODO Debug information goes here... Remove!
-    NewGame();
+    if (!LoadGame()) {
+        NewGame();
 
-    CreateSpectra(&Player->Spectra[1], GLACIALITH, 100);
-    CreateSpectra(&Player->Spectra[2], KARDA, 100);
-    CreateSpectra(&Player->Spectra[3], FLOPJELLY, 100);
-    CreateSpectra(&Player->Spectra[4], COALSHARK, 100);
-    
-    Player->Inventory[0] = WATER_BOTTLE;
-    Player->Inventory[1] = FISHING_ROD;
-    Player->Inventory[2] = POTION;
-    Player->Inventory[3] = TOUGH_HERB;
-    Player->Inventory[4] = SERUM;
+        CreateSpectra(&Player->Spectra[1], GLACIALITH, 100);
+        CreateSpectra(&Player->Spectra[2], KARDA, 100);
+        CreateSpectra(&Player->Spectra[3], FLOPJELLY, 100);
+        CreateSpectra(&Player->Spectra[4], COALSHARK, 100);
+        
+        Player->Inventory[0] = WATER_BOTTLE;
+        Player->Inventory[1] = FISHING_ROD;
+        Player->Inventory[2] = POTION;
+        Player->Inventory[3] = TOUGH_HERB;
+        Player->Inventory[4] = SERUM;
+    }
 }
 
 // TODO Debug function... Remove!
@@ -255,7 +257,7 @@ static void MenuTestUpdate(void) {
     al_identity_transform(&trans);
     al_use_transform(&trans);
     UpdateOutput();
-    DrawOutputMap();
+    DrawOutput();
     
     al_identity_transform(&trans);
     al_translate_transform(&trans, 10, 10);

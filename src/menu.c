@@ -581,6 +581,15 @@ static MENU MainMenu = {
 /// @brief Wait data for when the main menu opens an overlay.
 static WAIT Overlay = WAIT_INITIALIZER(KEY_DENY);
 
+typedef enum {
+    SAVE_BEFORE,
+    SAVE_DURING,
+    SAVE_AFTER,
+} SAVE_PHASE;
+
+static SAVE_PHASE SavePhase;
+static bool SaveStatus = false;
+
 /**********************************************************//**
  * @brief Sets up the main menu when it's opened.
  **************************************************************/
@@ -632,7 +641,16 @@ void DrawMainMenu(void) {
             break;
 
         case MENU_SAVE:
-            // Draw save screen
+            DrawAt(194, 92);
+            switch (SavePhase) {
+            case SAVE_BEFORE:
+            case SAVE_DURING:
+                DrawAlert("Now saving...");
+                break;
+            case SAVE_AFTER:
+                DrawAlert(SaveStatus? "Now saving...\nComplete!": "Now saving...\nFailed.");
+                break;
+            }
             break;
         }
     }
@@ -707,7 +725,21 @@ void UpdateMainMenu(void) {
             break;
         
         case MENU_SAVE:
-            // Perform save
+            switch (SavePhase) {
+            case SAVE_BEFORE:
+                SavePhase = SAVE_DURING;
+                break;
+            case SAVE_DURING:
+                SaveStatus = SaveGame();
+                SavePhase = SAVE_AFTER;
+                break;
+            case SAVE_AFTER:
+                UpdateWait(&Overlay);
+                if (!IsWaiting(&Overlay)) {
+                    MainMenu.Control.State = CONTROL_IDLE;
+                }
+                break;
+            }
             break;
         }
         break;
@@ -727,6 +759,10 @@ void UpdateMainMenu(void) {
             case MENU_PLAYER:
             case MENU_INFO:
                 ResetWait(&Overlay);
+                break;
+            case MENU_SAVE:
+                ResetWait(&Overlay);
+                SavePhase = SAVE_BEFORE;
                 break;
             case MENU_EXIT:
                 // Immediately cancel out of menu
