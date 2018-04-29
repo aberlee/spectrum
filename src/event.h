@@ -20,6 +20,7 @@
 typedef struct {
     COORDINATE Destination;     ///< Destination tile coordinate.
     LOCATION_ID Location;       ///< Destination LOCATION.
+    DIRECTION Direction;        ///< Destination point direction.
 } WARP;
 
 /**********************************************************//**

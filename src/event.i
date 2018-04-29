@@ -13,7 +13,7 @@
 #include "shop.h"           // SHOP_ID
 #include "species.h"        // SPECIES_ID
 
-#define WARP(id, x, y) {EVENT_WARP, {.Warp={{x, y}, id}}}
+#define WARP(id, x, y, d) {EVENT_WARP, {.Warp={{x, y}, id, d}}}
 #define TEXT(text) {EVENT_TEXT, {.Text=text}}
 #define SHOP(id) {EVENT_SHOP, {.Shop=id}}
 #define BOSS(spectra, level) {EVENT_BOSS, {.Boss={spectra, level}}}
@@ -29,28 +29,28 @@ static const EVENT *(EVENT_DATA[]) = {
     // Overworld
     [MAP_OVERWORLD] = (EVENT[]){
         // Sapling Town and Triangle Lake
-        [  1] = WARP(SAPLING_AIRPORT, 1, 6),
-        [  2] = WARP(YOUR_HOUSE, 5, 6),
+        [  1] = WARP(SAPLING_AIRPORT, 1, 6, UP),
+        [  2] = WARP(YOUR_HOUSE, 5, 6, UP),
         [  3] = HOUSE,
-        [  4] = WARP(SAPLING_HOSPITAL, 4, 6),
+        [  4] = WARP(SAPLING_HOSPITAL, 4, 6, UP),
         [  5] = HOUSE,
-        [  6] = WARP(SAPLING_GREENHOUSE, 10, 8),
+        [  6] = WARP(SAPLING_GREENHOUSE, 10, 8, UP),
         [  7] = HOUSE,
         [  8] = HOUSE,
-        [  9] = WARP(SAPLING_CITY_HALL, 2, 8),
-        [ 10] = WARP(SAPLING_CITY_HALL, 11, 8),
+        [  9] = WARP(SAPLING_CITY_HALL, 2, 8, UP),
+        [ 10] = WARP(SAPLING_CITY_HALL, 11, 8, UP),
         [ 13] = TEXT("Sapling Town"),
         [ 21] = TEXT(
             "East - Triangle Lake\n"
             "West - Port Royal"
         ),
-        [ 22] = WARP(SAPLING_LABORATORY, 4, 7),
+        [ 22] = WARP(SAPLING_LABORATORY, 4, 7, UP),
         
         // Port Royal
-        [ 11] = WARP(ROYAL_HOSPITAL, 4, 6),
+        [ 11] = WARP(ROYAL_HOSPITAL, 4, 6, UP),
         [ 12] = TEXT("Port Royal Hospital"),
-        [ 14] = WARP(ROYAL_WAREHOUSE, 1, 7),
-        [ 15] = WARP(ROYAL_WAREHOUSE, 9, 7),
+        [ 14] = WARP(ROYAL_WAREHOUSE, 1, 7, UP),
+        [ 15] = WARP(ROYAL_WAREHOUSE, 9, 7, UP),
         [ 16] = HOUSE,
         [ 17] = HOUSE,
         [ 18] = HOUSE,
@@ -60,8 +60,8 @@ static const EVENT *(EVENT_DATA[]) = {
         [ 20] = TEXT("Port Royal"),
         
         // Oxide Crater
-        [ 23] = WARP(OXIDE_CAVE, 18, 17),
-        [ 24] = WARP(OXIDE_CAVE, 30, 20),
+        [ 23] = WARP(OXIDE_CAVE, 18, 17, UP),
+        [ 24] = WARP(OXIDE_CAVE, 30, 20, UP),
         
         // Solar City Port
         [ 40] = TEXT(
@@ -77,68 +77,68 @@ static const EVENT *(EVENT_DATA[]) = {
             "for injury or accident."
         ),
         [ 42] = TEXT("Solar City Port"),
-        [ 43] = WARP(ROYAL_PORT, 1, 6),
-        [ 44] = WARP(ROYAL_PORT, 8, 6),
+        [ 43] = WARP(ROYAL_PORT, 1, 6, UP),
+        [ 44] = WARP(ROYAL_PORT, 8, 6, UP),
         
         // Solar City
         [ 27] = HOUSE,
         [ 28] = HOUSE,
         [ 29] = HOUSE,
         [ 30] = HOUSE,
-        [ 31] = WARP(SOLAR_HOSPITAL, 4, 6),
-        [ 32] = WARP(SOLAR_WEST_CORPORATION, 3, 9),
+        [ 31] = WARP(SOLAR_HOSPITAL, 4, 6, UP),
+        [ 32] = WARP(SOLAR_WEST_CORPORATION, 3, 9, UP),
         [ 33] = HOUSE,
         [ 34] = HOUSE,
         [ 35] = HOUSE,
-        [ 36] = WARP(SOLAR_EAST_CORPORATION, 6, 9),
-        [ 37] = WARP(SOLAR_AIRPORT, 2, 8),
+        [ 36] = WARP(SOLAR_EAST_CORPORATION, 6, 9, UP),
+        [ 37] = WARP(SOLAR_AIRPORT, 2, 8, UP),
         [ 38] = REDIRECT(37),
         [ 39] = REDIRECT(37),
         
         // Solar Institute
-        [ 46] = WARP(SOLAR_INSTITUTE_1F, 5, 9),
+        [ 46] = WARP(SOLAR_INSTITUTE_1F, 5, 9, UP),
         [ 47] = REDIRECT(46),
+        [ 48] = REDIRECT(46),
         [ 49] = REDIRECT(46),
         [ 50] = REDIRECT(46),
         [ 51] = REDIRECT(46),
-        [ 52] = REDIRECT(46),
-        [ 53] = WARP(SOLAR_GENERATOR_ROOM, 3, 6),
-        [ 54] = TEXT(
+        [ 52] = WARP(SOLAR_GENERATOR_ROOM, 3, 6, UP),
+        [ 53] = TEXT(
             "Solar Institute\n"
             "Researching and providing solar energy."
         ),
-        [ 55] = TEXT(
+        [ 54] = TEXT(
             "BEWARE - The generator is dangerous\n"
             "when active!"
         ),
         
         // Falls Area
-        [ 59] = WARP(FALLS_CAVE_1F, 5, 15),
-        [ 60] = WARP(FALLS_CAVE_1F, 24, 17),
-        [ 64] = WARP(ANDORA_REST_STOP, 2, 6),
+        [ 59] = WARP(FALLS_CAVE_1F, 5, 15, UP),
+        [ 60] = WARP(FALLS_CAVE_1F, 24, 17, UP),
+        [ 64] = WARP(ANDORA_REST_STOP, 2, 6, UP),
         [ 65] = TEXT("Rest Stop"),
-        [ 66] = WARP(NEW_LAND_CAVE, 54, 12),
-        [ 67] = WARP(NEW_LAND_CAVE, 41, 20),
-        [ 68] = WARP(NEW_LAND_CAVE, 8, 16),
+        [ 66] = WARP(NEW_LAND_CAVE, 54, 12, UP),
+        [ 67] = WARP(NEW_LAND_CAVE, 41, 20, UP),
+        [ 68] = WARP(NEW_LAND_CAVE, 8, 16, UP),
         
         // Andora Falls
         [ 48] = TEXT("Andora Falls Port"),
-        [ 56] = WARP(ANDORA_PORT, 8, 4),
-        [ 57] = WARP(ANDORA_PORT, 1, 6),
-        [ 58] = WARP(ANDORA_HOSPITAL, 5, 6),
+        [ 56] = WARP(ANDORA_PORT, 8, 4, UP),
+        [ 57] = WARP(ANDORA_PORT, 1, 6, UP),
+        [ 58] = WARP(ANDORA_HOSPITAL, 5, 6, UP),
         [ 61] = HOUSE,
         [ 62] = HOUSE,
         [ 63] = HOUSE,
         [ 69] = HOUSE,
         
         // Granite Cave
-        [ 70] = WARP(GRANITE_CAVE_1F, 20, 3),
-        [ 71] = WARP(GRANITE_CAVE_1F, 35, 13),
-        [ 72] = WARP(GRANITE_CAVE_1F, 14, 17),
+        [ 70] = WARP(GRANITE_CAVE_1F, 20, 3, UP),
+        [ 71] = WARP(GRANITE_CAVE_1F, 35, 13, UP),
+        [ 72] = WARP(GRANITE_CAVE_1F, 14, 17, UP),
         
         
         // Granite City Downtown
-        [ 73] = WARP(GRANITE_TOWER_1F, 9, 12),
+        [ 73] = WARP(GRANITE_TOWER_1F, 9, 12, UP),
         [ 74] = REDIRECT(73),
         [ 75] = REDIRECT(73),
         [ 76] = REDIRECT(73),
@@ -147,35 +147,35 @@ static const EVENT *(EVENT_DATA[]) = {
         [ 79] = REDIRECT(73),
         [ 80] = REDIRECT(73),
         [ 81] = REDIRECT(73),
-        [ 82] = WARP(GRANITE_STORE_1, 4, 6),
-        [ 83] = WARP(GRANITE_STORE_2, 4, 6),
-        [ 84] = WARP(GRANITE_STORE_3, 4, 6),
-        [ 86] = WARP(GRANITE_DEPARTMENT_STORE, 6, 12),
+        [ 82] = WARP(GRANITE_STORE_1, 4, 6, UP),
+        [ 83] = WARP(GRANITE_STORE_2, 4, 6, UP),
+        [ 84] = WARP(GRANITE_STORE_3, 4, 6, UP),
+        [ 86] = WARP(GRANITE_DEPARTMENT_STORE, 6, 12, UP),
         [ 87] = REDIRECT(86),
         [ 88] = REDIRECT(86),
-        [ 89] = WARP(GRANITE_WAREHOUSE, 1, 7),
-        [ 90] = WARP(GRANITE_WAREHOUSE, 7, 7),
-        [ 91] = WARP(GRANITE_WAREHOUSE, 12, 7),
-        [ 93] = WARP(GRANITE_STORE_4, 4, 6),
-        [ 94] = WARP(GRANITE_STORE_5, 4, 6),
-        [ 95] = WARP(GRANITE_STORE_6, 4, 6),
+        [ 89] = WARP(GRANITE_WAREHOUSE, 1, 7, UP),
+        [ 90] = WARP(GRANITE_WAREHOUSE, 7, 7, UP),
+        [ 91] = WARP(GRANITE_WAREHOUSE, 12, 7, UP),
+        [ 93] = WARP(GRANITE_STORE_4, 4, 6, UP),
+        [ 94] = WARP(GRANITE_STORE_5, 4, 6, UP),
+        [ 95] = WARP(GRANITE_STORE_6, 4, 6, UP),
         [ 96] = HOUSE,
         [ 97] = TEXT(
             "NO FISHING\n"
             "- Posted by the Granite City Council"
         ),
-        [ 99] = WARP(GRANITE_CORPORATION, 1, 4),
-        [105] = WARP(GRANITE_CORPORATION, 7, 9),
-        [100] = WARP(GRANITE_HOSPITAL, 13, 6),
-        [102] = WARP(GRANITE_HOSPITAL, 1, 11),
-        [103] = WARP(GRANITE_HOSPITAL, 8, 11),
-        [104] = WARP(GRANITE_LIBRARY, 5, 8),
-        [116] = WARP(GRANITE_AIRPORT, 1, 8),
+        [ 99] = WARP(GRANITE_CORPORATION, 1, 4, UP),
+        [105] = WARP(GRANITE_CORPORATION, 7, 9, UP),
+        [100] = WARP(GRANITE_HOSPITAL, 13, 6, UP),
+        [102] = WARP(GRANITE_HOSPITAL, 1, 11, UP),
+        [103] = WARP(GRANITE_HOSPITAL, 8, 11, UP),
+        [104] = WARP(GRANITE_LIBRARY, 5, 8, UP),
+        [116] = WARP(GRANITE_AIRPORT, 1, 8, UP),
         [117] = REDIRECT(116),
-        [118] = WARP(GRANITE_AIRPORT, 10, 8),
+        [118] = WARP(GRANITE_AIRPORT, 10, 8, UP),
         [119] = REDIRECT(118),
-        [120] = WARP(GRANITE_AIR_TOWER_WEST, 2, 5),
-        [121] = WARP(GRANITE_AIR_TOWER_EAST, 2, 5),
+        [120] = WARP(GRANITE_AIR_TOWER_WEST, 2, 5, UP),
+        [121] = WARP(GRANITE_AIR_TOWER_EAST, 2, 5, UP),
         
         // Granite City Suburbs
         [101] = HOUSE,
@@ -202,37 +202,37 @@ static const EVENT *(EVENT_DATA[]) = {
             "Boulder National Park\n"
             "Kaido's protected nature preserve."
         ),
-        [ 92] = WARP(BOULDER_CAVE, 20, 5),
-        [ 98] = WARP(BOULDER_CAVE, 13, 17),
+        [ 92] = WARP(BOULDER_CAVE, 20, 5, UP),
+        [ 98] = WARP(BOULDER_CAVE, 13, 17, UP),
     },
     
     // Boulder Cave
     [MAP_BOULDER_CAVE] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 59, 220),
-        [  2] = WARP(OVERWORLD, 52, 232),
+        [  1] = WARP(OVERWORLD, 59, 220, DOWN),
+        [  2] = WARP(OVERWORLD, 52, 232, DOWN),
     },
     
     // Falls Cave
     [MAP_FALLS_CAVE_1F] = (EVENT[]){
-        [  1] = WARP(FALLS_CAVE_B1F, 12, 9),
-        [  2] = WARP(FALLS_CAVE_B1F, 22, 11),
+        [  1] = WARP(FALLS_CAVE_B1F, 12, 9, UP),
+        [  2] = WARP(FALLS_CAVE_B1F, 22, 11, UP),
         [  3] = TEXT("Welcome to the town of Andora Falls"),
         [  4] = TEXT(
             "Andora Falls Cave\n"
             "Also known as The Chasm"
         ),
-        [  5] = WARP(OVERWORLD, 30, 155),
-        [  6] = WARP(OVERWORLD, 49, 157),
+        [  5] = WARP(OVERWORLD, 30, 155, DOWN),
+        [  6] = WARP(OVERWORLD, 49, 157, DOWN),
     },
     [MAP_FALLS_CAVE_B1F] = (EVENT[]){
-        [  1] = WARP(FALLS_CAVE_1F, 11, 10),
-        [  2] = WARP(FALLS_CAVE_1F, 21, 12),
+        [  1] = WARP(FALLS_CAVE_1F, 11, 10, DOWN),
+        [  2] = WARP(FALLS_CAVE_1F, 21, 12, DOWN),
     },
     
     // Granite Cave
     [MAP_GRANITE_CAVE_1F] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 28, 187),
-        [  2] = WARP(GRANITE_CAVE_B1F, 22, 39),
+        [  1] = WARP(OVERWORLD, 28, 187, DOWN),
+        [  2] = WARP(GRANITE_CAVE_B1F, 22, 39, UP),
         [  3] = TEXT(
             "WARNING:\n"
             "Strong monsters inhabit that part\r"
@@ -250,12 +250,12 @@ static const EVENT *(EVENT_DATA[]) = {
             "South - Granite City\r"
             "East - Boulder Park"
         ),
-        [  6] = WARP(OVERWORLD, 43, 197),
-        [  7] = WARP(OVERWORLD, 22, 200),
+        [  6] = WARP(OVERWORLD, 43, 197, DOWN),
+        [  7] = WARP(OVERWORLD, 22, 200, DOWN),
     },
     [MAP_GRANITE_CAVE_B1F] = (EVENT[]){
         [  1] = TEXT("Watch out while climbing rocks."),
-        [  2] = WARP(GRANITE_CAVE_1F, 20, 10),
+        [  2] = WARP(GRANITE_CAVE_1F, 20, 10, DOWN),
     },
     
     // New Land Cave
@@ -277,14 +277,14 @@ static const EVENT *(EVENT_DATA[]) = {
             "exercise caution when climbing in the\n"
             "cave!"
         ),
-        [  4] = WARP(OVERWORLD, 127, 164),
+        [  4] = WARP(OVERWORLD, 127, 164, DOWN),
         [  5] = TEXT(
             "Advertisement:\n"
             "Need a refreshment? Visit the Rest Stop\r"
             "on your way to Andora Falls!"
         ),
-        [  6] = WARP(OVERWORLD, 82, 168),
-        [  7] = WARP(OVERWORLD, 114, 172),
+        [  6] = WARP(OVERWORLD, 82, 168, DOWN),
+        [  7] = WARP(OVERWORLD, 114, 172, DOWN),
     },
     
     // Oxide Cave
@@ -295,8 +295,8 @@ static const EVENT *(EVENT_DATA[]) = {
             "on the Earth's crust more than 20,000\n"
             "yeard ago."
         ),
-        [  2] = WARP(OVERWORLD, 61, 65),
-        [  3] = WARP(OVERWORLD, 73, 67),
+        [  2] = WARP(OVERWORLD, 61, 65, DOWN),
+        [  3] = WARP(OVERWORLD, 73, 67, DOWN),
         [  4] = TEXT("Upcoming cave leads to dead end."),
     },
 
@@ -325,14 +325,14 @@ static const EVENT *(EVENT_DATA[]) = {
             "\"Some spectra are better at fighting; others excel\n"
             "at support or defense.\""
         ),
-        [  4] = WARP(OVERWORLD, 136, 12),
+        [  4] = WARP(OVERWORLD, 136, 12, DOWN),
     },
     [MAP_SAPLING_AIRPORT] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 110, 8),
+        [  1] = WARP(OVERWORLD, 110, 8, DOWN),
     },
     [MAP_SAPLING_HOSPITAL] = (EVENT[]){
         [  1] = TEXT("OUT OF ORDER"),
-        [  2] = WARP(OVERWORLD, 84, 15),
+        [  2] = WARP(OVERWORLD, 84, 15, DOWN),
     },
     [MAP_SAPLING_CITY_HALL] = (EVENT[]){
         [  1] = TEXT(
@@ -348,15 +348,15 @@ static const EVENT *(EVENT_DATA[]) = {
             "provided the a source of food and power to the\r"
             "\"earliest residents of Sapling Town.\""
         ),
-        [  3] = WARP(OVERWORLD, 92, 23),
-        [  4] = WARP(OVERWORLD, 96, 23),
+        [  3] = WARP(OVERWORLD, 92, 23, DOWN),
+        [  4] = WARP(OVERWORLD, 96, 23, DOWN),
     },
     [MAP_SAPLING_GREENHOUSE] = (EVENT[]){
         [  1] = TEXT("Sapling Greenhouse"),
-        [  2] = WARP(OVERWORLD, 104, 16),
+        [  2] = WARP(OVERWORLD, 104, 16, DOWN),
     },
     [MAP_SAPLING_LABORATORY] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 112, 62),
+        [  1] = WARP(OVERWORLD, 112, 62, DOWN),
     },
 
     // Port Royal buildings
@@ -385,11 +385,11 @@ static const EVENT *(EVENT_DATA[]) = {
             "who helped build Port Royal. In his free time\r"
             "he collected rocks near the Oxide Crater."
         ),
-        [  4] = WARP(OVERWORLD, 27, 30),
+        [  4] = WARP(OVERWORLD, 27, 30, DOWN),
     },
     [MAP_ROYAL_WAREHOUSE] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 22, 36),
-        [  2] = WARP(OVERWORLD, 25, 36),
+        [  1] = WARP(OVERWORLD, 22, 36, DOWN),
+        [  2] = WARP(OVERWORLD, 25, 36, DOWN),
     },
     [MAP_ROYAL_PORT] = (EVENT[]){
         [  1] = TEXT(
@@ -412,13 +412,13 @@ static const EVENT *(EVENT_DATA[]) = {
             "The Oxide Crater is a national park, and is home to\n"
             "a number of spectra rumored to be from space."
         ),
-        [  4] = WARP(OVERWORLD, 65, 117),
-        [  5] = WARP(OVERWORLD, 69, 117),
+        [  4] = WARP(OVERWORLD, 65, 117, DOWN),
+        [  5] = WARP(OVERWORLD, 69, 117, DOWN),
     },
 
     // Solar City buildings
     [MAP_SOLAR_AIRPORT] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 117, 104),
+        [  1] = WARP(OVERWORLD, 117, 104, DOWN),
     },
     [MAP_SOLAR_HOSPITAL] = (EVENT[]){
         [  1] = TEXT(
@@ -430,66 +430,66 @@ static const EVENT *(EVENT_DATA[]) = {
             "Today, Solar City leads the protection of Kaido's\n"
             "environment, and is its largest producer of energy."
         ),
-        [  2] = WARP(OVERWORLD, 111, 86),
+        [  2] = WARP(OVERWORLD, 111, 86, DOWN),
     },
     [MAP_SOLAR_EAST_CORP] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 131, 91),
+        [  1] = WARP(OVERWORLD, 131, 91, DOWN),
     },
     [MAP_SOLAR_WEST_CORP] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 125, 86),
+        [  1] = WARP(OVERWORLD, 125, 86, DOWN),
     },
     
     // Solar Institute
     [MAP_SOLAR_INSTITUTE_1F] = (EVENT[]){
-        [  1] = WARP(SOLAR_INSTITUTE_3F, 13, 3),
-        [  2] = WARP(OVERWORLD, 104, 128),
+        [  1] = WARP(SOLAR_INSTITUTE_3F, 13, 3, DOWN),
+        [  2] = WARP(OVERWORLD, 104, 128, DOWN),
     },
     [MAP_SOLAR_INSTITUTE_2F] = (EVENT[]){
-        [  1] = WARP(SOLAR_INSTITUTE_3F, 13, 3),
-        [  2] = WARP(SOLAR_INSTITUTE_1F, 13, 3),
+        [  1] = WARP(SOLAR_INSTITUTE_3F, 13, 3, DOWN),
+        [  2] = WARP(SOLAR_INSTITUTE_1F, 12, 3, DOWN),
     },
     [MAP_SOLAR_INSTITUTE_3F] = (EVENT[]){
-        [  1] = WARP(SOLAR_INSTITUTE_2F, 12, 3),
+        [  1] = WARP(SOLAR_INSTITUTE_2F, 12, 3, DOWN),
     },
     [MAP_GENERATOR_ROOM] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 112, 133),
+        [  1] = WARP(OVERWORLD, 112, 133, DOWN),
     },
 
     // Andora Falls buildings
     [MAP_REST_STOP] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 90, 161),
+        [  1] = WARP(OVERWORLD, 90, 161, DOWN),
     },
     [MAP_ANDORA_HOSPITAL] = (EVENT[]){
         [  1] = TEXT("Hey! Occupied!"),
-        [  2] = WARP(OVERWORLD, 20, 150),
+        [  2] = WARP(OVERWORLD, 20, 150, DOWN),
     },
     [MAP_ANDORA_PORT] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 13, 148),
-        [  2] = WARP(OVERWORLD, 9, 150),
+        [  1] = WARP(OVERWORLD, 13, 148, DOWN),
+        [  2] = WARP(OVERWORLD, 9, 150, DOWN),
     },
 
     // Granite City buildings
     [MAP_GRANITE_AIRPORT] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 97, 254),
-        [  2] = WARP(OVERWORLD, 109, 254),
+        [  1] = WARP(OVERWORLD, 97, 254, DOWN),
+        [  2] = WARP(OVERWORLD, 109, 254, DOWN),
     },
     [MAP_GRANITE_AIR_EAST] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 121, 255),
+        [  1] = WARP(OVERWORLD, 121, 255, DOWN),
     },
     [MAP_GRANITE_AIR_WEST] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 117, 255),
+        [  1] = WARP(OVERWORLD, 117, 255, DOWN),
     },
     [MAP_GRANITE_CORP] = (EVENT[]){
-        [  1] = WARP(GAME_DESIGNER_ROOM, 4, 3),
-        [  2] = WARP(OVERWORLD, 129, 234),
-        [  3] = WARP(OVERWORLD, 132, 240),
+        [  1] = WARP(GAME_DESIGNER_ROOM, 4, 3, DOWN),
+        [  2] = WARP(OVERWORLD, 129, 234, DOWN),
+        [  3] = WARP(OVERWORLD, 132, 240, DOWN),
     },
     [MAP_GRANITE_DEPARTMENT] = (EVENT[]){
         [  1] = TEXT("WARNING:\nToilet is overflowing."),
-        [  2] = WARP(OVERWORLD, 117, 213),
+        [  2] = WARP(OVERWORLD, 117, 213, DOWN),
     },
     [MAP_GAME_DESIGNER_ROOM] = (EVENT[]){
-        [  1] = WARP(GRANITE_CORPORATION, 4, 3),
+        [  1] = WARP(GRANITE_CORPORATION, 4, 3, DOWN),
         [  2] = TEXT(
             "There's a book titled \"Basic Rules\n"
             "of Game Design\"\r"
@@ -526,9 +526,9 @@ static const EVENT *(EVENT_DATA[]) = {
             "\"Boulder Park can be accessed through Granite\n"
             "Cave, or Boulder Cave.\""
         ),
-        [  4] = WARP(OVERWORLD, 94, 238),
-        [  5] = WARP(OVERWORLD, 88, 240),
-        [  6] = WARP(OVERWORLD, 90, 240),
+        [  4] = WARP(OVERWORLD, 94, 238, DOWN),
+        [  5] = WARP(OVERWORLD, 88, 240, DOWN),
+        [  6] = WARP(OVERWORLD, 90, 240, DOWN),
     },
     [MAP_GRANITE_LIBRARY] = (EVENT[]){
         [  1] = TEXT(
@@ -617,41 +617,41 @@ static const EVENT *(EVENT_DATA[]) = {
             "\"The humans and spectra worked together to stop\n"
             "the evil, although many perished.\""
         ),
-        [ 10] = WARP(OVERWORLD, 109, 240),
+        [ 10] = WARP(OVERWORLD, 109, 240, DOWN),
     },
     [MAP_GRANITE_STORE_1] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 89, 209),
+        [  1] = WARP(OVERWORLD, 89, 209, DOWN),
     },
     [MAP_GRANITE_STORE_2] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 95, 209),
+        [  1] = WARP(OVERWORLD, 95, 209, DOWN),
     },
     [MAP_GRANITE_STORE_3] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 102, 209),
+        [  1] = WARP(OVERWORLD, 102, 209, DOWN),
     },
     [MAP_GRANITE_STORE_4] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 88, 225),
+        [  1] = WARP(OVERWORLD, 88, 225, DOWN),
     },
     [MAP_GRANITE_STORE_5] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 94, 225),
+        [  1] = WARP(OVERWORLD, 94, 225, DOWN),
     },
     [MAP_GRANITE_STORE_6] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 99, 225),
+        [  1] = WARP(OVERWORLD, 99, 225, DOWN),
     },
     [MAP_GRANITE_WAREHOUSE] = (EVENT[]){
-        [  1] = WARP(OVERWORLD, 87, 218),
-        [  2] = WARP(OVERWORLD, 94, 218),
-        [  3] = WARP(OVERWORLD, 99, 218),
+        [  1] = WARP(OVERWORLD, 87, 218, DOWN),
+        [  2] = WARP(OVERWORLD, 94, 218, DOWN),
+        [  3] = WARP(OVERWORLD, 99, 218, DOWN),
     },
     
     // Granite Tower
     [MAP_GRANITE_TOWER_1F] = (EVENT[]){
-        [  1] = WARP(GRANITE_TOWER_2F, 16, 3),
-        [  2] = WARP(OVERWORLD, 99, 201), // TODO this is weird.
+        [  1] = WARP(GRANITE_TOWER_2F, 16, 3, DOWN),
+        [  2] = WARP(OVERWORLD, 99, 201, DOWN),
     },
     [MAP_GRANITE_TOWER_2F] = (EVENT[]){
-        [  1] = WARP(GRANITE_TOWER_3F, 1, 3),
-        [  2] = WARP(GRANITE_TOWER_LAVATORY, 5, 7),
-        [  3] = WARP(GRANITE_TOWER_1F, 16, 3),
+        [  1] = WARP(GRANITE_TOWER_3F, 1, 3, DOWN),
+        [  2] = WARP(GRANITE_TOWER_LAVATORY, 5, 7, UP),
+        [  3] = WARP(GRANITE_TOWER_1F, 16, 3, DOWN),
         [  4] = TEXT(
             "CONTRACT:\n"
             "The Granite Quarry will be repoened in\r"
@@ -666,7 +666,7 @@ static const EVENT *(EVENT_DATA[]) = {
         ),
     },
     [MAP_GRANITE_TOWER_3F] = (EVENT[]){
-        [  1] = WARP(GRANITE_TOWER_2F, 1, 3),
+        [  1] = WARP(GRANITE_TOWER_2F, 1, 3, DOWN),
         [  2] = TEXT(
             "RESEARCH DOCUMENT:\n"
             "Granite Tower Corporation will be researching\r"
@@ -696,14 +696,14 @@ static const EVENT *(EVENT_DATA[]) = {
             "Challenge the Kaido Hospital Network's\r"
             "sanctions against mining-related injury."
         ),
-        [  7] = WARP(GRANITE_TOWER_4F, 16, 3),
+        [  7] = WARP(GRANITE_TOWER_4F, 16, 3, DOWN),
     },
     [MAP_GRANITE_TOWER_4F] = (EVENT[]){
-        [  1] = WARP(GRANITE_TOWER_5F, 16, 3),
-        [  2] = WARP(GRANITE_TOWER_3F, 16, 3),
+        [  1] = WARP(GRANITE_TOWER_5F, 16, 3, DOWN),
+        [  2] = WARP(GRANITE_TOWER_3F, 16, 3, DOWN),
     },
     [MAP_GRANITE_TOWER_5F] = (EVENT[]){
-        [  1] = WARP(GRANITE_TOWER_4F, 1, 3),
+        [  1] = WARP(GRANITE_TOWER_4F, 1, 3, DOWN),
         [  2] = TEXT(
             "TOP SECRET:\n"
             "Granite Tower must secure political and\r"
@@ -714,7 +714,7 @@ static const EVENT *(EVENT_DATA[]) = {
         ),
     },
     [MAP_LAVATORY] = (EVENT[]){
-        [  1] = WARP(GRANITE_TOWER_2F, 9, 3),
+        [  1] = WARP(GRANITE_TOWER_2F, 9, 3, DOWN),
     },
 };
 
