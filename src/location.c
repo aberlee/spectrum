@@ -57,6 +57,7 @@ static bool MainMenuOpen = false;
 static int PlayerWalkFrame = 0;
 
 static double LocationPopupTime = 0.0;
+static float LocationPopupY = -20;
 
 static ALLEGRO_BITMAP *WarpPreimage = NULL;
 
@@ -256,6 +257,7 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     
     // Location entry popup - display if the name is new.
     if (!oldLocation || strcmp(oldLocation, Location(Player->Location)->Name)) {
+        LocationPopupY = -20.0;
         LocationPopupTime = al_get_time();
     }
     
@@ -418,21 +420,20 @@ void DrawDebugInformation(void) {
  * been less than 2 seconds since location names changed.
  **************************************************************/
 void DrawLocationPopup(void) {
-    static float popupY = -20;
     double popup = al_get_time()-LocationPopupTime;
     if (popup < 2 && !WarpInProgress()) {
-        popupY += LastFrameTimeElapsed*80;
-        if (popupY > 4) {
-            popupY = 4;
+        LocationPopupY += LastFrameTimeElapsed*80;
+        if (LocationPopupY > 4) {
+            LocationPopupY = 4;
         }
     } else {
-        popupY -= LastFrameTimeElapsed*80;
-        if (popupY < -20) {
-            popupY = -20;
+        LocationPopupY -= LastFrameTimeElapsed*80;
+        if (LocationPopupY < -20) {
+            LocationPopupY = -20;
         }
     }
-    if (popupY > -20) {
-        DrawAt(4, popupY);
+    if (LocationPopupY > -20) {
+        DrawAt(4, LocationPopupY);
         DrawPopupBar(Location(Player->Location)->Name);
     }
 }
