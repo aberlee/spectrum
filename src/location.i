@@ -506,7 +506,7 @@ const LOCATION LOCATION_DATA[] = {
     [GRANITE_OUTSKIRTS] = {
         .Name           = "Granite Outskirts",
         .Map            = MAP_OVERWORLD,
-        .Bounds         = {{0, 3104}, {620, 3448}},
+        .Bounds         = {{0, 3104}, {620, 3648}},
         .Background     = GRASS,
         .Encounters     = (ENCOUNTER[]){
             {50, JAYRAPTOR,     {24, 29}},
@@ -742,7 +742,7 @@ const LOCATION LOCATION_DATA[] = {
     [BOULDER_PARK] = {
         .Name           = "Boulder Park",
         .Map            = MAP_OVERWORLD,
-        .Bounds         = {{620, 2880}, {1168, 3448}},
+        .Bounds         = {{620, 2880}, {1168, 3648}},
         .Background     = GRASS,
         .Encounters     = (ENCOUNTER[]){
             {30, JAYRAPTOR,     {28, 36}},
