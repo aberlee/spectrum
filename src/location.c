@@ -63,6 +63,9 @@ static ALLEGRO_BITMAP *WarpPreimage = NULL;
 
 static double TimeOfLastWarp = -2;
 
+#define N_RUNTIME_MAP_TILE 256
+static int RuntimeMapTiles[N_RUNTIME_MAP_TILE+1];
+
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
  * @param id: Identity of the location.
@@ -99,9 +102,17 @@ static inline bool WorldInBounds(const COORDINATE *bounds, int x, int y) {
 /**********************************************************//**
  * @brief Convert from Tile to World coordinates.
  * @param n: Tile coordinate.
- * @return World coordinate, centered on the tile.
+ * @return World coordinate, on the upper left corner.
  **************************************************************/
 static inline int TileToWorld(int n) {
+    return n*16;
+}
+/**********************************************************//**
+ * @brief Convert from Tile to World coordinates.
+ * @param n: Tile coordinate.
+ * @return World coordinate, centered on the tile.
+ **************************************************************/
+static inline int TileToWorldCenter(int n) {
     return n*16+8;
 }
 
@@ -204,8 +215,13 @@ static void UseSensor(MAP_ID id) {
             } else if (r==24 && g==119 && b==235) {
                 flags = TILE_WATER;
             } else if (r==0 && g==0 && b==0) {
+                // Warp
                 flags = TILE_EVENT;
             } else if (r==128 && g==128 && b==128) {
+                // Sign
+                flags = TILE_EVENT;
+            } else if (r==255 && g==135 && b==139) {
+                // Gift
                 flags = TILE_EVENT;
             } else {
                 eprintf("Invalid color in sensor %d at %d,%d\n", id, x, y);
@@ -222,11 +238,34 @@ static void UseSensor(MAP_ID id) {
     al_unlock_bitmap(sensorImage);
 }
 
+void LoadRuntimeMapTiles(void) {
+    int event = 0;
+    for (int i=0; i<CurrentSensor.Width*CurrentSensor.Height; i++) {
+        if (CurrentSensor.Sensor[i].Flags & TILE_EVENT) {
+            int eventID = CurrentSensor.Sensor[i].Argument;
+            switch (CurrentEvents[eventID].Type) {
+            case EVENT_PRESENT:
+                RuntimeMapTiles[event++] = i;
+                if (event >= N_RUNTIME_MAP_TILE) {
+                    eprintf("Runtime map tile overflow.\n");
+                    return;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    // Null terminator
+    RuntimeMapTiles[event] = 0;
+}
+
 void InitializeLocation(void) {
     CurrentMap = Location(Player->Location)->Map;
     CurrentEvents = Events(CurrentMap);
     LocationPopupTime = al_get_time();
     UseSensor(CurrentMap);
+    LoadRuntimeMapTiles();
     UpdateOverworldLocation();
 }
 
@@ -248,7 +287,7 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     if (id == OVERWORLD) {
         // Special mapping for OVERWORLD because it's one large map
         // fragmented into multiple sub-locations.
-        SetOverworldLocation(TileToWorld(x), TileToWorld(y));
+        SetOverworldLocation(TileToWorldCenter(x), TileToWorldCenter(y));
     } else {
         Player->Location = id;
     }
@@ -262,12 +301,13 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     }
     
     // Offset to center from tile
-    Player->Position.X = TileToWorld(x);
-    Player->Position.Y = TileToWorld(y);
+    Player->Position.X = TileToWorldCenter(x);
+    Player->Position.Y = TileToWorldCenter(y);
     Player->Direction = direction;
     
     // Load the sensor at the map
     UseSensor(CurrentMap);
+    LoadRuntimeMapTiles();
     
     TimeOfLastWarp = al_get_time();
     WarpPreimage = Screenshot();
@@ -340,6 +380,17 @@ static void InteractUser(void) {
             break;
         case EVENT_WARP:
             // Warps processed by InteractAutomatic
+            break;
+        case EVENT_PRESENT:
+            // Present
+            if (Switch(event->Union.Present.Switch)) {
+                Output("It's empty...");
+            } else if (GetItem(event->Union.Present.Item)) {
+                OutputF("Amy found %s!", ItemByID(event->Union.Present.Item)->Name);
+                Switch(event->Union.Present.Switch) = true;
+            } else {
+                Output("You can't carry anything else!");
+            }
             break;
         default:
             eprintf("Invalid event type: %d\n", event->Type);
@@ -443,6 +494,28 @@ void DrawScreenFade(float opacity) {
     al_draw_filled_rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, al_map_rgba_f(0, 0, 0, opacity));
 }
 
+void DrawRuntimeMapTiles(void) {
+    for (int i=0; i<N_RUNTIME_MAP_TILE && RuntimeMapTiles[i]; i++) {
+        // Get position
+        int tileID = RuntimeMapTiles[i];
+        int eventX = tileID%CurrentSensor.Width;
+        int eventY = tileID/CurrentSensor.Width;
+        
+        // Get event data
+        int eventID = Tile(eventX, eventY).Argument;
+        const EVENT *event = &CurrentEvents[eventID];
+        switch (event->Type) {
+        case EVENT_PRESENT: {
+            bool open = Switch(event->Union.Present.Switch);
+            al_draw_bitmap(MiscImage(open? GIFT_OPEN: GIFT_CLOSED), TileToWorld(eventX), TileToWorld(eventY), 0);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
 /**********************************************************//**
  * @brief Draws the current map (based on static data).
  **************************************************************/
@@ -462,6 +535,9 @@ void DrawMap(void) {
     int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
     DrawAt(centerX, centerY);
     al_draw_bitmap(mapImage, 0, 0, 0);
+    
+    // Draw other items on the map
+    DrawRuntimeMapTiles();
     
 #ifdef FUCK
     // Debug overlays

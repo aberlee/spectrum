@@ -27,6 +27,14 @@ typedef enum {
 /// A size big enough for an array to contain every FONT_ID.
 #define N_FONT (FONT_WINDOW+1)
 
+
+typedef enum {
+    GIFT_CLOSED     = 1,
+    GIFT_OPEN,
+} MISC_ID;
+
+#define N_MISC (GIFT_OPEN+1)
+
 /**************************************************************/
 extern bool LoadAssets(void);
 extern void DestroyAssets(void);
@@ -39,6 +47,7 @@ extern ALLEGRO_BITMAP *TypeImage(TYPE_ID id);
 extern ALLEGRO_BITMAP *MapImage(MAP_ID id);
 extern ALLEGRO_BITMAP *SensorImage(MAP_ID id);
 extern ALLEGRO_BITMAP *PersonImage(PERSON_ID id);
+extern ALLEGRO_BITMAP *MiscImage(MISC_ID id);
 extern ALLEGRO_FONT *Font(FONT_ID id);
 
 /**************************************************************/

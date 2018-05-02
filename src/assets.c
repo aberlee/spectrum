@@ -294,6 +294,13 @@ static IMAGE_ASSET PersonAssets[] = {
     [AMY_NORMAL]        = IMAGE("person/costume/normal.png"),
     // TODO
 };
+/**********************************************************//**
+ * @brief Indexes MISC_ID members to IMAGE_ASSET data.
+ **************************************************************/
+static IMAGE_ASSET MiscAssets[] = {
+    [GIFT_CLOSED]       = IMAGE("gift_closed.png"),
+    [GIFT_OPEN]         = IMAGE("gift_open.png"),
+};
 
 /**********************************************************//**
  * @brief Indexes FONT_ID members to FONT_ASSET data.
@@ -384,6 +391,7 @@ bool LoadAssets(void) {
     LoadImageAssets(MapAssets, N_MAP);
     LoadImageAssets(SensorAssets, N_MAP);
     LoadImageAssets(PersonAssets, N_PERSON);
+    LoadImageAssets(MiscAssets, N_MISC);
     LoadFontAssets(FontAssets, N_FONT);
     return LoadSuccess;
 }
@@ -401,6 +409,7 @@ void DestroyAssets(void) {
     DestroyImageAssets(MapAssets, N_MAP);
     DestroyImageAssets(SensorAssets, N_MAP);
     DestroyImageAssets(PersonAssets, N_PERSON);
+    DestroyImageAssets(MiscAssets, N_MISC);
     DestroyFontAssets(FontAssets, N_FONT);
 }
 
@@ -483,6 +492,14 @@ ALLEGRO_BITMAP *SensorImage(MAP_ID id) {
  **************************************************************/
 ALLEGRO_BITMAP *PersonImage(PERSON_ID id) {
     return PersonAssets[id].Image;
+}
+/**********************************************************//**
+ * @brief Gets a misc image asset.
+ * @param id: The identity of the misc image.
+ * @return Pointer to the ALLEGRO_BITMAP data.
+ **************************************************************/
+ALLEGRO_BITMAP *MiscImage(MISC_ID id) {
+    return MiscAssets[id].Image;
 }
 
 /**********************************************************//**

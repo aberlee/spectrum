@@ -33,6 +33,16 @@ PLAYER *const Player = &PlayerData;
 /// when Save is chosen from the main menu).
 static double StartTime;
 
+bool GetItem(ITEM_ID id) {
+    for (int i=0; i<INVENTORY_SIZE; i++) {
+        if (!PlayerData.Inventory[i]) {
+            PlayerData.Inventory[i] = id;
+            return true;
+        }
+    }
+    return false;
+}
+
 /**********************************************************//**
  * @brief Configures a new game, and removes old player data.
  * Be sure the user is OK with deleting data before calling
@@ -83,10 +93,10 @@ bool LoadGame(void) {
     if (saveFile) {
         int nRead = fread(&PlayerData, sizeof(PLAYER), 1, saveFile);
         fclose(saveFile);
-        if (nRead == 1) {
+        //if (nRead == 1) {
             InitializeLocation();
             return true;
-        }
+        //}
     }
     return false;
 }

@@ -20,6 +20,7 @@
 #define REDIRECT(event) {EVENT_REDIRECT, {.Redirect=event}}
 #define UNDEFINED {0}
 #define HOUSE TEXT("You can't go in other people's houses!")
+#define PRESENT(item, switch) {EVENT_PRESENT, {.Present={item, switch}}}
 
 /**********************************************************//**
  * @var EVENT_DATA
@@ -325,7 +326,8 @@ static const EVENT *(EVENT_DATA[]) = {
             "\"Some spectra are better at fighting; others excel\n"
             "at support or defense.\""
         ),
-        [  4] = WARP(OVERWORLD, 136, 12, DOWN),
+        [  4] = PRESENT(POTION, SWITCH_AMY_HOUSE_1),
+        [  5] = WARP(OVERWORLD, 136, 12, DOWN),
     },
     [MAP_SAPLING_AIRPORT] = (EVENT[]){
         [  1] = WARP(OVERWORLD, 110, 8, DOWN),

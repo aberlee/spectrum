@@ -14,6 +14,7 @@
 #include "item.h"               // ITEM_ID
 #include "species.h"            // SPECTRA
 #include "location.h"           // LOCATION_ID
+#include "event.h"              // SWITCH
 
 /**************************************************************/
 /// @brief Number of Spectra that can be on the player's
@@ -58,11 +59,18 @@ typedef struct {
     LOCATION_ID Location;
     COORDINATE Position;
     DIRECTION Direction;
+    
+    // Game switch data
+    int Switch[N_SWITCH];
 } PLAYER;
 
 /**************************************************************/
 /// @brief Pointer to the current player's data.
 extern PLAYER *const Player;
+
+#define Switch(n) Player->Switch[n]
+
+extern bool GetItem(ITEM_ID id);
 
 /**************************************************************/
 extern void NewGame(void);

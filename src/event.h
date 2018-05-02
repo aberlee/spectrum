@@ -14,6 +14,17 @@
 #include "species.h"            // SPECIES_ID
 
 /**********************************************************//**
+ * @enum SWITCH
+ * @brief Stores slots for permanent game switches and
+ * variables stored in the player's save file.
+ **************************************************************/
+typedef enum {
+    SWITCH_AMY_HOUSE_1          = 1,
+} SWITCH;
+
+#define N_SWITCH 256
+
+/**********************************************************//**
  * @struct WARP
  * @brief Data describing a warp between maps.
  **************************************************************/
@@ -22,6 +33,16 @@ typedef struct {
     LOCATION_ID Location;       ///< Destination LOCATION.
     DIRECTION Direction;        ///< Destination point direction.
 } WARP;
+
+/**********************************************************//**
+ * @struct PRESENT
+ * @brief Stores one present on the map. Can only be acquired
+ * one time, and then it goes away.
+ **************************************************************/
+typedef struct {
+    ITEM_ID Item;
+    SWITCH Switch;
+} PRESENT;
 
 /**********************************************************//**
  * @struct BOSS
@@ -43,6 +64,7 @@ typedef enum {
     EVENT_SHOP,
     EVENT_BOSS,
     EVENT_REDIRECT,
+    EVENT_PRESENT,
 } EVENT_TYPE;
 
 /**********************************************************//**
@@ -57,6 +79,7 @@ typedef struct {
         SHOP_ID Shop;           ///< EVENT_SHOP field.
         BOSS Boss;              ///< EVENT_BOSS field.
         int Redirect;           ///< EVENT_REDIRECT
+        PRESENT Present;        ///< EVENT_PRESENT field.
     } Union;                    ///< EVENT data stored as a union.
 } EVENT;
 
