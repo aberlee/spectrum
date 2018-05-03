@@ -98,10 +98,10 @@ bool LoadGame(void) {
     if (saveFile) {
         int nRead = fread(&PlayerData, sizeof(PLAYER), 1, saveFile);
         fclose(saveFile);
-        //if (nRead == 1) {
+        if (nRead == 1) {
             InitializeLocation();
             return true;
-        //}
+        }
     }
     return false;
 }
