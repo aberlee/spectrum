@@ -54,22 +54,48 @@ static bool DebugMap = true;
 /// @brief Set if the main menu is open on the map.
 static bool MainMenuOpen = false;
 
+/// @brief The current frame of motion the player's walk cycle
+/// is on.
 static int PlayerWalkFrame = 0;
 
+/**************************************************************/
+/// @brief The al_get_time() at which the location popup was
+/// last activated.
 static double LocationPopupTime = 0.0;
+
+/// @brief Y-position of the location popup.
 static float LocationPopupY = -20;
 
+/**************************************************************/
+/// @brief Buffered screenshot of the image to fade out
+/// while warping to another location.
 static ALLEGRO_BITMAP *WarpPreimage = NULL;
 
+/// @brief al_get_time() at which the player was last warped
+/// to another location.
 static double TimeOfLastWarp = -2;
 
+/**************************************************************/
+/// @brief Number of events that can be buffered in the
+/// RuntimeMapTiles cache.
 #define N_RUNTIME_MAP_TILE 256
+
+/// @brief Cache for all events that need to be rendered on
+/// the map at every frame.
 static int RuntimeMapTiles[N_RUNTIME_MAP_TILE+1];
 
+/**********************************************************//**
+ * @struct PERSON_TEMP
+ * @brief Stores temporary data for each PERSON event on the
+ * current map.
+ **************************************************************/
 typedef struct {
-    DIRECTION Direction;
+    DIRECTION Direction;        ///< Direction the person faces.
 } PERSON_TEMP;
 
+/// @brief Cache for temporary person data for the current
+/// location. This is not saved, and gets discarded when the
+/// location changes.
 static PERSON_TEMP PersonTempData[N_RUNTIME_MAP_TILE+1];
 
 /**********************************************************//**
@@ -106,15 +132,18 @@ static inline bool WorldInBounds(const COORDINATE *bounds, int x, int y) {
 }
 
 /**********************************************************//**
- * @brief Convert from Tile to World coordinates.
+ * @brief Convert from Tile to World coordinates, and align
+ * to the upper left corner of the tile.
  * @param n: Tile coordinate.
  * @return World coordinate, on the upper left corner.
  **************************************************************/
 static inline int TileToWorld(int n) {
     return n*16;
 }
+
 /**********************************************************//**
- * @brief Convert from Tile to World coordinates.
+ * @brief Convert from Tile to World coordinates, and center
+ * the world coordinates within the tile.
  * @param n: Tile coordinate.
  * @return World coordinate, centered on the tile.
  **************************************************************/
@@ -132,6 +161,55 @@ static inline int TileToWorldCenter(int n) {
  **************************************************************/
 static inline int WorldToTile(int n) {
     return (n<0)? (n/16)-1: (n/16);
+}
+
+/**********************************************************//**
+ * @brief Get the world coordinate of the center of the map.
+ * This aligns to the player's position on the screen.
+ * @return Map center X-coordinate.
+ **************************************************************/
+static inline int MapCenterX(void) {
+    return DISPLAY_WIDTH/2-Player->Position.X;
+}
+
+/**********************************************************//**
+ * @brief Get the world coordinate of the center of the map.
+ * This aligns to the player's position on the screen.
+ * @return Map center Y-coordinate.
+ **************************************************************/
+static inline int MapCenterY(void) {
+    return DISPLAY_HEIGHT/2-Player->Position.Y;
+}
+
+/**********************************************************//**
+ * @brief Align drawing to the map. Anything drawn here will
+ * appear to scroll with the map when it moves. This aligns
+ * to the upper left corner of the map (tile 0, 0).
+ **************************************************************/
+static inline void DrawAtMapCenter() {
+    DrawAt(MapCenterX(), MapCenterY());
+}
+
+/**********************************************************//**
+ * @brief Align drawing to a tile within the map. This
+ * applies an offset to DrawMapAtCenter, and aligns to the
+ * tile's upper left corner.
+ * @param x: Tile X-coordinate.
+ * @param y: Tile Y-coordinate.
+ **************************************************************/
+static inline void DrawAtTile(int x, int y) {
+    DrawAt(MapCenterX()+TileToWorld(x), MapCenterY()+TileToWorld(y));
+}
+
+/**********************************************************//**
+ * @brief Align drawing to a tile within the map. This
+ * applies an offset to DrawMapAtCenter, and aligns to the
+ * center of the tile.
+ * @param x: Tile X-coordinate.
+ * @param y: Tile Y-coordinate.
+ **************************************************************/
+static inline void DrawAtTileCenter(int x, int y) {
+    DrawAt(MapCenterX()+TileToWorldCenter(x), MapCenterY()+TileToWorldCenter(y));
 }
 
 /**********************************************************//**
@@ -160,10 +238,10 @@ static void SetOverworldLocation(int x, int y) {
 static void UpdateOverworldLocation(void) {
     if (CurrentMap == MAP_OVERWORLD) {
         if(!CurrentBounds || !WorldInBounds(CurrentBounds, Player->Position.X, Player->Position.Y)) {
+            // Compare location names to see if we need to trigger
+            // the location popup.
             const char *oldLocation = Location(Player->Location)->Name;
-            
             SetOverworldLocation(Player->Position.X, Player->Position.Y);
-            
             if (strcmp(oldLocation, Location(Player->Location)->Name)) {
                 LocationPopupTime = al_get_time();
             }
@@ -247,7 +325,12 @@ static void UseSensor(MAP_ID id) {
     al_unlock_bitmap(sensorImage);
 }
 
-void LoadRuntimeMapTiles(void) {
+/**********************************************************//**
+ * @brief Caches all the events that need to be rendered on
+ * the map. This also initializes any requested temporary
+ * data for those events.
+ **************************************************************/
+static void LoadRuntimeMapTiles(void) {
     int runtimeID = 0;
     for (int i=0; i<CurrentSensor.Width*CurrentSensor.Height; i++) {
         if (CurrentSensor.Sensor[i].Flags & TILE_EVENT) {
@@ -276,6 +359,11 @@ void LoadRuntimeMapTiles(void) {
     RuntimeMapTiles[runtimeID] = 0;
 }
 
+/**********************************************************//**
+ * @brief Sets up location and mapping data for a location
+ * the player has already been transported to. This is
+ * typically used to start the game, or load a save file.
+ **************************************************************/
 void InitializeLocation(void) {
     CurrentMap = Location(Player->Location)->Map;
     CurrentEvents = Events(CurrentMap);
@@ -329,18 +417,18 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     WarpPreimage = Screenshot();
 }
 
-static bool WarpInProgress(void) {
+/**********************************************************//**
+ * @brief Check if the game is animating a warp.
+ * @return True if a warp is ongiong.
+ **************************************************************/
+static inline bool WarpInProgress(void) {
     return al_get_time()-TimeOfLastWarp < 1;
-}
-
-void SkipWarpFadeIn(void) {
-    TimeOfLastWarp = al_get_time()-0.5;
 }
 
 /**********************************************************//**
  * @brief Gets the tile position the user can currently
  * interact with.
- * @return 
+ * @return COORDINATE at which the player can interact.
  **************************************************************/
 static inline COORDINATE InteractPosition(void) {
     int ix = WorldToTile(Player->Position.X);
@@ -362,6 +450,11 @@ static inline COORDINATE InteractPosition(void) {
     return (COORDINATE){ix, iy};
 }
 
+/**********************************************************//**
+ * @brief Applies any redirects to the event ID.
+ * @param argument: Event ID to redirect.
+ * @return Pointer to a non-redirect event.
+ **************************************************************/
 static inline const EVENT *GetEvent(int argument) {
     const EVENT *event = &CurrentEvents[argument];
     while (event->Type == EVENT_REDIRECT) {
@@ -372,7 +465,8 @@ static inline const EVENT *GetEvent(int argument) {
 
 /**********************************************************//**
  * @brief Interacts with events on the map at the current
- * interaction position.
+ * interaction position. These occur when the user presses
+ * a button to interact.
  **************************************************************/
 static void InteractUser(void) {
     COORDINATE interact = InteractPosition();
@@ -420,6 +514,11 @@ static void InteractUser(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Interacts with events on the map at the current
+ * interaction position. These occur automatically, without
+ * the user needing to do anything.
+ **************************************************************/
 static void InteractAutomatic(void) {
     COORDINATE interact = InteractPosition();
     if (!TileInBounds(interact.X, interact.Y)) {
@@ -453,14 +552,14 @@ static inline void ShadeTile(int x, int y, ALLEGRO_COLOR color) {
         color
     );
 }
-#endif
 
-#ifdef DEBUG
 /**********************************************************//**
  * @brief Draws debugging information on the map - shows the
  * sensor, current position, current tile, and interact tile.
  **************************************************************/
-void DrawDebugInformation(void) {
+static void DrawDebugInformation(void) {
+    DrawAt(0, 0);
+    
     // Sensor visualization
     int centerX = DISPLAY_WIDTH/2-Player->Position.X;
     int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
@@ -510,12 +609,19 @@ void DrawLocationPopup(void) {
     }
 }
 
-void DrawScreenFade(float opacity) {
+/**********************************************************//**
+ * @brief Fade out the entire screen to the given opacity.
+ * @param opacity: From 0 to 1, how opaque the screen is.
+ **************************************************************/
+static void DrawScreenFade(float opacity) {
     DrawAt(0, 0);
     al_draw_filled_rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, al_map_rgba_f(0, 0, 0, opacity));
 }
 
-void DrawRuntimeMapTiles(void) {
+/**********************************************************//**
+ * @brief Draws any events that need graphics.
+ **************************************************************/
+static void DrawRuntimeMapTiles(void) {
     for (int i=0; i<N_RUNTIME_MAP_TILE && RuntimeMapTiles[i]; i++) {
         // Get position
         int tileID = RuntimeMapTiles[i];
@@ -537,13 +643,21 @@ void DrawRuntimeMapTiles(void) {
     }
 }
 
+/**********************************************************//**
+ * @enum NPC_DRAW_RANGE
+ * @brief Used by DrawPeople to determine which people to draw.
+ **************************************************************/
 typedef enum {
     NPC_ABOVE       = 0x0001,
     NPC_BELOW       = 0x0002,
     NPC_ALL         = 0x0003,
 } NPC_DRAW_RANGE;
 
-void DrawPeople(NPC_DRAW_RANGE range) {
+/**********************************************************//**
+ * @brief Draws non-player characters on the map.
+ * @param range: Which characters to draw.
+ **************************************************************/
+static void DrawPeople(NPC_DRAW_RANGE range) {
     // Stored in scan-line order so sorted by default.
     int playerY = WorldToTile(Player->Position.Y);
     for (int i=0; i<N_RUNTIME_MAP_TILE && RuntimeMapTiles[i]; i++) {
@@ -557,7 +671,8 @@ void DrawPeople(NPC_DRAW_RANGE range) {
             int eventID = Tile(eventX, eventY).Argument;
             const EVENT *event = &CurrentEvents[eventID];
             if (event->Type == EVENT_PERSON) {
-                DrawPersonAt(event->Union.Person.Person, PersonTempData[eventID].Direction, 0, TileToWorldCenter(eventX), TileToWorldCenter(eventY));
+                DrawAtTileCenter(eventX, eventY);
+                DrawPerson(event->Union.Person.Person, PersonTempData[eventID].Direction, 0);
             }
         }
     }
@@ -578,27 +693,19 @@ void DrawMap(void) {
     
     // Draw the map
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
-    int centerX = DISPLAY_WIDTH/2-Player->Position.X;
-    int centerY = DISPLAY_HEIGHT/2-Player->Position.Y;
-    DrawAt(centerX, centerY);
+    DrawAtMapCenter();
     al_draw_bitmap(mapImage, 0, 0, 0);
     
     // Draw other items on the map
     DrawRuntimeMapTiles();
     DrawPeople(NPC_ABOVE);
     
-#ifdef FUCK
-    // Debug overlays
-    DrawAt(0, 0);
-    DrawDebugInformation();
-#endif
-    
     // Draw the player moving
     DrawAt(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2);
     DrawPlayer(PlayerWalkFrame/8%4);
     
     // Draw things below player
-    DrawAt(centerX, centerY);
+    DrawAtMapCenter();
     DrawPeople(NPC_BELOW);
     
     // Location popup

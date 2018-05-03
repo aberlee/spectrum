@@ -52,9 +52,10 @@ typedef enum {
     AMY_SWIMSUIT,
 } PERSON_ID;
 
+/// @brief The number of different overworld person costumes.
 #define N_PERSON (AMY_SWIMSUIT+1)
 
-extern void DrawPersonAt(PERSON_ID id, DIRECTION direction, int frame, int x, int y);
+/**************************************************************/
 extern void DrawPerson(PERSON_ID id, DIRECTION direction, int frame);
 extern void DrawPlayer(int frame);
 

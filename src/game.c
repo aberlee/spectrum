@@ -266,12 +266,15 @@ static void MenuTestUpdate(void) {
 }
 
 /**********************************************************//**
- * @brief Updates and renders the screen on one frame.
+ * @brief Updates the screen on one frame.
  **************************************************************/
 static void Update(void) {
     UpdateMap();
 }
 
+/**********************************************************//**
+ * @brief Renders the screen on one frame.
+ **************************************************************/
 static void Draw(void) {
     DrawMap();
 }

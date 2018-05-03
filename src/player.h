@@ -68,14 +68,22 @@ typedef struct {
 /// @brief Pointer to the current player's data.
 extern PLAYER *const Player;
 
+/**********************************************************//**
+ * @brief Alias for the n'th switch in the player data.
+ * @param n: SWITCH identity.
+ * @return Alias for the switch data (lvalue or rvalue).
+ **************************************************************/
 #define Switch(n) Player->Switch[n]
 
+/**************************************************************/
 extern bool GetItem(ITEM_ID id);
 
 /**************************************************************/
 extern void NewGame(void);
 extern bool LoadGame(void);
 extern bool SaveGame(void);
+
+/**************************************************************/
 extern void StartPlayTime(void);
 extern int UnaccountedPlayTime(void);
 

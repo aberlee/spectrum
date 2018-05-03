@@ -33,6 +33,11 @@ PLAYER *const Player = &PlayerData;
 /// when Save is chosen from the main menu).
 static double StartTime;
 
+/**********************************************************//**
+ * @brief Give the player a new item.
+ * @param id: Item to obtain.
+ * @return Whether the item can be carried.
+ **************************************************************/
 bool GetItem(ITEM_ID id) {
     for (int i=0; i<INVENTORY_SIZE; i++) {
         if (!PlayerData.Inventory[i]) {

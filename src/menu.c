@@ -581,13 +581,20 @@ static MENU MainMenu = {
 /// @brief Wait data for when the main menu opens an overlay.
 static WAIT Overlay = WAIT_INITIALIZER(KEY_DENY);
 
+/**********************************************************//**
+ * @enum SAVE_PHASE
+ * @brief Informs the save system of how the save is progressing.
+ **************************************************************/
 typedef enum {
     SAVE_BEFORE,
     SAVE_DURING,
     SAVE_AFTER,
 } SAVE_PHASE;
 
+/// @brief Current save system phase.
 static SAVE_PHASE SavePhase;
+
+/// @brief Whether the last save succeeded or failed.
 static bool SaveStatus = false;
 
 /**********************************************************//**
