@@ -597,7 +597,7 @@ void InitializeMainMenu(void) {
     for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
         SpectraControl.IndexMax = i;
     }
-    for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+    for (int i=0; i<INVENTORY_SIZE && Player->Inventory[i]; i++) {
         ItemControl.IndexMax = i;
     }
     ResetControl(&MainMenu.Control);
