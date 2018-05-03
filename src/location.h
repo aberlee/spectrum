@@ -232,6 +232,7 @@ typedef enum {
 typedef struct {
     TILE_FLAGS Flags;           ///< Describes the tile properties.
     int EventID;                ///< Indexed TILE_EVENT ID.
+    int RuntimeID;              ///< Indexed runtime event ID.
 } TILE;
 
 /**********************************************************//**

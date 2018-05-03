@@ -75,15 +75,6 @@ static ALLEGRO_BITMAP *WarpPreimage = NULL;
 /// to another location.
 static double TimeOfLastWarp = -2;
 
-/**************************************************************/
-/// @brief Number of events that can be buffered in the
-/// RuntimeMapTiles cache.
-#define N_RUNTIME_MAP_TILE 256
-
-/// @brief Cache for all events that need to be rendered on
-/// the map at every frame.
-static int RuntimeMapTiles[N_RUNTIME_MAP_TILE+1];
-
 /**********************************************************//**
  * @struct PERSON_TEMP
  * @brief Stores temporary data for each PERSON event on the
@@ -93,10 +84,27 @@ typedef struct {
     DIRECTION Direction;        ///< Direction the person faces.
 } PERSON_TEMP;
 
-/// @brief Cache for temporary person data for the current
-/// location. This is not saved, and gets discarded when the
-/// location changes.
-static PERSON_TEMP PersonTempData[N_RUNTIME_MAP_TILE+1];
+/**********************************************************//**
+ * @struct RUNTIME_EVENT_TEMP_DATA
+ * @brief Stores event data that's only needed at runtime,
+ * that isn't saved anywhere.
+ **************************************************************/
+typedef struct {
+    int EventID;
+    int EventX;
+    int EventY;
+    union {
+        PERSON_TEMP Person;
+    } Union;
+} RUNTIME_EVENT_DATA;
+
+/// @brief Number of events that can be buffered in the
+/// RuntimeMapTiles cache.
+#define N_RUNTIME_EVENT 256
+
+/// @brief Cache for all events that need to be rendered on
+/// the map at every frame.
+static RUNTIME_EVENT_DATA RuntimeEventData[N_RUNTIME_EVENT+1];
 
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
@@ -283,6 +291,7 @@ static void UseSensor(MAP_ID id) {
     
     // Load the tile information
     int eventID = 1;
+    int runtimeID = 1;
     for (int y = 0; y < CurrentSensor.Height; y++) {
         for (int x = 0; x < CurrentSensor.Width; x++) {
             // Get the pixel color
@@ -314,49 +323,51 @@ static void UseSensor(MAP_ID id) {
                 eprintf("Invalid color in sensor %d at %d,%d\n", id, x, y);
             }
             
-            // Load the tile
+            // Load and cache tile events
             Tile(x, y).Flags = flags;
             Tile(x, y).EventID = 0;
+            Tile(x, y).RuntimeID = 0;
             if (flags == TILE_EVENT) {
-                Tile(x, y).EventID = eventID++;
-            }
-        }
-    }
-    al_unlock_bitmap(sensorImage);
-}
-
-/**********************************************************//**
- * @brief Caches all the events that need to be rendered on
- * the map. This also initializes any requested temporary
- * data for those events.
- **************************************************************/
-static void LoadRuntimeMapTiles(void) {
-    int runtimeID = 0;
-    for (int i=0; i<CurrentSensor.Width*CurrentSensor.Height; i++) {
-        if (CurrentSensor.Sensor[i].Flags & TILE_EVENT) {
-            int eventID = CurrentSensor.Sensor[i].EventID;
-            const EVENT *event = &CurrentEvents[eventID];
-            switch (event->Type) {
-            case EVENT_PRESENT:
-                RuntimeMapTiles[runtimeID++] = i;
-                if (runtimeID >= N_RUNTIME_MAP_TILE) {
-                    eprintf("Runtime map tile overflow.\n");
+                Tile(x, y).EventID = eventID;
+                const EVENT *event = &CurrentEvents[eventID];
+                RUNTIME_EVENT_DATA *data = &RuntimeEventData[runtimeID];
+                if (runtimeID >= N_RUNTIME_EVENT) {
+                    eprintf("Runtime event data overflow.\n");
                     return;
                 }
-                break;
-            
-            case EVENT_PERSON:
-                RuntimeMapTiles[runtimeID++] = i;
-                PersonTempData[eventID].Direction = event->Union.Person.Direction;
-                break;
-            
-            default:
-                break;
+                
+                // Store generic temp data
+                switch (event->Type) {
+                case EVENT_PRESENT:
+                case EVENT_PERSON:
+                    data->EventID = eventID;
+                    data->EventX = x;
+                    data->EventY = y;
+                    Tile(x, y).RuntimeID = runtimeID++;
+                    break;
+                    
+                default:
+                    break;
+                }
+                
+                // Store specialized temp data
+                switch (event->Type) {
+                case EVENT_PERSON:
+                    data->Union.Person.Direction = event->Union.Person.Direction;
+                    break;
+                
+                default:
+                    break;
+                }
+                
+                // Advance
+                eventID++;
             }
         }
     }
     // Null terminator
-    RuntimeMapTiles[runtimeID] = 0;
+    RuntimeEventData[runtimeID].EventID = 0;
+    al_unlock_bitmap(sensorImage);
 }
 
 /**********************************************************//**
@@ -369,7 +380,6 @@ void InitializeLocation(void) {
     CurrentEvents = Events(CurrentMap);
     LocationPopupTime = al_get_time();
     UseSensor(CurrentMap);
-    LoadRuntimeMapTiles();
     UpdateOverworldLocation();
 }
 
@@ -411,7 +421,6 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     
     // Load the sensor at the map
     UseSensor(CurrentMap);
-    LoadRuntimeMapTiles();
     
     // Set up warp - ensure we don't leak image resources
     if (WarpPreimage) {
@@ -508,7 +517,7 @@ static void InteractUser(void) {
             break;
         case EVENT_PERSON:
             // Make person face the player
-            PersonTempData[tile->EventID].Direction = OppositeDirection(Player->Direction);
+            RuntimeEventData[tile->RuntimeID].Union.Person.Direction = OppositeDirection(Player->Direction);
             OutputSplitByCR(event->Union.Person.Speech);
             break;
         default:
@@ -622,62 +631,51 @@ static void DrawScreenFade(float opacity) {
     al_draw_filled_rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, al_map_rgba_f(0, 0, 0, opacity));
 }
 
-/**********************************************************//**
- * @brief Draws any events that need graphics.
- **************************************************************/
-static void DrawRuntimeMapTiles(void) {
-    for (int i=0; i<N_RUNTIME_MAP_TILE && RuntimeMapTiles[i]; i++) {
-        // Get position
-        int tileID = RuntimeMapTiles[i];
-        int eventX = tileID%CurrentSensor.Width;
-        int eventY = tileID/CurrentSensor.Width;
-        
-        // Get event data
-        int eventID = Tile(eventX, eventY).EventID;
-        const EVENT *event = &CurrentEvents[eventID];
-        switch (event->Type) {
-        case EVENT_PRESENT: {
-            bool open = Switch(event->Union.Present.Switch);
-            al_draw_bitmap(MiscImage(open? GIFT_OPEN: GIFT_CLOSED), TileToWorld(eventX), TileToWorld(eventY), 0);
-            break;
-        }
-        default:
-            break;
-        }
-    }
-}
 
 /**********************************************************//**
- * @enum NPC_DRAW_RANGE
+ * @enum EVENT_DRAW_RANGE
  * @brief Used by DrawPeople to determine which people to draw.
  **************************************************************/
 typedef enum {
-    NPC_ABOVE       = 0x0001,
-    NPC_BELOW       = 0x0002,
-    NPC_ALL         = 0x0003,
-} NPC_DRAW_RANGE;
+    ABOVE           = 0x0001,
+    BELOW           = 0x0002,
+} EVENT_DRAW_RANGE;
 
 /**********************************************************//**
- * @brief Draws non-player characters on the map.
- * @param range: Which characters to draw.
+ * @brief Draws any events that need graphics.
  **************************************************************/
-static void DrawPeople(NPC_DRAW_RANGE range) {
-    // Stored in scan-line order so sorted by default.
+static void DrawRuntimeEvents(EVENT_DRAW_RANGE range) {
     int playerY = WorldToTile(Player->Position.Y);
-    for (int i=0; i<N_RUNTIME_MAP_TILE && RuntimeMapTiles[i]; i++) {
+    for (int i=1; i<N_RUNTIME_EVENT && RuntimeEventData[i].EventID; i++) {
         // Get position
-        int tileID = RuntimeMapTiles[i];
-        int eventX = tileID%CurrentSensor.Width;
-        int eventY = tileID/CurrentSensor.Width;
+        const RUNTIME_EVENT_DATA *data = &RuntimeEventData[i];
+        int eventID = data->EventID;
+        int eventX = data->EventX;
+        int eventY = data->EventY;
         
-        // Draw the NPC
-        if ((playerY>=eventY && range&NPC_ABOVE) || (playerY<eventY && range&NPC_BELOW)) {
-            int eventID = Tile(eventX, eventY).EventID;
-            const EVENT *event = &CurrentEvents[eventID];
-            if (event->Type == EVENT_PERSON) {
-                DrawAtTileCenter(eventX, eventY);
-                DrawPerson(event->Union.Person.Person, PersonTempData[eventID].Direction, 0);
-            }
+        // Check range
+        bool above = playerY>=eventY && range&ABOVE;
+        bool below = playerY<eventY && range&BELOW;
+        if (!above && !below) {
+            continue;
+        }
+        
+        // Draw the event
+        const EVENT *event = &CurrentEvents[eventID];
+        switch (event->Type) {
+        case EVENT_PRESENT: {
+            DrawAtTile(eventX, eventY);
+            bool open = Switch(event->Union.Present.Switch);
+            al_draw_bitmap(MiscImage(open? GIFT_OPEN: GIFT_CLOSED), 0, 0, 0);
+            break;
+        }
+        case EVENT_PERSON:
+            DrawAtTileCenter(eventX, eventY);
+            DrawPerson(event->Union.Person.Person, data->Union.Person.Direction, 0);
+            break;
+        
+        default:
+            break;
         }
     }
 }
@@ -695,22 +693,19 @@ void DrawMap(void) {
         return;
     }
     
-    // Draw the map
+    // Draw items not influenced by the player.
     ALLEGRO_BITMAP *mapImage = MapImage(CurrentMap);
     DrawAtMapCenter();
     al_draw_bitmap(mapImage, 0, 0, 0);
+    DrawRuntimeEvents(ABOVE);
     
-    // Draw other items on the map
-    DrawRuntimeMapTiles();
-    DrawPeople(NPC_ABOVE);
-    
-    // Draw the player moving
+    // Draw the player
     DrawAt(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2);
     DrawPlayer(PlayerWalkFrame/8%4);
     
-    // Draw things below player
+    // Draw things that can overlap the player.
     DrawAtMapCenter();
-    DrawPeople(NPC_BELOW);
+    DrawRuntimeEvents(BELOW);
     
     // Location popup
     if (!MainMenuOpen) {
