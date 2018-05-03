@@ -282,7 +282,7 @@ static void UseSensor(MAP_ID id) {
     }
     
     // Load the tile information
-    int argument = 1;
+    int eventID = 1;
     for (int y = 0; y < CurrentSensor.Height; y++) {
         for (int x = 0; x < CurrentSensor.Width; x++) {
             // Get the pixel color
@@ -316,9 +316,9 @@ static void UseSensor(MAP_ID id) {
             
             // Load the tile
             Tile(x, y).Flags = flags;
-            Tile(x, y).Argument = 0;
+            Tile(x, y).EventID = 0;
             if (flags == TILE_EVENT) {
-                Tile(x, y).Argument = argument++;
+                Tile(x, y).EventID = eventID++;
             }
         }
     }
@@ -334,7 +334,7 @@ static void LoadRuntimeMapTiles(void) {
     int runtimeID = 0;
     for (int i=0; i<CurrentSensor.Width*CurrentSensor.Height; i++) {
         if (CurrentSensor.Sensor[i].Flags & TILE_EVENT) {
-            int eventID = CurrentSensor.Sensor[i].Argument;
+            int eventID = CurrentSensor.Sensor[i].EventID;
             const EVENT *event = &CurrentEvents[eventID];
             switch (event->Type) {
             case EVENT_PRESENT:
@@ -481,7 +481,7 @@ static void InteractUser(void) {
     // Get the tile properties that map to an event.
     const TILE *tile = &Tile(interact.X, interact.Y);
     if (tile->Flags & TILE_EVENT) {
-        const EVENT *event = GetEvent(tile->Argument);
+        const EVENT *event = GetEvent(tile->EventID);
         switch (event->Type) {
         case EVENT_TEXT:
             OutputSplitByCR(event->Union.Text);
@@ -508,7 +508,7 @@ static void InteractUser(void) {
             break;
         case EVENT_PERSON:
             // Make person face the player
-            PersonTempData[tile->Argument].Direction = OppositeDirection(Player->Direction);
+            PersonTempData[tile->EventID].Direction = OppositeDirection(Player->Direction);
             OutputSplitByCR(event->Union.Person.Speech);
             break;
         default:
@@ -532,7 +532,7 @@ static void InteractAutomatic(void) {
     // Get the tile properties that map to an event.
     const TILE *tile = &Tile(interact.X, interact.Y);
     if (tile->Flags & TILE_EVENT) {
-        const EVENT *event = GetEvent(tile->Argument);
+        const EVENT *event = GetEvent(tile->EventID);
         if (event->Type == EVENT_WARP) {
             const WARP *warp = &event->Union.Warp;
             Warp(warp->Location, warp->Destination.X, warp->Destination.Y, warp->Direction);
@@ -633,7 +633,7 @@ static void DrawRuntimeMapTiles(void) {
         int eventY = tileID/CurrentSensor.Width;
         
         // Get event data
-        int eventID = Tile(eventX, eventY).Argument;
+        int eventID = Tile(eventX, eventY).EventID;
         const EVENT *event = &CurrentEvents[eventID];
         switch (event->Type) {
         case EVENT_PRESENT: {
@@ -672,7 +672,7 @@ static void DrawPeople(NPC_DRAW_RANGE range) {
         
         // Draw the NPC
         if ((playerY>=eventY && range&NPC_ABOVE) || (playerY<eventY && range&NPC_BELOW)) {
-            int eventID = Tile(eventX, eventY).Argument;
+            int eventID = Tile(eventX, eventY).EventID;
             const EVENT *event = &CurrentEvents[eventID];
             if (event->Type == EVENT_PERSON) {
                 DrawAtTileCenter(eventX, eventY);

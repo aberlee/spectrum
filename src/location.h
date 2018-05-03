@@ -221,7 +221,7 @@ typedef struct {
 typedef enum {
     TILE_SOLID      = 0x0001,   ///< Tile can't be walked through.
     TILE_WATER      = 0x0002,   ///< Tile can be fished in.
-    TILE_EVENT      = 0x0004,   ///< Tile contains an indexed event.
+    TILE_EVENT      = 0x0004,   ///< Tile contains an event.
 } TILE_FLAGS;
 
 /**********************************************************//**
@@ -231,7 +231,7 @@ typedef enum {
  **************************************************************/
 typedef struct {
     TILE_FLAGS Flags;           ///< Describes the tile properties.
-    int Argument;               ///< Indexed TILE_EVENT ID.
+    int EventID;                ///< Indexed TILE_EVENT ID.
 } TILE;
 
 /**********************************************************//**
