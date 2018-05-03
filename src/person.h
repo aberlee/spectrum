@@ -54,16 +54,8 @@ typedef enum {
 
 #define N_PERSON (AMY_SWIMSUIT+1)
 
-/**********************************************************//**
- * @struct PERSON
- * @brief Defines data for each non-player character.
- **************************************************************/
-typedef struct {
-    PERSON_ID Person;
-    DIRECTION Direction;
-    COORDINATE Tile;
-} PERSON;
-
+extern void DrawPersonAt(PERSON_ID id, DIRECTION direction, int frame, int x, int y);
+extern void DrawPerson(PERSON_ID id, DIRECTION direction, int frame);
 extern void DrawPlayer(int frame);
 
 /**************************************************************/

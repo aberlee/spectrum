@@ -21,6 +21,7 @@
 #define UNDEFINED {0}
 #define HOUSE TEXT("You can't go in other people's houses!")
 #define PRESENT(item, switch) {EVENT_PRESENT, {.Present={item, switch}}}
+#define PERSON(person, direction, speech) {EVENT_PERSON, {.Person={person, direction, speech}}}
 
 /**********************************************************//**
  * @var EVENT_DATA
@@ -334,7 +335,8 @@ static const EVENT *(EVENT_DATA[]) = {
     },
     [MAP_SAPLING_HOSPITAL] = (EVENT[]){
         [  1] = TEXT("OUT OF ORDER"),
-        [  2] = WARP(OVERWORLD, 84, 15, DOWN),
+        [  2] = PERSON(AMY_NORMAL, DOWN, "Hello!"),
+        [  3] = WARP(OVERWORLD, 84, 15, DOWN),
     },
     [MAP_SAPLING_CITY_HALL] = (EVENT[]){
         [  1] = TEXT(

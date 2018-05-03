@@ -12,6 +12,7 @@
 #include "location.h"           // LOCATION_ID
 #include "shop.h"               // SHOP_ID
 #include "species.h"            // SPECIES_ID
+#include "person.h"             // PERSON_ID
 
 /**********************************************************//**
  * @enum SWITCH
@@ -54,6 +55,16 @@ typedef struct {
 } BOSS;
 
 /**********************************************************//**
+ * @struct PERSON
+ * @brief Defines data for each non-player character.
+ **************************************************************/
+typedef struct {
+    PERSON_ID Person;
+    DIRECTION Direction;
+    const char *Speech;
+} PERSON;
+
+/**********************************************************//**
  * @enum EVENT_TYPE
  * @brief Type identifiers that describe which member of the
  * EVENT Union field should be accessed.
@@ -65,6 +76,7 @@ typedef enum {
     EVENT_BOSS,
     EVENT_REDIRECT,
     EVENT_PRESENT,
+    EVENT_PERSON,
 } EVENT_TYPE;
 
 /**********************************************************//**
@@ -80,6 +92,7 @@ typedef struct {
         BOSS Boss;              ///< EVENT_BOSS field.
         int Redirect;           ///< EVENT_REDIRECT
         PRESENT Present;        ///< EVENT_PRESENT field.
+        PERSON Person;          ///< EVENT_PERSON field.
     } Union;                    ///< EVENT data stored as a union.
 } EVENT;
 

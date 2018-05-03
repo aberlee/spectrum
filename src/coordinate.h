@@ -28,5 +28,9 @@ typedef enum {
     RIGHT           = 3,
 } DIRECTION;
 
+static inline DIRECTION OppositeDirection(DIRECTION start) {
+    return (start+2)%4;
+}
+
 /**************************************************************/
 #endif // _COORDINATE_H_

@@ -15,14 +15,17 @@ static const PERSON_ID PlayerCostume[] = {
     [SWIMSUIT]      = AMY_SWIMSUIT,
 };
 
-static void DrawPersonFrame(PERSON_ID id, DIRECTION direction, int frame) {
+void DrawPersonAt(PERSON_ID id, DIRECTION direction, int frame, int x, int y) {
     ALLEGRO_BITMAP *person = PersonImage(id);
-    int x = frame%4*16;
-    int y = direction*26;
+    int px = frame%4*16;
+    int py = direction*26;
     // Offset drawing to center feet at x, y
-    al_draw_bitmap_region(person, x, y, 16, 26, -8, -24, 0);
+    al_draw_bitmap_region(person, px, py, 16, 26, x-8, y-24, 0);
+}
+void DrawPerson(PERSON_ID id, DIRECTION direction, int frame) {
+    DrawPersonAt(id, direction, frame, 0, 0);
 }
 
 void DrawPlayer(int frame) {
-    DrawPersonFrame(PlayerCostume[Player->Costume], Player->Direction, frame);
+    DrawPerson(PlayerCostume[Player->Costume], Player->Direction, frame);
 }

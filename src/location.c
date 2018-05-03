@@ -66,6 +66,12 @@ static double TimeOfLastWarp = -2;
 #define N_RUNTIME_MAP_TILE 256
 static int RuntimeMapTiles[N_RUNTIME_MAP_TILE+1];
 
+typedef struct {
+    DIRECTION Direction;
+} PERSON_TEMP;
+
+static PERSON_TEMP PersonTempData[N_RUNTIME_MAP_TILE+1];
+
 /**********************************************************//**
  * @brief Gets LOCATION data from its ID.
  * @param id: Identity of the location.
@@ -223,6 +229,9 @@ static void UseSensor(MAP_ID id) {
             } else if (r==255 && g==135 && b==139) {
                 // Gift
                 flags = TILE_EVENT;
+            } else if (r==0 && g==255 && b==0) {
+                // Person
+                flags = TILE_EVENT;
             } else {
                 eprintf("Invalid color in sensor %d at %d,%d\n", id, x, y);
             }
@@ -239,25 +248,32 @@ static void UseSensor(MAP_ID id) {
 }
 
 void LoadRuntimeMapTiles(void) {
-    int event = 0;
+    int runtimeID = 0;
     for (int i=0; i<CurrentSensor.Width*CurrentSensor.Height; i++) {
         if (CurrentSensor.Sensor[i].Flags & TILE_EVENT) {
             int eventID = CurrentSensor.Sensor[i].Argument;
-            switch (CurrentEvents[eventID].Type) {
+            const EVENT *event = &CurrentEvents[eventID];
+            switch (event->Type) {
             case EVENT_PRESENT:
-                RuntimeMapTiles[event++] = i;
-                if (event >= N_RUNTIME_MAP_TILE) {
+                RuntimeMapTiles[runtimeID++] = i;
+                if (runtimeID >= N_RUNTIME_MAP_TILE) {
                     eprintf("Runtime map tile overflow.\n");
                     return;
                 }
                 break;
+            
+            case EVENT_PERSON:
+                RuntimeMapTiles[runtimeID++] = i;
+                PersonTempData[eventID].Direction = event->Union.Person.Direction;
+                break;
+            
             default:
                 break;
             }
         }
     }
     // Null terminator
-    RuntimeMapTiles[event] = 0;
+    RuntimeMapTiles[runtimeID] = 0;
 }
 
 void InitializeLocation(void) {
@@ -392,6 +408,11 @@ static void InteractUser(void) {
                 Output("You can't carry anything else!");
             }
             break;
+        case EVENT_PERSON:
+            // Make person face the player
+            PersonTempData[tile->Argument].Direction = OppositeDirection(Player->Direction);
+            OutputSplitByCR(event->Union.Person.Speech);
+            break;
         default:
             eprintf("Invalid event type: %d\n", event->Type);
             break;
@@ -516,6 +537,32 @@ void DrawRuntimeMapTiles(void) {
     }
 }
 
+typedef enum {
+    NPC_ABOVE       = 0x0001,
+    NPC_BELOW       = 0x0002,
+    NPC_ALL         = 0x0003,
+} NPC_DRAW_RANGE;
+
+void DrawPeople(NPC_DRAW_RANGE range) {
+    // Stored in scan-line order so sorted by default.
+    int playerY = WorldToTile(Player->Position.Y);
+    for (int i=0; i<N_RUNTIME_MAP_TILE && RuntimeMapTiles[i]; i++) {
+        // Get position
+        int tileID = RuntimeMapTiles[i];
+        int eventX = tileID%CurrentSensor.Width;
+        int eventY = tileID/CurrentSensor.Width;
+        
+        // Draw the NPC
+        if ((playerY>=eventY && range&NPC_ABOVE) || (playerY<eventY && range&NPC_BELOW)) {
+            int eventID = Tile(eventX, eventY).Argument;
+            const EVENT *event = &CurrentEvents[eventID];
+            if (event->Type == EVENT_PERSON) {
+                DrawPersonAt(event->Union.Person.Person, PersonTempData[eventID].Direction, 0, TileToWorldCenter(eventX), TileToWorldCenter(eventY));
+            }
+        }
+    }
+}
+
 /**********************************************************//**
  * @brief Draws the current map (based on static data).
  **************************************************************/
@@ -538,6 +585,7 @@ void DrawMap(void) {
     
     // Draw other items on the map
     DrawRuntimeMapTiles();
+    DrawPeople(NPC_ABOVE);
     
 #ifdef FUCK
     // Debug overlays
@@ -548,6 +596,10 @@ void DrawMap(void) {
     // Draw the player moving
     DrawAt(DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2);
     DrawPlayer(PlayerWalkFrame/8%4);
+    
+    // Draw things below player
+    DrawAt(centerX, centerY);
+    DrawPeople(NPC_BELOW);
     
     // Location popup
     if (!MainMenuOpen) {
