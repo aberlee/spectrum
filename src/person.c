@@ -1,5 +1,6 @@
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "person.h"             // PERSON_ID, PERSON
 #include "assets.h"             // PersonImage
@@ -19,6 +20,8 @@ void DrawPersonAt(PERSON_ID id, DIRECTION direction, int frame, int x, int y) {
     ALLEGRO_BITMAP *person = PersonImage(id);
     int px = frame%4*16;
     int py = direction*26;
+    // Draw small drop shadow
+    al_draw_filled_ellipse(x, y, 6, 3, al_map_rgba_f(0, 0, 0, 0.2));
     // Offset drawing to center feet at x, y
     al_draw_bitmap_region(person, px, py, 16, 26, x-8, y-24, 0);
 }
