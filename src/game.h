@@ -40,8 +40,7 @@ typedef enum {
 } KEY;
 
 /**************************************************************/
-extern double LastFrameTimeElapsed;
-extern double TotalTimeElapsed;
+extern double LastFrameTime(void);
 
 /**************************************************************/
 extern bool KeyDown(KEY key);
@@ -55,6 +54,7 @@ extern bool KeyJustUp(KEY key);
  **************************************************************/
 #define KeyUp(key) (!KeyDown(key))
 
+/**************************************************************/
 extern ALLEGRO_BITMAP *Screenshot(void);
 
 /**************************************************************/

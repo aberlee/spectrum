@@ -27,18 +27,24 @@
 #include "output.h"
 
 /**************************************************************/
+/// @brief Time spent in last frame, used for animation.
+static double LastFrameTimeElapsed = 0.0;
+
+/**********************************************************//**
+ * @brief Gets the tile spent on the last frame.
+ * @return Time spent on the last frame.
+ **************************************************************/
+double LastFrameTime(void) {
+    return LastFrameTimeElapsed;
+}
+
+/**************************************************************/
 /// @brief Main game display object.
 static ALLEGRO_DISPLAY *Display;
 
 /// @brief Bitmap for scaling pixel art to different screen
 /// sizes and resolutions (namely, fullscreen mode).
 static ALLEGRO_BITMAP *ScaleBuffer;
-
-/// @brief Time spent in last frame, used for animation.
-double LastFrameTimeElapsed = 0.0;
-
-/// @brief Total uptime of the game spent within frames.
-double TotalTimeElapsed = 0.0;
 
 /// @brief Whether the game should be terminated. Causes
 /// the game to end on the next frame.
@@ -126,6 +132,11 @@ bool KeyJustUp(KEY key) {
     return KeyboardState[key] == KEY_STATE_JUST_UP;
 }
 
+/**********************************************************//**
+ * @brief Copy the results of the last frame into a new
+ * bitmap.
+ * @return Pointer to the new screenshot image.
+ **************************************************************/
 ALLEGRO_BITMAP *Screenshot(void) {
     return al_clone_bitmap(al_get_backbuffer(Display));
 }
@@ -197,74 +208,6 @@ static void GameInitialize(void) {
     }
 }
 
-// TODO Debug function... Remove!
-static void MenuTestUpdate(void) {
-    ALLEGRO_TRANSFORM trans;
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 10, 10);
-    al_use_transform(&trans);
-    MENU choice = {
-        {"Yes", "No", "Third", "Fourth", "Fifth", "Cancel"},
-        {.IndexMax=5},
-    };
-    DrawChoice(&choice);
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 60, 10);
-    al_use_transform(&trans);
-    DrawAlert("This is a test alert for the game window system!");
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 120, 10);
-    al_use_transform(&trans);
-    DrawWarning("This is a test warning for the game window system!");
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 10, 60);
-    al_use_transform(&trans);
-    DrawOption(&choice);
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 10, 140);
-    al_use_transform(&trans);
-    DrawColumn(&choice, &choice);
-    
-    SPECTRA spectra;
-    CreateSpectra(&spectra, GLACIALITH, 100);
-    spectra.Health /= 2;
-    spectra.Power /= 4;
-    spectra.Ailment = AFLAME;
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 200, 80);
-    al_use_transform(&trans);
-    DrawSpectraDisplay(&spectra);
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 200, 40);
-    al_use_transform(&trans);
-    DrawHudUser(&spectra);
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 200, 20);
-    al_use_transform(&trans);
-    DrawHudEnemy(&spectra);
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 10, 200);
-    al_use_transform(&trans);
-    DrawTechniqueDisplay(INFERNO);
-    
-    al_identity_transform(&trans);
-    al_use_transform(&trans);
-    UpdateOutput();
-    DrawOutput();
-    
-    al_identity_transform(&trans);
-    al_translate_transform(&trans, 10, 10);
-    al_use_transform(&trans);
-    DrawPlayerDisplay();
-}
-
 /**********************************************************//**
  * @brief Updates the screen on one frame.
  **************************************************************/
@@ -307,7 +250,6 @@ static void GameMainLoop(void) {
             
             // Timing log
             currentTime = al_get_time();
-            TotalTimeElapsed = currentTime - startTime;
             LastFrameTimeElapsed = currentTime - lastFrameTime;
             lastFrameTime = currentTime;
             

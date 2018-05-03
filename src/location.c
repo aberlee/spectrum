@@ -413,8 +413,12 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     UseSensor(CurrentMap);
     LoadRuntimeMapTiles();
     
-    TimeOfLastWarp = al_get_time();
+    // Set up warp - ensure we don't leak image resources
+    if (WarpPreimage) {
+        al_destroy_bitmap(WarpPreimage);
+    }
     WarpPreimage = Screenshot();
+    TimeOfLastWarp = al_get_time();
 }
 
 /**********************************************************//**
@@ -593,12 +597,12 @@ static void DrawDebugInformation(void) {
 void DrawLocationPopup(void) {
     double popup = al_get_time()-LocationPopupTime;
     if (popup < 2 && !WarpInProgress()) {
-        LocationPopupY += LastFrameTimeElapsed*80;
+        LocationPopupY += LastFrameTime()*80;
         if (LocationPopupY > 4) {
             LocationPopupY = 4;
         }
     } else {
-        LocationPopupY -= LastFrameTimeElapsed*80;
+        LocationPopupY -= LastFrameTime()*80;
         if (LocationPopupY < -20) {
             LocationPopupY = -20;
         }
@@ -781,8 +785,8 @@ void UpdateMap(void) {
     }
     
     // Key press reading
-    float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTimeElapsed;
-    float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTimeElapsed;
+    float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTime();
+    float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTime();
     
     // Set the player's direction if any motion is
     // REQUESTED (not if it's possible).

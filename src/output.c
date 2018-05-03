@@ -95,7 +95,7 @@ void UpdateOutput(void) {
         }
     } else {
         // Update the progress of the typing
-        Progress += TYPING_SPEED*LastFrameTimeElapsed;
+        Progress += TYPING_SPEED*LastFrameTime();
         if (Progress > max || KeyJustDown(KEY_CONFIRM)) {
             CurrentCharacter = max;
         } else {

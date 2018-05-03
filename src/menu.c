@@ -391,7 +391,7 @@ void DrawItemDisplay(ITEM_ID id) {
  * @param y: Y position of the icon.
  **************************************************************/
 static inline void DrawWaitingIcon(int x, int y) {
-    if (sin(TotalTimeElapsed*8)>0) {
+    if (sin(al_get_time()*8)>0) {
         DrawSelector(x, y, 5, 8);
     }
 }
