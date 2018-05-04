@@ -28,7 +28,7 @@
  * it's loaded into memory.
  **************************************************************/
 typedef struct {
-    char Filename[64];
+    const char *Filename;
     ALLEGRO_BITMAP *Image;
 } IMAGE_ASSET;
 
@@ -38,7 +38,7 @@ typedef struct {
  * font data if it's been loaded into memory.
  **************************************************************/
 typedef struct {
-    char Filename[64];
+    const char *Filename;
     int Size;
     ALLEGRO_FONT *Font;
 } FONT_ASSET;
@@ -290,7 +290,7 @@ static IMAGE_ASSET SensorAssets[] = {
 /**********************************************************//**
  * @brief Indexes PERSON_ID members to IMAGE_ASSET data.
  **************************************************************/
-static IMAGE_ASSET PersonAssets[] = {
+static IMAGE_ASSET PersonAssets[N_PERSON] = {
     [AMY_NORMAL]        = IMAGE("person/costume/normal.png"),
     [AMY_RED_DRESS]     = IMAGE("person/costume/red_dress.png"),
     [AMY_BLACK_DRESS]   = IMAGE("person/costume/black_dress.png"),
