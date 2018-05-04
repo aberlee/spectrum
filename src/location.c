@@ -737,8 +737,21 @@ void DrawMap(void) {
  * @param y: Tile Y-coordinate.
  * @return True if the user can walk on the tile.
  **************************************************************/
-static inline bool Passable(int x, int y) {
+static inline bool TilePassable(int x, int y) {
     return TileInBounds(x, y) && !Tile(x, y).Flags;
+}
+
+static inline bool WorldPassable(int x, int y) {
+    return TilePassable(WorldToTile(x), WorldToTile(y));
+}
+
+#define COLLISION_PADDING 7
+
+static inline bool WorldPassableWithPadding(int x, int y) {
+    return WorldPassable(x-COLLISION_PADDING, y-COLLISION_PADDING) &&\
+    WorldPassable(x-COLLISION_PADDING, y+COLLISION_PADDING) &&\
+    WorldPassable(x+COLLISION_PADDING, y-COLLISION_PADDING) &&\
+    WorldPassable(x+COLLISION_PADDING, y+COLLISION_PADDING);
 }
 
 /**********************************************************//**
@@ -795,33 +808,33 @@ void UpdateMap(void) {
     } else if (dx < 0) {
         Player->Direction = LEFT;
     }
-
-    // Collision checking
-    int x = WorldToTile(Player->Position.X);
-    int y = WorldToTile(Player->Position.Y);
-    int xf = WorldToTile(Player->Position.X+dx);
-    int yf = WorldToTile(Player->Position.Y+dy);
-    if (Passable(xf, yf)) {
-        // AX // Make sure we can't clip across a corner like this,
-        // XB // going from A to B, with X solid.
-        if (!Passable(x, yf) && !Passable(xf, y)) {
-            dx = 0;
-            dy = 0;
-        }
-    } else if (Passable(x, yf)) {
-        dx = 0;
-    } else if (Passable(xf, y)) {
-        dy = 0;
-    } else {
-        dx = 0;
-        dy = 0;
-    }
     
     // Normalize diagonal motion
     // Approximately sqrt(2)/2
     if (dx != 0 && dy != 0) {
         dx *= 0.7;
         dy *= 0.7;
+    }
+
+    // Collision checking
+    int x = Player->Position.X;
+    int y = Player->Position.Y;
+    int xf = Player->Position.X+dx;
+    int yf = Player->Position.Y+dy;
+    if (WorldPassableWithPadding(xf, yf)) {
+        // AX // Make sure we can't clip across a corner like this,
+        // XB // going from A to B, with X solid.
+        if (!WorldPassableWithPadding(x, yf) && !WorldPassableWithPadding(xf, y)) {
+            dx = 0;
+            dy = 0;
+        }
+    } else if (WorldPassableWithPadding(x, yf)) {
+        dx = 0;
+    } else if (WorldPassableWithPadding(xf, y)) {
+        dy = 0;
+    } else {
+        dx = 0;
+        dy = 0;
     }
     
     // Update walk frame
