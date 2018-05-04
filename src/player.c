@@ -55,7 +55,7 @@ bool GetItem(ITEM_ID id) {
  **************************************************************/
 void NewGame(void) {
     // Reset all the stats
-    Player->Costume = NORMAL;
+    Player->Costume = BLACK_DRESS;
     Player->Money = 0;
     Player->PlayTime = 0;
     

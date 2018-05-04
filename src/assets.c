@@ -292,6 +292,8 @@ static IMAGE_ASSET SensorAssets[] = {
  **************************************************************/
 static IMAGE_ASSET PersonAssets[] = {
     [AMY_NORMAL]        = IMAGE("person/costume/normal.png"),
+    [AMY_RED_DRESS]     = IMAGE("person/costume/red_dress.png"),
+    [AMY_BLACK_DRESS]   = IMAGE("person/costume/black_dress.png"),
     // TODO
 };
 /**********************************************************//**
