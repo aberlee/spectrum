@@ -438,29 +438,31 @@ static inline bool WarpInProgress(void) {
     return al_get_time()-TimeOfLastWarp < 1;
 }
 
+#define INTERACT_REACH 8
+
 /**********************************************************//**
  * @brief Gets the tile position the user can currently
  * interact with.
  * @return COORDINATE at which the player can interact.
  **************************************************************/
 static inline COORDINATE InteractPosition(void) {
-    int ix = WorldToTile(Player->Position.X);
-    int iy = WorldToTile(Player->Position.Y);
+    int x = Player->Position.X;
+    int y = Player->Position.Y;
     switch (Player->Direction) {
     case UP:
-        iy--;
+        y -= INTERACT_REACH;
         break;
     case DOWN:
-        iy++;
+        y += INTERACT_REACH;
         break;
     case LEFT:
-        ix--;
+        x -= INTERACT_REACH;
         break;
     case RIGHT:
-        ix++;
+        x += INTERACT_REACH;
         break;
     }
-    return (COORDINATE){ix, iy};
+    return (COORDINATE){WorldToTile(x), WorldToTile(y)};
 }
 
 /**********************************************************//**
@@ -745,7 +747,7 @@ static inline bool WorldPassable(int x, int y) {
     return TilePassable(WorldToTile(x), WorldToTile(y));
 }
 
-#define COLLISION_PADDING 7
+#define COLLISION_PADDING 6
 
 static inline bool WorldPassableWithPadding(int x, int y) {
     return WorldPassable(x-COLLISION_PADDING, y-COLLISION_PADDING) &&\
@@ -811,7 +813,7 @@ void UpdateMap(void) {
     
     // Normalize diagonal motion
     // Approximately sqrt(2)/2
-    if (dx != 0 && dy != 0) {
+    if (dx && dy) {
         dx *= 0.7;
         dy *= 0.7;
     }
@@ -821,32 +823,34 @@ void UpdateMap(void) {
     int y = Player->Position.Y;
     int xf = Player->Position.X+dx;
     int yf = Player->Position.Y+dy;
-    if (WorldPassableWithPadding(xf, yf)) {
-        // AX // Make sure we can't clip across a corner like this,
-        // XB // going from A to B, with X solid.
-        if (!WorldPassableWithPadding(x, yf) && !WorldPassableWithPadding(xf, y)) {
-            dx = 0;
-            dy = 0;
-        }
-    } else if (WorldPassableWithPadding(x, yf)) {
-        dx = 0;
-    } else if (WorldPassableWithPadding(xf, y)) {
-        dy = 0;
-    } else {
-        dx = 0;
-        dy = 0;
+    int dxv = dx? (dx>0)? 1: -1: 0;
+    int dyv = dy? (dy>0)? 1: -1: 0;
+    while (xf!=x && !WorldPassableWithPadding(xf, y)) {
+        xf -= dxv;
     }
+    while (yf!=y && !WorldPassableWithPadding(x, yf)) {
+        yf -= dyv;
+    }
+    while (xf!=x && yf!=y && !WorldPassableWithPadding(xf, yf)) {
+        if (xf!=x) {
+            xf -= dxv;
+        }
+        if (yf!=y) {
+            yf -= dyv;
+        }
+    }
+    assert(WorldPassableWithPadding(xf, yf));
     
     // Update walk frame
-    if (dx != 0 || dy != 0) {
+    if (x!=xf || y != yf) {
         PlayerWalkFrame++;
     } else {
         PlayerWalkFrame = 0;
     }
     
     // Update position
-    Player->Position.X += dx;
-    Player->Position.Y += dy;
+    Player->Position.X = xf;
+    Player->Position.Y = yf;
     UpdateOverworldLocation();
     InteractAutomatic();
 }
