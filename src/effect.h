@@ -16,12 +16,25 @@
  **************************************************************/
 typedef enum {
     YOURSELF        = 0x0001,  ///< Hits the user of the technique.
-    ENEMY           = 0x0100,  ///< Hits one enemy.
+    TARGET_ENEMY    = 0x0100,  ///< Hits one enemy.
     ALLY            = 0x0011,  ///< Hits one teammate, or the user.
     ANYONE          = 0x0111,  ///< Hits any one spectra.
     ALL_ENEMIES     = 0x1100,  ///< Hits each enemy.
     EVERYONE_ELSE   = 0x1110,  ///< Hits everyone but the user.
 } TARGET_TYPE;
+
+/**************************************************************/
+/// @brief Does the targetting group include the user?
+#define TARGET_USER 0x000F
+
+/// @brief Does the targetting group include enemies?
+#define TARGET_ENEMY 0x0F00
+
+/// @brief Does the targetting group include allies?
+#define TARGET_ALLY 0x00F0
+
+/// @brief Does the targetting group target everyone as a whole?
+#define TARGET_GROUP 0xF000
 
 /**********************************************************//**
  * @enum EFFECT_ID
@@ -58,8 +71,11 @@ typedef enum {
     BOOST_LUCK,                 ///< Raises the "Luck" stat. Expects a level.
 
     // Special
-    CAPTURE_SPECTRA,            ///< Attempts to capture an enemy in battle.
     KILL_USER,                  ///< The user dies after attacking.
+    EFFECT_CAPTURE,             ///< Attempts to capture an enemy in battle.
+    EFFECT_DEFEND,              ///< User is defending.
+    EFFECT_ITEM,                ///< User using item.
+    EFFECT_ESCAPE,              ///< Trying to escape battle.
 } EFFECT_ID;
 
 /**************************************************************/
