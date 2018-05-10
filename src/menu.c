@@ -426,7 +426,7 @@ void DrawPlayerDisplay(void) {
     
     // Spectra count
     int spectraCount = 0;
-    for (int i = 0; i < TEAM_SIZE; i++) {
+    for (int i = 0; i < PARTY_SIZE; i++) {
         if (Player->Spectra[i].Species) {
             spectraCount++;
         }
@@ -511,7 +511,7 @@ static inline int PartyY(int index) {
  **************************************************************/
 void DrawParty(void) {
     al_draw_bitmap(WindowImage(SPECTRA_LIST), 0, 0, 0);
-    for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+    for (int i=0; i<PARTY_SIZE && Player->Spectra[i].Species; i++) {
         // Contend with vertical divider
         int y = PartyY(i);
         
@@ -601,7 +601,7 @@ static bool SaveStatus = false;
  * @brief Sets up the main menu when it's opened.
  **************************************************************/
 void InitializeMainMenu(void) {
-    for (int i=0; i<TEAM_SIZE && Player->Spectra[i].Species; i++) {
+    for (int i=0; i<PARTY_SIZE && Player->Spectra[i].Species; i++) {
         SpectraControl.IndexMax = i;
     }
     for (int i=0; i<INVENTORY_SIZE && Player->Inventory[i]; i++) {

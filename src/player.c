@@ -63,7 +63,7 @@ void NewGame(void) {
     for (int i = 0; i < INVENTORY_SIZE; i++) {
         Player->Inventory[i] = 0;
     }
-    for (int i = 0; i < TEAM_SIZE; i++) {
+    for (int i = 0; i < PARTY_SIZE; i++) {
         Player->Spectra[i].Species = 0;
     }
     CreateSpectra(&Player->Spectra[0], AMY, 5);

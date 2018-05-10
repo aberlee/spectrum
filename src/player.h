@@ -19,7 +19,7 @@
 /**************************************************************/
 /// @brief Number of Spectra that can be on the player's
 /// team at one time.
-#define TEAM_SIZE 10
+#define PARTY_SIZE 10
 
 /// @brief Number of items the player can carry at once.
 #define INVENTORY_SIZE 24
@@ -53,7 +53,7 @@ typedef struct {
     
     // Player collections
     ITEM_ID Inventory[INVENTORY_SIZE];
-    SPECTRA Spectra[TEAM_SIZE];
+    SPECTRA Spectra[PARTY_SIZE];
     
     // Player map data
     LOCATION_ID Location;
