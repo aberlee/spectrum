@@ -17,6 +17,12 @@
  * that can be learned by a monster (0 is invalid).
  **************************************************************/
 typedef enum {
+    // Default techniques
+    DEFAULT_ATTACK  = 81,
+    DEFAULT_DEFEND  = 82,
+    DEFAULT_ITEM    = 83,
+    DEFAULT_ESCAPE  = 84,
+    
     // Basic techniques
     BITE            =  1,
     COLLIDE         =  2,
@@ -95,7 +101,7 @@ typedef enum {
 } TECHNIQUE_ID;
 
 /// A size large enough to contain every TECHNIQUE_ID in an array.
-#define N_TECHNIQUES 81
+#define N_TECHNIQUES 85
 
 /**********************************************************//**
  * @struct TECHNIQUE
