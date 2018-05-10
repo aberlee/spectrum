@@ -160,25 +160,9 @@ typedef struct {
 /// The highest SPECTRA level.
 #define LEVEL_MAX 100
 
-/**********************************************************//**
- * @struct BATTLER
- * @brief Defines battle-level information for a spectra
- * participating in the battle.
- **************************************************************/
-typedef struct {
-    SPECTRA *Spectra;           ///< Pointer to the spectra, or NULL.
-
-    // Boosts
-    int AttackBoost;            ///< Change to apply to attack stat.
-    int DefendBoost;            ///< Change to apply to defend stat.
-    int EvadeBoost;             ///< Change to apply to evade stat.
-    int LuckBoost;              ///< Change to apply to luck stat.
-} BATTLER;
-
 /**************************************************************/
 extern const SPECIES *SpeciesByID(SPECIES_ID id);
 extern const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra);
-extern const SPECIES *SpeciesOfBattler(const BATTLER *battler);
 extern void UpdateActiveStats(SPECTRA *spectra);
 extern void Recover(SPECTRA *spectra);
 extern int ExperienceNeeded(const SPECTRA *spectra);

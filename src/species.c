@@ -30,15 +30,6 @@ const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra) {
 }
 
 /**********************************************************//**
- * @brief Gets the SPECIES data from a BATTLER.
- * @param battler: The battler.
- * @return Pointer to species data.
- **************************************************************/
-const SPECIES *SpeciesOfBattler(const BATTLER *battler) {
-    return &SPECIES_DATA[battler->Spectra->Species];
-}
-
-/**********************************************************//**
  * @brief Recomputes the SPECTRA stats.
  * @param spectra: Spectra to update.
  **************************************************************/
@@ -115,14 +106,6 @@ void CreateSpectra(SPECTRA *spectra, SPECIES_ID species, int level) {
     spectra->Experience = ExperienceNeeded(spectra);
     UpdateActiveStats(spectra);
     Recover(spectra);
-}
-
-void Swap(BATTLER *battler, SPECTRA *spectra) {
-    battler->Spectra = spectra;
-    battler->AttackBoost = 0;
-    battler->DefendBoost = 0;
-    battler->EvadeBoost = 0;
-    battler->LuckBoost = 0;
 }
 
 // Dummy for output script
