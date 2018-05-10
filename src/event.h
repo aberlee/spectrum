@@ -13,6 +13,7 @@
 #include "shop.h"               // SHOP_ID
 #include "species.h"            // SPECIES_ID
 #include "person.h"             // PERSON_ID
+#include "battle.h"             // ENEMY
 
 /**********************************************************//**
  * @enum SWITCH
@@ -44,15 +45,6 @@ typedef struct {
     ITEM_ID Item;
     SWITCH Switch;
 } PRESENT;
-
-/**********************************************************//**
- * @struct BOSS
- * @brief Data about a structured BOSS encounter.
- **************************************************************/
-typedef struct {
-    SPECIES_ID Spectra[3];      ///< Boss spectra that appear.
-    int Level;                  ///< Level of the bosses.
-} BOSS;
 
 /**********************************************************//**
  * @struct PERSON
