@@ -302,6 +302,8 @@ static IMAGE_ASSET PersonAssets[N_PERSON] = {
 static IMAGE_ASSET MiscAssets[] = {
     [GIFT_CLOSED]       = IMAGE("gift_closed.png"),
     [GIFT_OPEN]         = IMAGE("gift_open.png"),
+    [HUD_OK]            = IMAGE("window/hud_ok.png"),
+    [HUD_UP]            = IMAGE("window/hud_up.png"),
 };
 
 /**********************************************************//**

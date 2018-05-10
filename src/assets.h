@@ -31,6 +31,8 @@ typedef enum {
 typedef enum {
     GIFT_CLOSED     = 1,
     GIFT_OPEN,
+    HUD_OK,
+    HUD_UP,
 } MISC_ID;
 
 #define N_MISC (GIFT_OPEN+1)
