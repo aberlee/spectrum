@@ -24,6 +24,7 @@
 
 // Included for debugging purposes - not final
 #include "menu.h"
+#include "battle.h"
 #include "output.h"
 
 /**************************************************************/
@@ -205,6 +206,8 @@ static void GameInitialize(void) {
         Player->Inventory[2] = POTION;
         Player->Inventory[3] = TOUGH_HERB;
         Player->Inventory[4] = SERUM;
+        
+        InitializeRandomEncounter(3, ENCOUNTER_OVERWORLD);
     }
 }
 
@@ -212,14 +215,14 @@ static void GameInitialize(void) {
  * @brief Updates the screen on one frame.
  **************************************************************/
 static void Update(void) {
-    UpdateMap();
+    UpdateBattle();
 }
 
 /**********************************************************//**
  * @brief Renders the screen on one frame.
  **************************************************************/
 static void Draw(void) {
-    DrawMap();
+    DrawBattle();
 }
 
 /**********************************************************//**
