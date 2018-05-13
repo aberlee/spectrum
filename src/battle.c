@@ -6,6 +6,7 @@
  **************************************************************/
 
 #include <stdio.h>              // snprintf
+#include <math.h>               // fmod
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -223,6 +224,11 @@ void InitializeBossEncounter(const BOSS *bosses) {
     InitializePlayerTeam();
 }
 
+/**************************************************************/
+/// @brief Used in battle menu code to denote whose turn
+/// is being inputted by the user.
+static BATTLER_ID CurrentUser;
+
 static const COORDINATE BattlerPosition[] = {
     // User's team
     [0] = { 60, 260},
@@ -230,23 +236,39 @@ static const COORDINATE BattlerPosition[] = {
     [2] = {160, 220},
     
     // Enemy's team
-    [3] = {420, 260},
+    [3] = {320, 220},
     [4] = {370, 240},
-    [5] = {320, 220},
+    [5] = {420, 260},
 };
 
 static void DrawBattlers(void) {
+    // Temp target?
+    BATTLER_ID target = -1;
+    if (TargetMenu.Control.State == CONTROL_IDLE) {
+        target = TargetID[MenuItem(&TargetMenu)];
+    }
+
     // Draw drop shadows
     for (BATTLER_ID id=0; id<BATTLE_SIZE; id++) {
+        const COORDINATE *center = &BattlerPosition[id];
         if (!BattlerByID(id)) {
             continue;
         }
-        const COORDINATE *center = &BattlerPosition[id];
         al_draw_filled_ellipse(center->X, center->Y, 40, 10, al_map_rgba(0, 0, 0, 60));
+        
+        // Current user animation
+        float pulse = fmod(al_get_time(), 1);
+        if (id == CurrentUser) {
+            ALLEGRO_COLOR color = al_map_rgba(0, 127, 255, (1-pulse*pulse)*255);
+            al_draw_ellipse(center->X, center->Y, pulse*40, pulse*10, color, 2);
+        } else if (id == target) {
+            ALLEGRO_COLOR color = al_map_rgba(255, 20, 0, (1-pulse*pulse)*255);
+            al_draw_ellipse(center->X, center->Y, pulse*40, pulse*10, color, 2);
+        }
     }
     
     // Draw existing spectra in layer order
-    const BATTLER_ID order[] = {5, 2, 4, 1, 3, 0};
+    const BATTLER_ID order[] = {3, 2, 4, 1, 5, 0};
     for (int i=0; i<BATTLE_SIZE; i++) {
         BATTLER_ID id = order[i];
         if (!BattlerByID(id)) {
@@ -266,11 +288,6 @@ static void DrawBattlers(void) {
     }
 }
 
-/**************************************************************/
-/// @brief Used in battle menu code to denote whose turn
-/// is being inputted by the user.
-static BATTLER_ID CurrentUser;
-
 /**********************************************************//**
  * @brief Sets up the target menu for the current user.
  * @param type: What the range of the technique is.
@@ -285,6 +302,7 @@ static void LoadTargetMenu(TARGET_TYPE type) {
         } else if (type&TARGET_ENEMY) {
             TargetMenu.Option[0] = "Enemies";
         }
+        TargetID[0] = -1;
         TargetMenu.Control.IndexMax = 1;
         TargetMenu.Control.ScrollMax = 0;
         return;
