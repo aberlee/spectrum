@@ -8,6 +8,7 @@
 #ifndef _SPECIES_H_
 #define _SPECIES_H_
 
+#include "coordinate.h"         // COORDINATE
 #include "technique.h"          // TECHNIQUE_ID
 
 /**********************************************************//**
@@ -106,11 +107,13 @@ typedef struct {
     int Money;                  ///< Money earned by defeating the spectra.
 
     // Technique moveset
-    int MovesetSize;            ///< The size of the moveset member list.
     const struct {
         int Level;              ///< Level to learn the technique.
         TECHNIQUE_ID Technique; ///< The technique learned.
     } Moveset[MOVESET_SIZE];    ///< The spectra's full moveset.
+    
+    // Image properties
+    COORDINATE Offset;
 } SPECIES;
 
 /**********************************************************//**
