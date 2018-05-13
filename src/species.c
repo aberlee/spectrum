@@ -47,10 +47,11 @@ void UpdateActiveStats(SPECTRA *spectra) {
     
     // Recalculate moveset
     int i;
-    for (i = 0; i < species->MovesetSize && i <= species->Moveset[i].Level; i++) {
+    for (i = 0; species->Moveset[i].Technique && species->Moveset[i].Level <= spectra->Level; i++) {
         spectra->Moveset[i] = species->Moveset[i].Technique;
     }
     spectra->MovesetSize = i;
+    spectra->Moveset[i] = 0;
 }
 
 /**********************************************************//**
