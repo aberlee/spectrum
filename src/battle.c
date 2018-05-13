@@ -7,6 +7,9 @@
 
 #include <stdio.h>              // snprintf
 
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+
 #include "random.h"             // randint
 #include "assets.h"             // MiscImage
 #include "species.h"            // SPECTRA
@@ -121,7 +124,8 @@ static void InitializePlayerTeam(void) {
             InitializeBattler(battler, spectra);
             
             // Initialize menu data
-            for (int t=0; spectra->Moveset[t]; t++) {
+            int t;
+            for (t=0; spectra->Moveset[t]; t++) {
                 const TECHNIQUE *technique = TechniqueByID(spectra->Moveset[t]);
                 menu->TechniqueMenu.Option[t] = technique->Name;
                 snprintf(menu->CostString[t], 3, "%d", technique->Cost);
@@ -129,9 +133,9 @@ static void InitializePlayerTeam(void) {
             }
             ResetControl(&menu->TechniqueMenu.Control);
             ResetControl(&menu->CostMenu.Control);
-            menu->TechniqueMenu.Control.IndexMax = spectra->MovesetSize;
+            menu->TechniqueMenu.Control.IndexMax = t-1;
             menu->TechniqueMenu.Control.ScrollMax = 0;
-            menu->CostMenu.Control.IndexMax = spectra->MovesetSize;
+            menu->CostMenu.Control.IndexMax = t-1;
             menu->CostMenu.Control.ScrollMax = 0;
         } else {
             InitializeBattler(battler, NULL);
@@ -219,6 +223,49 @@ void InitializeBossEncounter(const BOSS *bosses) {
     InitializePlayerTeam();
 }
 
+static const COORDINATE BattlerPosition[] = {
+    // User's team
+    [0] = { 60, 260},
+    [1] = {110, 240},
+    [2] = {160, 220},
+    
+    // Enemy's team
+    [3] = {420, 260},
+    [4] = {370, 240},
+    [5] = {320, 220},
+};
+
+static void DrawBattlers(void) {
+    // Draw drop shadows
+    for (BATTLER_ID id=0; id<BATTLE_SIZE; id++) {
+        if (!BattlerByID(id)) {
+            continue;
+        }
+        const COORDINATE *center = &BattlerPosition[id];
+        al_draw_filled_ellipse(center->X, center->Y, 40, 10, al_map_rgba(0, 0, 0, 60));
+    }
+    
+    // Draw existing spectra in layer order
+    const BATTLER_ID order[] = {5, 2, 4, 1, 3, 0};
+    for (int i=0; i<BATTLE_SIZE; i++) {
+        BATTLER_ID id = order[i];
+        if (!BattlerByID(id)) {
+            continue;
+        }
+        SPECIES_ID speciesID = BattlerByID(id)->Spectra->Species;
+        const SPECIES *species = SpeciesByID(speciesID);
+        const COORDINATE *center = &BattlerPosition[id];
+        const COORDINATE *offset = &species->Offset;
+        ALLEGRO_BITMAP *image = NULL;
+        if (speciesID == AMY) {
+            image = CostumeImage(Player->Costume);
+        } else {
+            image = SpeciesImage(speciesID);
+        }
+        al_draw_bitmap(image, center->X-offset->X, center->Y-offset->Y, 0);
+    }
+}
+
 /**************************************************************/
 /// @brief Used in battle menu code to denote whose turn
 /// is being inputted by the user.
@@ -267,8 +314,13 @@ static void LoadTargetMenu(TARGET_TYPE type) {
             }
         }
     }
+    
+    // Reset
+    TargetMenu.Control.IndexMax = i-1;
+    while (i < 6) {
+        TargetMenu.Option[i++] = NULL;
+    }
     ResetControl(&TargetMenu.Control);
-    TargetMenu.Control.IndexMax = i;
     TargetMenu.Control.ScrollMax = 0;
 }
 
@@ -390,13 +442,16 @@ static void UpdateTargetMenu(void) {
         CurrentUser++;
         if (!BattleMenuDone()) {
             ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
+            ResetControl(&BattleMenu.Control);
         }
         break;
 
     case CONTROL_CANCEL:
-        // Revert to technique select, but don't reset the
-        // cursor's position.
-        PlayerMenu[CurrentUser].TechniqueMenu.Control.State = CONTROL_IDLE;
+        // Revert to the previous menu.        if (PlayerMenu[CurrentUser].TechniqueMenu.Control.State) {
+            PlayerMenu[CurrentUser].TechniqueMenu.Control.State = CONTROL_IDLE;
+        } else {
+            BattleMenu.Control.State = CONTROL_IDLE;
+        }
         break;
 
     case CONTROL_IDLE:
@@ -502,6 +557,11 @@ static void UpdateBattleMenu(void) {
 }
 
 void DrawBattle(void) {
+    // Draw background image
+    DrawAt(0, 0);
+    BACKGROUND_ID background = Location(Player->Location)->Background;
+    al_draw_bitmap(BackgroundImage(background? background: CHARCOAL), 0, 0, 0);
+    DrawBattlers();
     DrawHUDs();
     DrawBattleMenu();
 }
