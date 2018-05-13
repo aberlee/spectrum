@@ -207,7 +207,7 @@ void DrawOption(const MENU *options) {
  **************************************************************/
 void DrawColumn(const MENU *first, const MENU *second) {
     al_draw_bitmap(WindowImage(MENU_COLUMN), 0, 0, 0);
-    for (int i=0; i<6; i++) {
+    for (int i=0; i<8; i++) {
         DrawText(first->Option[first->Control.Scroll+i], 4, 4+13*i);
         DrawText(second->Option[first->Control.Scroll+i], 101, 4+13*i);
     }
