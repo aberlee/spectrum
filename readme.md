@@ -1,0 +1,2 @@
+# Spectrum Legacy
+This is a single-player RPG inspired by Pokémon and Earthbound, among other games. It is programmed by Rena Shinomiya, using Allegro 5 with gnu99 C. This project is provided as open source (under the BSD-3-Clause license). No content in this repository can be claimed as your own. I also request that you ask permission before using any assets from this game, such as fonts and images.
