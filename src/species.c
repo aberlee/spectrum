@@ -64,6 +64,15 @@ void Recover(SPECTRA *spectra) {
     spectra->Ailment = 0;
 }
 
+int Heal(SPECTRA *spectra, int amount) {
+    int before = spectra->Health;
+    spectra->Health += amount;
+    if (spectra->Health > spectra->MaxHealth) {
+        spectra->Health = spectra->MaxHealth;
+    }
+    return spectra->Health - before;
+}
+
 /**********************************************************//**
  * @brief Experience rate table indexed by EXPERIENCE_TYPE.
  **************************************************************/

@@ -168,6 +168,7 @@ extern const SPECIES *SpeciesByID(SPECIES_ID id);
 extern const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra);
 extern void UpdateActiveStats(SPECTRA *spectra);
 extern void Recover(SPECTRA *spectra);
+extern int Heal(SPECTRA *spectra, int amount);
 extern int ExperienceNeeded(const SPECTRA *spectra);
 extern int ExperienceTotal(const SPECTRA *spectra);
 extern void CreateSpectra(SPECTRA *spectra, SPECIES_ID species, int level);
