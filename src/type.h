@@ -29,4 +29,7 @@ typedef enum {
 #define N_TYPE 10
 
 /**************************************************************/
+extern float TypeMatchup(TYPE_ID attacking, TYPE_ID defending);
+
+/**************************************************************/
 #endif // _TYPE_H_
