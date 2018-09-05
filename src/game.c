@@ -143,9 +143,9 @@ ALLEGRO_BITMAP *Screenshot(void) {
 }
 
 /**********************************************************//**
- * @brief Initializes the Allegro5 platform.
+ * @brief Initializes the game before the main loop begins.
  **************************************************************/
-static void AllegroInstall(void) {
+static void Initialize(void) {
     // Initialize Allegro5 platform
     assert(al_init());
     assert(al_install_keyboard());
@@ -157,12 +157,7 @@ static void AllegroInstall(void) {
     assert(al_init_acodec_addon());
     assert(al_init_font_addon());
     assert(al_init_ttf_addon());
-}
-
-/**********************************************************//**
- * @brief Initializes the game before the main loop begins.
- **************************************************************/
-static void GameInitialize(void) {
+    
     // Set up the display
     al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, ALLEGRO_REQUIRE);
     al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
@@ -228,7 +223,7 @@ static void Draw(void) {
 /**********************************************************//**
  * @brief Executes the main game loop until the game stops.
  **************************************************************/
-static void GameMainLoop(void) {
+static void MainLoop(void) {
     // State variables
     ALLEGRO_EVENT event;
     StopGame = false;
@@ -317,7 +312,7 @@ static void GameMainLoop(void) {
  * @brief Get rid of stuff the game created in preparation
  * for shutting down.
  **************************************************************/
-static void GameDestroy(void) {
+static void Destroy(void) {
     // Get rid of the assets
     DestroyAssets();
     
@@ -328,13 +323,7 @@ static void GameDestroy(void) {
     // Destroy the display
     al_inhibit_screensaver(false);
     al_destroy_display(Display);
-}
 
-/**********************************************************//**
- * @brief Get rid of Allegro5 in preparation for shutting
- * down the game.
- **************************************************************/
-static void AllegroUninstall(void) {
     // Remove addons
     al_shutdown_font_addon();
     al_uninstall_audio();
@@ -355,11 +344,9 @@ static void AllegroUninstall(void) {
 int main(int argc, char **argv) {
     (void)argc;
     (void)argv;
-    AllegroInstall();
-    GameInitialize();
-    GameMainLoop();
-    GameDestroy();
-    AllegroUninstall();
+    Initialize();
+    MainLoop();
+    Destroy();
     return 0;
 }
 
