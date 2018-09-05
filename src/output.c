@@ -76,20 +76,18 @@ void OutputSplitByCR(const char *text) {
  **************************************************************/
 void UpdateOutput(void) {
     static float Progress = 0.0;
+    static bool WaitingWhileKeyDown = false;
     int max = strlen(Log[Head]);
-    if (Head == Tail) {
-        if (KeyJustUp(KEY_CONFIRM)) {
-            WaitingForUser = false;
-        }
-        return;
-    }
     
     // Done typing - wait for user to press CONFIRM
     WaitingForUser = true;
     if (CurrentCharacter == max) {
         if (KeyJustDown(KEY_CONFIRM)) {
+            WaitingWhileKeyDown = true;
+        } else if (KeyJustUp(KEY_CONFIRM) && WaitingWhileKeyDown) {
+            WaitingForUser = false;
+            WaitingWhileKeyDown = false;
             Head = (Head+1) % LOG_SIZE;
-            // Reset the progress for the next output
             Progress = 0.0;
             CurrentCharacter = 0;
         }
