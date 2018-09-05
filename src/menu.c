@@ -240,10 +240,10 @@ void UpdateControl(CONTROL *control) {
                 ControlDown(control);
             }
         // Respond to confirm key
-        } else if (KeyJustDown(KEY_CONFIRM)) {
+        } else if (KeyJustUp(KEY_CONFIRM)) {
             control->State = CONTROL_CONFIRM;
         // Respond to cancel key
-        } else if (KeyJustDown(KEY_DENY)) {
+        } else if (KeyJustUp(KEY_DENY)) {
             control->State = CONTROL_CANCEL;
         }
         break;
