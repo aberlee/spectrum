@@ -8,6 +8,8 @@
 #include <stddef.h>             // NULL
 #include <stdbool.h>            // bool
 #include <assert.h>             // assert
+#include <stdlib.h>             // srand
+#include <time.h>               // time
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_color.h>
@@ -183,6 +185,9 @@ static void Initialize(void) {
     al_register_event_source(EventQueue, al_get_display_event_source(Display));
     al_register_event_source(EventQueue, al_get_keyboard_event_source());
     al_register_event_source(EventQueue, al_get_timer_event_source(FrameRateTimer));
+    
+    // Random number generator init
+    srand(time(NULL));
 
     // Load game assets
     LoadAssets();

@@ -311,7 +311,7 @@ static int GetTargets(int *targets, int user, TARGET_TYPE type) {
     for (int id=0; id<BATTLE_SIZE; id++) {
         const BATTLER *battler = BattlerByID(id);
         // Can't target gone or incapacitated battlers
-        if (!IsAlive(battler) || !battler->Spectra) {
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
             continue;
         } else if (type&TARGET_USER && id==user) {
             // Targetting yourself
@@ -575,7 +575,7 @@ static void LoadEnemyTurns(void) {
                 }
                 usableTechniques[u++] = enemy->Spectra->Moveset[t];
             }
-            turn->Technique = usableTechniques[randint(0,u)];
+            turn->Technique = usableTechniques[randint(0,u-1)];
             
             // Get the primary target, if applicable
             TARGET_TYPE type = TechniqueByID(turn->Technique)->Target;
@@ -584,7 +584,7 @@ static void LoadEnemyTurns(void) {
             } else {
                 int targets[BATTLE_SIZE];
                 int nTargets = GetTargets(targets, id, type);
-                turn->Target = targets[randint(0,nTargets)];
+                turn->Target = targets[randint(0,nTargets-1)];
             }
         } else {
             // Turn skipped
@@ -634,6 +634,9 @@ static void ExecuteTurn(const TURN *turn) {
             // Messages
             if (damage) {
                 OutputF("%s took %d damage!", BattlerName(target), damage);
+                if (!IsAlive(target)) {
+                    OutputF("%s passed out!", BattlerName(target));
+                }
             } else {
                 OutputF("%s didn't take any damage!", BattlerName(target));
             }
@@ -658,12 +661,13 @@ static void UpdateBattleExecution(void) {
     if (!CurrentTurn || CurrentTurn->State==TURN_DONE) {
         CurrentTurn = NULL;
         int maxPriority = 0;
-        for (int i=0; i<BATTLE_SIZE; i++) {
-            if (Turns[i].State == TURN_PENDING) {
-                int priority = BattlerEvade(BattlerByID(i));
+        for (int id=0; id<BATTLE_SIZE; id++) {
+            BATTLER *battler = BattlerByID(id);
+            if (Turns[id].State == TURN_PENDING && BattlerIsActive(battler)) {
+                int priority = BattlerEvade(BattlerByID(id));
                 if (priority > maxPriority || !CurrentTurn) {
                     maxPriority = priority;
-                    CurrentTurn = &Turns[i];
+                    CurrentTurn = &Turns[id];
                 }
             }
         }
@@ -694,6 +698,13 @@ static void UpdateBattleExecution(void) {
         UpdateOutput();
         if (OutputDone()) {
             CurrentTurn->State = TURN_DONE;
+            // Clean up any dead battlers
+            for (int id=0; id<BATTLE_SIZE; id++) {
+                BATTLER *battler = BattlerByID(id);
+                if (BattlerIsActive(battler) && !IsAlive(battler)) {
+                    InitializeBattlerAsInactive(battler);
+                }
+            }
         }
         break;
     default:
@@ -746,7 +757,7 @@ static void DrawBattlers(void) {
     // Draw drop shadows
     for (int id=0; id<BATTLE_SIZE; id++) {
         const COORDINATE *center = &BattlerPosition[id];
-        if (!BattlerByID(id)) {
+        if (!BattlerIsActive(BattlerByID(id))) {
             continue;
         }
         
@@ -764,7 +775,7 @@ static void DrawBattlers(void) {
     static const int Order[] = {3, 2, 4, 1, 5, 0};
     for (int i=0; i<6; i++) {
         int id = Order[i];
-        if (!BattlerByID(id)) {
+        if (!BattlerIsActive(BattlerByID(id))) {
             continue;
         }
         SPECIES_ID speciesID = BattlerByID(id)->Spectra->Species;
@@ -786,8 +797,10 @@ static void DrawBattlers(void) {
  **************************************************************/
 static void DrawHUDs(void) {
     // User HUDs
-    int y = 4;
-    for (int id=0; id<3 && PlayerTeam.Member[id].Spectra; id++) {
+    for (int id=0, y=4; id<TEAM_SIZE; id++) {
+        if (!BattlerIsActive(BattlerByID(id))) {
+            continue;
+        }
         DrawAt(4, y);
         DrawHudUser(PlayerTeam.Member[id].Spectra);
         // Hud tag
@@ -800,10 +813,12 @@ static void DrawHUDs(void) {
     }
     
     // Enemy HUDs
-    y = 4;
-    for (int id=0; id<3 && EnemyTeam.Member[id].Spectra; id++) {
+    for (int id=TEAM_SIZE, y=4; id<BATTLE_SIZE; id++) {
+        if (!BattlerIsActive(BattlerByID(id))) {
+            continue;
+        }
         DrawAt(275, y);
-        DrawHudEnemy(EnemyTeam.Member[id].Spectra);
+        DrawHudEnemy(EnemyTeam.Member[id-TEAM_SIZE].Spectra);
         y += 29;
     }
 }
