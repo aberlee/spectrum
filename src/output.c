@@ -40,7 +40,7 @@ static bool WaitingForUser = false;
 void Output(const char *text) {
     int length = strlen(text);
     strncpy(Log[Tail], text, (length<MESSAGE_SIZE)? length: MESSAGE_SIZE);
-    Log[Tail][length+1] = '\0';
+    Log[Tail][length] = '\0';
     Tail = (Tail+1)%LOG_SIZE;
     if (Head == Tail) {
         eprintf("Output queue overflow.");
