@@ -78,6 +78,9 @@ void UpdateOutput(void) {
     static float Progress = 0.0;
     static bool WaitingWhileKeyDown = false;
     int max = strlen(Log[Head]);
+    if (Head == Tail) {
+        return;
+    }
     
     // Done typing - wait for user to press CONFIRM
     WaitingForUser = true;

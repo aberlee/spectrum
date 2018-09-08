@@ -26,6 +26,20 @@
 /// @brief Number of battlers in the whole battle.
 #define BATTLE_SIZE (TEAM_SIZE+TEAM_SIZE)
 
+/**********************************************************//**
+ * @enum BATTLE_STATE
+ * @brief Controls how the battle is finished.
+ **************************************************************/
+typedef enum {
+    BATTLE_STATE_ACTIVE,
+    BATTLE_STATE_WIN,
+    BATTLE_STATE_LOSE,
+    BATTLE_STATE_ESCAPE,
+} BATTLE_STATE;
+
+/// @brief The state of the current battle.
+static BATTLE_STATE BattleState = BATTLE_STATE_ACTIVE;
+
 /**************************************************************/
 /// @brief Battlers in the player's team.
 static TEAM PlayerTeam;
@@ -244,11 +258,47 @@ static void InitializeEnemyTeam(const ENEMY *enemies) {
     }
 }
 
+static int FirstUser(void) {
+    int id = 0;
+    while (id<TEAM_SIZE) {
+        BATTLER *battler = BattlerByID(id);
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+            id++;
+        } else {
+            break;
+        }
+    }
+    return id;
+}
+
+static void JumpToNextUser(void) {
+    CurrentUser++;
+    while (CurrentUser<TEAM_SIZE) {
+        BATTLER *battler = BattlerByID(CurrentUser);
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+            CurrentUser++;
+        } else {
+            break;
+        }
+    }
+}
+static void JumpToPreviousUser(void) {
+    CurrentUser--;
+    while (CurrentUser>0) {
+        BATTLER *battler = BattlerByID(CurrentUser);
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+            CurrentUser--;
+        } else {
+            break;
+        }
+    }
+}
+
 /**********************************************************//**
  * @brief Initializes setup for the current round of battle.
  **************************************************************/
 static void InitializeRound(void) {
-    CurrentUser = 0;
+    CurrentUser = FirstUser();
     CurrentTurn = NULL;
     ResetControl(&BattleMenu.Control);
 }
@@ -285,6 +335,7 @@ void InitializeRandomEncounter(int count, ENCOUNTER_TYPE type) {
     InitializeEnemyTeam(enemies);
     InitializePlayerTeam();
     EncounterType = type;
+    BattleState = BATTLE_STATE_ACTIVE;
     InitializeRound();
 }
 
@@ -296,6 +347,7 @@ void InitializeBossEncounter(const BOSS *bosses) {
     InitializeEnemyTeam(bosses->Boss);
     InitializePlayerTeam();
     EncounterType = ENCOUNTER_BOSS;
+    BattleState = BATTLE_STATE_ACTIVE;
     InitializeRound();
 }
 
@@ -385,7 +437,7 @@ static inline bool BattleMenuDone(void) {
  **************************************************************/
 static void DrawBattleMenu(void) {
     // Escape/Cancel display
-    BattleMenu.Option[BATTLE_CANCEL] = CurrentUser? "Cancel": "Escape";
+    BattleMenu.Option[BATTLE_CANCEL] = CurrentUser==FirstUser()? "Escape": "Cancel";
     DrawAt(4, 275);
     DrawOption(&BattleMenu);
     if (BattleMenu.Control.State == CONTROL_CONFIRM) {
@@ -413,7 +465,7 @@ static void DrawBattleMenu(void) {
         
         case BATTLE_CANCEL:
             // Only if first user - escape
-            if (CurrentUser == 0) {
+            if (CurrentUser==FirstUser()) {
                 DrawAt(108, 275);
                 DrawOption(&TargetMenu);
             }
@@ -434,7 +486,7 @@ static void UpdateTargetMenu(void) {
         turn->State = TURN_PENDING;
         
         // Maybe move to the next battler
-        CurrentUser++;
+        JumpToNextUser();
         if (!BattleMenuDone()) {
             ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
             ResetControl(&BattleMenu.Control);
@@ -502,10 +554,10 @@ static void UpdateBattleMenu(void) {
         
         case BATTLE_CANCEL:
             // Go back to the previous user, or try to escape the battle.
-            if (CurrentUser > 0) {
-                CurrentUser--;
+            if (CurrentUser > FirstUser()) {
+                JumpToPreviousUser();
                 ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
-            } else if (CurrentUser == 0) {
+            } else if (CurrentUser==FirstUser()) {
                 UpdateTargetMenu();
             }
             break;
@@ -533,7 +585,7 @@ static void UpdateBattleMenu(void) {
                 // TODO
                 break;
             case BATTLE_CANCEL:
-                if (CurrentUser == 0) {
+                if (CurrentUser==FirstUser()) {
                     turn->Technique = DEFAULT_ESCAPE,
                     LoadTargetMenu(TechniqueByID(turn->Technique)->Target);
                 }
@@ -543,8 +595,8 @@ static void UpdateBattleMenu(void) {
         break;
     
     case CONTROL_CANCEL:
-        if (CurrentUser > 0) {
-            CurrentUser--;
+        if (CurrentUser > FirstUser()) {
+            JumpToPreviousUser();
             ResetControl(&BattleMenu.Control);
         }
         break;
@@ -661,6 +713,35 @@ static void ExecuteTurn(const TURN *turn) {
     }
 }
 
+static void MaybeUpdateBattleState(void) {
+    // Clean up any dead battlers
+    bool win = true;
+    bool lose = true;
+    for (int id=0; id<BATTLE_SIZE; id++) {
+        BATTLER *battler = BattlerByID(id);
+        if (BattlerIsActive(battler)){
+            if(IsAlive(battler)) {
+                if (TeamOf(id)==&PlayerTeam) {
+                    lose = false;
+                } else {
+                    win = false;
+                }
+            } else {
+                InitializeBattlerAsInactive(battler);
+            }
+        }
+    }
+    
+    // If it's a tie, you lose.
+    if (lose) {
+        BattleState = BATTLE_STATE_LOSE;
+        Output("You lost!");
+    } else if (win) {
+        BattleState = BATTLE_STATE_WIN;
+        Output("You won!");
+    }
+}
+
 /**********************************************************//**
  * @brief Updates a step of the battle system during each
  * frame of rendering.
@@ -672,7 +753,7 @@ static void UpdateBattleExecution(void) {
         int maxPriority = 0;
         for (int id=0; id<BATTLE_SIZE; id++) {
             BATTLER *battler = BattlerByID(id);
-            if (Turns[id].State == TURN_PENDING && BattlerIsActive(battler)) {
+            if (Turns[id].State == TURN_PENDING && BattlerIsActive(battler) && IsAlive(battler)) {
                 int priority = BattlerEvade(BattlerByID(id));
                 if (priority > maxPriority || !CurrentTurn) {
                     maxPriority = priority;
@@ -707,13 +788,7 @@ static void UpdateBattleExecution(void) {
         UpdateOutput();
         if (OutputDone()) {
             CurrentTurn->State = TURN_DONE;
-            // Clean up any dead battlers
-            for (int id=0; id<BATTLE_SIZE; id++) {
-                BATTLER *battler = BattlerByID(id);
-                if (BattlerIsActive(battler) && !IsAlive(battler)) {
-                    InitializeBattlerAsInactive(battler);
-                }
-            }
+            MaybeUpdateBattleState();
         }
         break;
     default:
@@ -739,17 +814,31 @@ static bool BattleExecutionDone(void) {
  * @brief Updates one step of the battle system.
  **************************************************************/
 void UpdateBattle(void) {
-    if (!BattleMenuDone()) {
-        UpdateBattleMenu();
-        // Get enemy turns
-        if (BattleMenuDone()) {
-            LoadEnemyTurns();
+    switch (BattleState) {
+    case BATTLE_STATE_ACTIVE:
+        if (!BattleMenuDone()) {
+            UpdateBattleMenu();
+            // Get enemy turns
+            if (BattleMenuDone()) {
+                LoadEnemyTurns();
+            }
+        } else if (!BattleExecutionDone()) {
+            UpdateBattleExecution();
+            if (BattleExecutionDone()) {
+                InitializeRound();
+            }
         }
-    } else if (!BattleExecutionDone()) {
-        UpdateBattleExecution();
-        if (BattleExecutionDone()) {
-            InitializeRound();
-        }
+       break;
+    
+    // End conditions
+    case BATTLE_STATE_WIN:
+    case BATTLE_STATE_LOSE:
+    case BATTLE_STATE_ESCAPE:
+        UpdateOutput();
+        break;
+    
+    default:
+        break;
     }
 }
 
@@ -772,7 +861,7 @@ static void DrawBattlers(void) {
         
         // Different colors for seletion
         ALLEGRO_COLOR color = al_map_rgba(0, 0, 0, 60);
-        if (id == CurrentUser) {
+        if (id == CurrentUser && id < TEAM_SIZE) {
             color = al_map_rgba(0, 127, 255, 200);
         } else if (id == target) {
             color = al_map_rgba(255, 20, 0, 200);
