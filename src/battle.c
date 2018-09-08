@@ -642,12 +642,21 @@ static void ExecuteTurn(const TURN *turn) {
             }
         }
         
-        // Apply effect
+        // Apply effect if applicable
+        if (!(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
+            if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
+                ApplyEffectInBattle(technique->Effect, user, target, technique->Argument);
+            } else if (!technique->Power) {
+                // Technique doesn't do damage, and effect missed.
+                OutputF("%s avoided the attack!", BattlerName(target));
+            }
+        }
+    }
+    
+    // Perform effect if it activates after all targets are hit
+    if (technique->Flags&TECHNIQUE_EFFECT_ONCE) {
         if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
-            ApplyEffectInBattle(technique->Effect, user, target, technique->Argument);
-        } else if (!technique->Power) {
-            // Technique doesn't do damage, and effect missed.
-            OutputF("%s avoided the attack!", BattlerName(target));
+            ApplyEffectInBattle(technique->Effect, user, NULL, technique->Argument);
         }
     }
 }

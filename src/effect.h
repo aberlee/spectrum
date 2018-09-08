@@ -11,6 +11,7 @@
 
 #include <stdbool.h>        // bool
 
+#include "technique.h"      // EFFECT_ID
 #include "battler.h"        // BATTLER
 
 /**************************************************************/

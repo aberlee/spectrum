@@ -318,7 +318,7 @@ bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argum
         Kill(user);
         return true;
     case EFFECT_DEFEND:
-        SetFlag(user, BATTLER_DEFEND);
+        SetFlag(target, BATTLER_DEFEND);
         return true;
     
     // TODO implement these effects

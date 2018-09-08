@@ -291,6 +291,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Target=EVERYONE_ELSE,
         .Effect=KILL_USER,
         .Argument=0,
+        .Flags=TECHNIQUE_EFFECT_ONCE,
         .Description="The user explodes, causing massive damage to everyone. The user dies after attacking.",
     },
     

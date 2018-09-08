@@ -172,6 +172,14 @@ typedef enum {
 } EFFECT_ID;
 
 /**********************************************************//**
+ * @enum TECHNIQUE_FLAGS
+ * @brief Implements additional flags on techniques.
+ **************************************************************/
+typedef enum {
+    TECHNIQUE_EFFECT_ONCE   = 0x0001,   ///< Effect activates after all group is hit.
+} TECHNIQUE_FLAGS;
+
+/**********************************************************//**
  * @struct TECHNIQUE
  * @brief Stores all constant data about one technique
  * specified with a TECHNIQUE_ID.
@@ -184,6 +192,7 @@ typedef struct {
     TARGET_TYPE Target;         ///< Who the technique targets.
     EFFECT_ID Effect;           ///< Effect on the targets.
     int Argument;               ///< Argument to the effect.
+    TECHNIQUE_FLAGS Flags;      ///< Additional flags on the technique.
     const char *Description;    /// Describes the technique on the menu.
 } TECHNIQUE;
 
