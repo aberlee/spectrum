@@ -35,6 +35,7 @@ const LOCATION LOCATION_DATA[] = {
             { 9, CATFISH,       { 8, 15}},
             { 1, NESSIE,        {10, 10}}
         },
+        .EncounterRate  = COMMON,
     },
 
     [SAPLING_TOWN] = {
@@ -52,6 +53,7 @@ const LOCATION LOCATION_DATA[] = {
             { 9, CATFISH,       { 8, 15}},
             { 1, NESSIE,        {10, 10}},
         },
+        .EncounterRate  = RARE,
     },
 
     [YOUR_HOUSE] = {
@@ -88,6 +90,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, SPACESNAKE,    { 8,  8}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = RARE,
     },
 
     [SAPLING_LABORATORY] = {
@@ -108,6 +111,7 @@ const LOCATION LOCATION_DATA[] = {
             { 5, HOCUS,         { 6,  6}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -128,6 +132,7 @@ const LOCATION LOCATION_DATA[] = {
             { 9, GARPIKE,       {10, 16}},
             { 1, MINESPHERE,    {11, 11}},
         },
+        .EncounterRate  = RARE,
     },
 
     [ROYAL_HOSPITAL] = {
@@ -166,6 +171,7 @@ const LOCATION LOCATION_DATA[] = {
             { 9, COALSHARK,     {12, 16}},
             { 1, MINESPHERE,    {17, 17}},
         },
+        .EncounterRate  = UNCOMMON,
     },
 
     [OXIDE_CRATER] = {
@@ -181,6 +187,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, PUZZLE,        {12, 12}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = UNCOMMON,
     },
 
     [OXIDE_CAVE] = {
@@ -196,6 +203,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, PUZZLE,        {16, 16}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -216,6 +224,7 @@ const LOCATION LOCATION_DATA[] = {
             {49, GARPIKE,       { 9, 15}},
             { 1, MINESPHERE,    {17, 17}},
         },
+        .EncounterRate  = RARE,
     },
 
     [SOLAR_AIRPORT] = {
@@ -260,6 +269,7 @@ const LOCATION LOCATION_DATA[] = {
             {30, GARPIKE,       {12, 18}},
             {20, TOOLFISH,      {14, 16}},
         },
+        .EncounterRate  = COMMON,
     },
     
     [SOLAR_PORT] = {
@@ -284,6 +294,7 @@ const LOCATION LOCATION_DATA[] = {
             { 4, COALSHARK,     {18, 18}},
             { 1, CATFISH,       {30, 30}},
         },
+        .EncounterRate  = RARE,
     },
 
     ////////////////////////////////////////////////////////
@@ -298,6 +309,7 @@ const LOCATION LOCATION_DATA[] = {
             {10, VOLTDRAGON,    {16, 20}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = RARE,
     },
 
     [SOLAR_INSTITUTE_2F] = {
@@ -310,6 +322,7 @@ const LOCATION LOCATION_DATA[] = {
             {30, VOLTDRAGON,    {16, 20}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = RARE,
     },
 
     [SOLAR_INSTITUTE_3F] = {
@@ -322,6 +335,7 @@ const LOCATION LOCATION_DATA[] = {
             {50, VOLTDRAGON,    {18, 22}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = RARE,
     },
 
     [SOLAR_GENERATOR_ROOM] = {
@@ -334,6 +348,7 @@ const LOCATION LOCATION_DATA[] = {
             { 5, PRGMERROR,     {20, 20}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -353,6 +368,7 @@ const LOCATION LOCATION_DATA[] = {
             {30, GARPIKE,       {12, 18}},
             {20, TOOLFISH,      {14, 16}},
         },
+        .EncounterRate  = COMMON,
     },
 
     [NEW_LAND_CAVE] = {
@@ -369,6 +385,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, BUTCHERBIRD,   {28, 28}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -392,6 +409,7 @@ const LOCATION LOCATION_DATA[] = {
             {19, ACISTAR,       {22, 26}},
             { 1, ACISTAR,       {27, 32}},
         },
+        .EncounterRate  = COMMON,
     },
 
     [ANDORA_REST_STOP] = {
@@ -412,7 +430,7 @@ const LOCATION LOCATION_DATA[] = {
             { 9, ACISTAR,       {20, 24}},
             { 1, ICEBOULDER,    {22, 22}},
         },
-        .Fishing        = NULL,
+        .Fishing        = NULL,        .EncounterRate  = COMMON,
     },
 
     [FALLS_CAVE_B1F] = {
@@ -431,6 +449,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, GIGACLAM,      {36, 36}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -452,6 +471,7 @@ const LOCATION LOCATION_DATA[] = {
             {19, ACISTAR,       {22, 26}},
             { 1, NESSIE,        {32, 32}},
         },
+        .EncounterRate  = RARE,
     },
 
     [ANDORA_HOSPITAL] = {
@@ -481,6 +501,7 @@ const LOCATION LOCATION_DATA[] = {
             { 5, MEGATAR,       {28, 32}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [GRANITE_CAVE_B1F] = {
@@ -499,6 +520,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, GOLDDRAGON,    {40, 40}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -519,6 +541,7 @@ const LOCATION LOCATION_DATA[] = {
             {19, ACISTAR,       {27, 32}},
             { 1, CATFISH,       {29, 38}},
         },
+        .EncounterRate  = UNCOMMON,
     },
 
     [GRANITE_CITY_SUBURBS] = {
@@ -533,6 +556,7 @@ const LOCATION LOCATION_DATA[] = {
             {10, FOGFANG,       {26, 32}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = RARE,
     },
 
     [GRANITE_CITY_DOWNTOWN] = {
@@ -548,6 +572,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, SPACESNAKE,    {28, 36}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = RARE,
     },
 
     ////////////////////////////////////////////////////////
@@ -655,6 +680,7 @@ const LOCATION LOCATION_DATA[] = {
             {10, GASMOG,        {48, 54}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [GRANITE_TOWER_2F] = {
@@ -668,6 +694,7 @@ const LOCATION LOCATION_DATA[] = {
             {10, ASTEROID,      {58, 64}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [GRANITE_TOWER_3F] = {
@@ -680,6 +707,7 @@ const LOCATION LOCATION_DATA[] = {
             {30, ASTEROID,      {58, 64}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [GRANITE_TOWER_4F] = {
@@ -693,6 +721,7 @@ const LOCATION LOCATION_DATA[] = {
             {20, SPACESNAKE,    {58, 64}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [GRANITE_TOWER_5F] = {
@@ -705,6 +734,7 @@ const LOCATION LOCATION_DATA[] = {
             {50, SPACESNAKE,    {58, 64}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [GRANITE_TOWER_LAVATORY] = {
@@ -720,6 +750,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, PRGMERROR,     {70, 70}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     ////////////////////////////////////////////////////////
@@ -737,6 +768,7 @@ const LOCATION LOCATION_DATA[] = {
             {10, PHOENIX,       {32, 36}},
         },
         .Fishing        = NULL,
+        .EncounterRate  = COMMON,
     },
 
     [BOULDER_PARK] = {
@@ -763,6 +795,7 @@ const LOCATION LOCATION_DATA[] = {
             { 1, CATFISH,       {70, 80}},
             { 1, COALSHARK,     {54, 64}},
         },
+        .EncounterRate  = COMMON,
     },
 };
 

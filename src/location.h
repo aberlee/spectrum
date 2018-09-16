@@ -246,16 +246,28 @@ typedef struct {
 } SENSOR;
 
 /**********************************************************//**
+ * @enum RATE
+ * @brief Describes rates of encountering enemies.
+ **************************************************************/
+typedef enum {
+    NONE,
+    RARE,
+    UNCOMMON,
+    COMMON,
+} ENCOUNTER_RATE;
+
+/**********************************************************//**
  * @struct LOCATION
  * @brief Stores all information for a LOCATION.
  **************************************************************/
 typedef struct {
-    const char *Name;           ///< Name of the location.
-    MAP_ID Map;                 ///< Map to display for the location.
-    COORDINATE Bounds[2];       ///< Bounding box for the location.
-    BACKGROUND_ID Background;   ///< Battle background used.
-    ENCOUNTER *Encounters;      ///< Overworld SPECIES encounters.
-    ENCOUNTER *Fishing;         ///< Fishing SPECIES encounters.
+    const char *Name;               ///< Name of the location.
+    MAP_ID Map;                     ///< Map to display for the location.
+    COORDINATE Bounds[2];           ///< Bounding box for the location.
+    BACKGROUND_ID Background;       ///< Battle background used.
+    ENCOUNTER *Encounters;          ///< Overworld SPECIES encounters.
+    ENCOUNTER *Fishing;             ///< Fishing SPECIES encounters.
+    ENCOUNTER_RATE EncounterRate;   ///< Likelihood of finding enemies.
 } LOCATION;
 
 /**************************************************************/
