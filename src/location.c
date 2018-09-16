@@ -769,13 +769,13 @@ static bool RandomEncounter(void) {
         float rate = 0.0;
         switch (location->EncounterRate) {
         case RARE:
-            rate = 0.01;
-            break;
-        case UNCOMMON:
             rate = 0.05;
             break;
-        case COMMON:
+        case UNCOMMON:
             rate = 0.10;
+            break;
+        case COMMON:
+            rate = 0.20;
             break;
         default:
             rate = 0.0;
