@@ -622,14 +622,19 @@ static bool UseItem(ITEM_ID id, SPECTRA *spectra) {
     ItemUseInProgress = true;
     const ITEM *item = ItemByID(id);
     if (item->Effect == EFFECT_SPECIAL) {
-        if (!UseMapItem(id)) {
+        if (UseMapItem(id)) {
+            return true;
+        } else {
             Output("That can't be used right now!");
             return false;
-        } else {
-            return true;
         }
     } else {
-        return ApplyEffectInMenu(item->Effect, spectra, item->Argument);
+        if (ApplyEffectInMenu(item->Effect, spectra, item->Argument)) {
+            return true;
+        } else {
+            Output("There was no effect...");
+            return false;
+        }
     }
 }
 
@@ -714,6 +719,8 @@ void UpdateMainMenu(void) {
         UpdateOutput();
         if (OutputDone()) {
             ItemUseInProgress = false;
+            SpectraControl.State = CONTROL_CANCEL;
+            ItemControl.State = CONTROL_IDLE;
         }
         return;
     }
@@ -748,8 +755,6 @@ void UpdateMainMenu(void) {
                         const ITEM_ID id = Player->Inventory[ControlItem(&ItemControl)];
                         SPECTRA *spectra = &Player->Spectra[ControlItem(&SpectraControl)];
                         UseItem(id, spectra);
-                        SpectraControl.State = CONTROL_CANCEL;
-                        ItemControl.State = CONTROL_IDLE;
                     }
                     break;
                 case CONTROL_CANCEL:

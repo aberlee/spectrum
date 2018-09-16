@@ -165,13 +165,29 @@ typedef struct {
 
 /**************************************************************/
 extern const SPECIES *SpeciesByID(SPECIES_ID id);
-extern const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra);
 extern void UpdateActiveStats(SPECTRA *spectra);
 extern void Recover(SPECTRA *spectra);
-extern int Heal(SPECTRA *spectra, int amount);
 extern int ExperienceNeeded(const SPECTRA *spectra);
 extern int ExperienceTotal(const SPECTRA *spectra);
 extern void CreateSpectra(SPECTRA *spectra, SPECIES_ID species, int level);
+
+/**********************************************************//**
+ * @brief Gets the SPECIES data from a SPECTRA.
+ * @param spectra: Pointer to a SPECTRA.
+ * @return Pointer to species data.
+ **************************************************************/
+static inline const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra) {
+    return SpeciesByID(spectra->Species);
+}
+
+/**********************************************************//**
+ * @brief Gets the name of a SPECTRA.
+ * @param spectra: Pointer to a SPECTRA.
+ * @return The spectra's name.
+ **************************************************************/
+static inline const char *SpectraName(const SPECTRA *spectra) {
+    return SpeciesByID(spectra->Species)->Name;
+}
 
 /**************************************************************/
 #endif // _SPECIES_H_

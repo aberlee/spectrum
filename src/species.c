@@ -21,15 +21,6 @@ const SPECIES *SpeciesByID(SPECIES_ID id) {
 }
 
 /**********************************************************//**
- * @brief Gets the SPECIES data from a SPECTRA.
- * @param spectra: Pointer to a SPECTRA.
- * @return Pointer to species data.
- **************************************************************/
-const SPECIES *SpeciesOfSpectra(const SPECTRA *spectra) {
-    return &SPECIES_DATA[spectra->Species];
-}
-
-/**********************************************************//**
  * @brief Recomputes the SPECTRA stats.
  * @param spectra: Spectra to update.
  **************************************************************/
@@ -62,15 +53,6 @@ void Recover(SPECTRA *spectra) {
     spectra->Health = spectra->MaxHealth;
     spectra->Power = spectra->MaxPower;
     spectra->Ailment = 0;
-}
-
-int Heal(SPECTRA *spectra, int amount) {
-    int before = spectra->Health;
-    spectra->Health += amount;
-    if (spectra->Health > spectra->MaxHealth) {
-        spectra->Health = spectra->MaxHealth;
-    }
-    return spectra->Health - before;
 }
 
 /**********************************************************//**

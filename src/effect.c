@@ -105,29 +105,29 @@ static bool Afflict(BATTLER *battler, AILMENT_ID ailment) {
 }
 
 /**********************************************************//**
- * @brief Cures status ailments for the battler.
- * @param battler: Battler to cure.
+ * @brief Cures status ailments for the spectra.
+ * @param spectra: Spectra to cure.
  * @param id: Ailment to remove.
  * @return True if the ailment was removed successfully.
  **************************************************************/
-static bool CureInBattle(BATTLER *battler, AILMENT_ID id) {
-    if (battler->Spectra->Ailment == id) {
-        battler->Spectra->Ailment = 0;
+static bool Cure(SPECTRA *spectra, AILMENT_ID id) {
+    if (spectra->Ailment == id) {
+        spectra->Ailment = 0;
         switch (id) {
         case POISONED:
-            OutputF("%s is no longer poisoned!", BattlerName(battler));
+            OutputF("%s is no longer poisoned!", SpectraName(spectra));
             break;
         case SHOCKED:
-            OutputF("%s is no longer shocked!", BattlerName(battler));
+            OutputF("%s is no longer shocked!", SpectraName(spectra));
             break;
         case BURIED:
-            OutputF("%s was unburied!", BattlerName(battler));
+            OutputF("%s was unburied!", SpectraName(spectra));
             break;
         case ASLEEP:
-            OutputF("%s woke up!", BattlerName(battler));
+            OutputF("%s woke up!", SpectraName(spectra));
             break;
         case AFLAME:
-            OutputF("%s was extinguished!", BattlerName(battler));
+            OutputF("%s was extinguished!", SpectraName(spectra));
             break;
         default:
             break;
@@ -138,15 +138,20 @@ static bool CureInBattle(BATTLER *battler, AILMENT_ID id) {
 }
 
 /**********************************************************//**
- * @brief Restores an amount of health to a battler.
- * @param battler: Battler to heal.
+ * @brief Restores an amount of health to a spectra.
+ * @param battler: Spectra to heal.
  * @param amount: Maximum amount of health to heal.
- * @return True if the battler was healed.
+ * @return True if the spectra was healed.
  **************************************************************/
-static bool HealInBattle(BATTLER *battler, int amount) {
-    int delta = Heal(battler->Spectra, amount);
+static bool Heal(SPECTRA *spectra, int amount) {
+    int before = spectra->Health;
+    spectra->Health += amount;
+    if (spectra->Health > spectra->MaxHealth) {
+        spectra->Health = spectra->MaxHealth;
+    }
+    int delta = spectra->Health - before;
     if (delta) {
-        OutputF("%s healed by %d!", BattlerName(battler), delta);
+        OutputF("%s healed by %d!", SpectraName(spectra), delta);
         return true;
     }
     return false;
@@ -283,23 +288,23 @@ bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argum
     
     // Curing ailments
     case CURE_BURY:
-        return CureInBattle(target, BURIED);
+        return Cure(target->Spectra, BURIED);
     case CURE_AFLAME:
-        return CureInBattle(target, AFLAME);
+        return Cure(target->Spectra, AFLAME);
     case CURE_POISON:
-        return CureInBattle(target, POISONED);
+        return Cure(target->Spectra, POISONED);
     case CURE_SHOCK:
-        return CureInBattle(target, SHOCKED);
+        return Cure(target->Spectra, SHOCKED);
     case CURE_SLEEP:
-        return CureInBattle(target, ASLEEP);
+        return Cure(target->Spectra, ASLEEP);
     case CURE_ANY:
-        return CureInBattle(target, target->Spectra->Ailment);
+        return Cure(target->Spectra, target->Spectra->Ailment);
     
     // Healing
     case HEAL_CONSTANT:
-        return HealInBattle(target, argument);
+        return Heal(target->Spectra, argument);
     case HEAL_PERCENT:
-        return HealInBattle(target, target->Spectra->MaxHealth*argument/100);
+        return Heal(target->Spectra, target->Spectra->MaxHealth*argument/100);
     
     // Stat boosting
     case RESET_STATS:
@@ -334,7 +339,36 @@ bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argum
 }
 
 bool ApplyEffectInMenu(EFFECT_ID id, SPECTRA *target, int argument) {
-    return false;
+    switch (id) {
+    // Curing ailments
+    case CURE_BURY:
+        return Cure(target, BURIED);
+    case CURE_AFLAME:
+        return Cure(target, AFLAME);
+    case CURE_POISON:
+        return Cure(target, POISONED);
+    case CURE_SHOCK:
+        return Cure(target, SHOCKED);
+    case CURE_SLEEP:
+        return Cure(target, ASLEEP);
+    case CURE_ANY:
+        return Cure(target, target->Ailment);
+    // Healing
+    case HEAL_CONSTANT:
+        return Heal(target, argument);
+    case HEAL_PERCENT:
+        return Heal(target, target->MaxHealth*argument/100);
+
+    // Effects that are implemented elsewhere
+    case EFFECT_SPECIAL:
+        eprintf("Attempt to use a special effect in the menu: %d\n", id);
+        assert(false);
+        break;
+
+    // Other effects can't be used in battle
+    default:
+        return false;
+    }
 }
 
 /**************************************************************/
