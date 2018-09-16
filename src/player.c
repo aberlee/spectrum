@@ -70,6 +70,7 @@ void NewGame(void) {
     
     // Reset locations
     Warp(YOUR_HOUSE, 2, 3, DOWN);
+    SetMode(MODE_MAP);
 }
 
 /**********************************************************//**
@@ -100,6 +101,7 @@ bool LoadGame(void) {
         fclose(saveFile);
         if (nRead == 1) {
             InitializeLocation();
+            SetMode(MODE_MAP);
             return true;
         }
     }

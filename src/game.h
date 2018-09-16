@@ -57,5 +57,18 @@ extern bool KeyJustUp(KEY key);
 /**************************************************************/
 extern ALLEGRO_BITMAP *Screenshot(void);
 
+/**********************************************************//**
+ * @enum MODE_ID
+ * @brief Defines identifiers for each unique game mode.
+ **************************************************************/
+typedef enum {
+    MODE_BATTLE     = 1,
+    MODE_MAP        = 2,
+} MODE_ID;
+
+/**************************************************************/
+extern MODE_ID GetMode(void);
+extern void SetMode(MODE_ID mode);
+
 /**************************************************************/
 #endif // _GAME_H_

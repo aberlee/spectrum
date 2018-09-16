@@ -144,6 +144,26 @@ ALLEGRO_BITMAP *Screenshot(void) {
     return al_clone_bitmap(al_get_backbuffer(Display));
 }
 
+/**************************************************************/
+/// @brief Current game mode.
+static MODE_ID Mode;
+
+/**********************************************************//**
+ * @brief Gets the current game mode.
+ * @return The current game mode.
+ **************************************************************/
+extern MODE_ID GetMode(void) {
+    return Mode;
+}
+
+/**********************************************************//**
+ * @brief Sets the game mode.
+ * @param mode: Mode to transition to.
+ **************************************************************/
+extern void SetMode(MODE_ID mode) {
+    Mode = mode;
+}
+
 /**********************************************************//**
  * @brief Initializes the game before the main loop begins.
  **************************************************************/
@@ -206,8 +226,6 @@ static void Initialize(void) {
         Player->Inventory[2] = POTION;
         Player->Inventory[3] = TOUGH_HERB;
         Player->Inventory[4] = SERUM;
-        
-        InitializeRandomEncounter(3, ENCOUNTER_OVERWORLD);
     }
 }
 
@@ -215,14 +233,28 @@ static void Initialize(void) {
  * @brief Updates the screen on one frame.
  **************************************************************/
 static void Update(void) {
-    UpdateBattle();
+    switch (Mode) {
+    case MODE_BATTLE:
+        UpdateBattle();
+        break;
+    case MODE_MAP:
+        UpdateMap();
+        break;
+    }
 }
 
 /**********************************************************//**
  * @brief Renders the screen on one frame.
  **************************************************************/
 static void Draw(void) {
-    DrawBattle();
+    switch (Mode) {
+    case MODE_BATTLE:
+        DrawBattle();
+        break;
+    case MODE_MAP:
+        DrawMap();
+        break;
+    }
 }
 
 /**********************************************************//**
