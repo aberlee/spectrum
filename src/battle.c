@@ -31,6 +31,7 @@
  * @brief Controls how the battle is finished.
  **************************************************************/
 typedef enum {
+    BATTLE_STATE_INTRO,
     BATTLE_STATE_ACTIVE,
     BATTLE_STATE_WIN,
     BATTLE_STATE_LOSE,
@@ -38,7 +39,7 @@ typedef enum {
 } BATTLE_STATE;
 
 /// @brief The state of the current battle.
-static BATTLE_STATE BattleState = BATTLE_STATE_ACTIVE;
+static BATTLE_STATE BattleState;
 
 /**************************************************************/
 /// @brief Battlers in the player's team.
@@ -49,9 +50,6 @@ static TEAM EnemyTeam;
 
 /// @brief Buffer for enemy spectra.
 static SPECTRA EnemySpectra[TEAM_SIZE];
-
-/// @brief The type of encounter occurring.
-static ENCOUNTER_TYPE EncounterType;
 
 /**********************************************************//**
  * @enum TURN_STATE
@@ -225,9 +223,9 @@ static void InitializePlayerTeam(void) {
  * @param encounters: ENCOUNTER data from the map.
  **************************************************************/
 static void RandomEnemy(ENEMY *enemy, const ENCOUNTER *encounters) {
-    int chance = randint(0, 99);
+    int chance = randint(1, 100);
     const ENCOUNTER *encounter = NULL;
-    for (int i=0, total=0; chance<total; total+=encounters[i++].Chance) {
+    for (int i=0, total=0; total<chance; total+=encounters[i++].Chance) {
         encounter = &encounters[i];
     }
     if (encounter) {
@@ -303,6 +301,65 @@ static void InitializeRound(void) {
     ResetControl(&BattleMenu.Control);
 }
 
+static void IntroduceBattle(ENCOUNTER_TYPE type) {
+    BattleState = BATTLE_STATE_INTRO;
+    int count = 0;
+    const BATTLER *leader = NULL;
+    for (int i=0; i<TEAM_SIZE; i++) {
+        const BATTLER *battler = &EnemyTeam.Member[i];
+        if (BattlerIsActive(battler)) {
+            if (!leader) {
+                leader = battler;
+            }
+            count++;
+        }
+    }
+    
+    // Determine if the sentence should be "A [name]" or "An [name]"
+    const char *name = BattlerName(leader);
+    const char *an = NULL;
+    switch (name[0]) {
+    case 'A':
+    case 'E':
+    case 'I':
+    case 'O':
+    case 'U':
+    case 'Y':
+        an = "An";
+        break;
+    default:
+        an = "A";
+        break;
+    }
+    
+    // Determine how many enemies
+    const char *others = NULL;
+    switch (count) {
+    case 1:
+        others = "";
+        break;
+    case 2:
+        others = "and its cohort";
+        break;
+    default:
+        others = "and its cohorts";
+        break;
+    }
+    
+    // Determine how the enemy are appearing
+    const char *description = NULL;
+    switch (type) {
+    case ENCOUNTER_FISHING:
+        description = (count>1)? "were hooked": "was hooked";
+    default:
+        description = (count>1)? "draw near": "draws near";
+        break;
+    }
+    
+    // Finalize sentence
+    OutputF("%s %s %s %s!", an, name, others, description);
+}
+
 /**********************************************************//**
  * @brief Set up a new random encounter with spectra on the
  * overworld (normal or fishing).
@@ -334,9 +391,7 @@ void InitializeRandomEncounter(int count, ENCOUNTER_TYPE type) {
     }
     InitializeEnemyTeam(enemies);
     InitializePlayerTeam();
-    EncounterType = type;
-    BattleState = BATTLE_STATE_ACTIVE;
-    InitializeRound();
+    IntroduceBattle(type);
 }
 
 /**********************************************************//**
@@ -346,9 +401,7 @@ void InitializeRandomEncounter(int count, ENCOUNTER_TYPE type) {
 void InitializeBossEncounter(const BOSS *bosses) {
     InitializeEnemyTeam(bosses->Boss);
     InitializePlayerTeam();
-    EncounterType = ENCOUNTER_BOSS;
-    BattleState = BATTLE_STATE_ACTIVE;
-    InitializeRound();
+    IntroduceBattle(ENCOUNTER_BOSS);
 }
 
 /**********************************************************//**
@@ -815,7 +868,16 @@ static bool BattleExecutionDone(void) {
  **************************************************************/
 void UpdateBattle(void) {
     switch (BattleState) {
+    case BATTLE_STATE_INTRO:
+        // Happens once at the start of each battle
+        UpdateOutput();
+        if (OutputDone()) {
+            BattleState = BATTLE_STATE_ACTIVE;
+        }
+        break;
+
     case BATTLE_STATE_ACTIVE:
+        // Typical ongoing battle
         if (!BattleMenuDone()) {
             UpdateBattleMenu();
             // Get enemy turns
@@ -835,9 +897,9 @@ void UpdateBattle(void) {
     case BATTLE_STATE_LOSE:
     case BATTLE_STATE_ESCAPE:
         UpdateOutput();
-        break;
-    
-    default:
+        if (OutputDone()) {
+            SetMode(MODE_MAP);
+        }
         break;
     }
 }
@@ -886,7 +948,14 @@ static void DrawBattlers(void) {
         } else {
             image = SpeciesImage(speciesID);
         }
-        al_draw_bitmap(image, center->X-offset->X, center->Y-offset->Y, 0);
+        
+        // Flip enemies
+        if (id<TEAM_SIZE) {
+            al_draw_bitmap(image, center->X-offset->X, center->Y-offset->Y, 0);
+        } else {
+            int flipped = al_get_bitmap_width(image) - offset->X;
+            al_draw_bitmap(image, center->X-flipped, center->Y-offset->Y, ALLEGRO_FLIP_HORIZONTAL);
+        }
     }
 }
 
@@ -934,7 +1003,7 @@ void DrawBattle(void) {
     DrawHUDs();
     
     // Battle menu phase
-    if (!BattleMenuDone()) {
+    if (!BattleMenuDone() && BattleState==BATTLE_STATE_ACTIVE) {
         DrawBattleMenu();
     } else {
         DrawAt(0, 0);
