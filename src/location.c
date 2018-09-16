@@ -14,6 +14,7 @@
 
 #include <stdbool.h>            // bool
 
+#include "random.h"             // uniform, randint
 #include "location.h"           // MAP_ID, LOCATION
 #include "game.h"               // KEY
 #include "assets.h"             // MapImage, SensorImage
@@ -533,11 +534,12 @@ static void InteractUser(void) {
  * @brief Interacts with events on the map at the current
  * interaction position. These occur automatically, without
  * the user needing to do anything.
+ * @return True if interaction is happening.
  **************************************************************/
-static void InteractAutomatic(void) {
+static bool InteractAutomatic(void) {
     COORDINATE interact = InteractPosition();
     if (!TileInBounds(interact.X, interact.Y)) {
-        return;
+        return false;
     }
     
     // Get the tile properties that map to an event.
@@ -547,8 +549,10 @@ static void InteractAutomatic(void) {
         if (event->Type == EVENT_WARP) {
             const WARP *warp = &event->Union.Warp;
             Warp(warp->Location, warp->Destination.X, warp->Destination.Y, warp->Direction);
+            return true;
         }
     }
+    return false;
 }
 
 #ifdef DEBUG
@@ -756,103 +760,129 @@ static inline bool WorldPassableWithPadding(int x, int y) {
     WorldPassable(x+COLLISION_PADDING, y+COLLISION_PADDING);
 }
 
+static bool RandomEncounter(void) {
+    const LOCATION *location = Location(Player->Location);
+    if (!location->Encounters || !location->EncounterRate) {
+        return false;
+    } else {
+        // Get the encounter rate
+        float rate = 0.0;
+        switch (location->EncounterRate) {
+        case RARE:
+            rate = 0.01;
+            break;
+        case UNCOMMON:
+            rate = 0.05;
+            break;
+        case COMMON:
+            rate = 0.10;
+            break;
+        default:
+            rate = 0.0;
+            break;
+        }
+        
+        // Randomly generate encounter at "rate" per second
+        // of motion on the map.
+        return uniform(0.0,1.0) < rate*LastFrameTime();
+    }
+}
+
 /**********************************************************//**
  * @brief Parses the user's keyboard input to update the map
  * position and activate any events.
  **************************************************************/
 void UpdateMap(void) {
-    // Output processing pre-empts all
     if (!OutputDone()) {
+        // Output processing pre-empts all
         UpdateOutput();
-        return;
-    }
-    
-    // Warp processing
-    if (WarpInProgress()) {
-        return;
-    }
-    
-    // Main menu initialization
-    if (!MainMenuOpen && KeyJustUp(KEY_MENU)) {
+
+    } else if (WarpInProgress()) {
+        // Nothing to update while waiting for the warp
+        (void)0;
+
+    } else if (!MainMenuOpen && KeyJustUp(KEY_MENU)) {
+        // User opened the main menu
         MainMenuOpen = true;
         InitializeMainMenu();
-        return;
-    }
-    
-    // Main menu processing pre-empts map processing
-    if (MainMenuOpen) {
+
+    } else if (MainMenuOpen) {
+        // Main menu processing is ongoing
         UpdateMainMenu();
         if (MainMenuClosed()) {
             MainMenuOpen = false;
         }
-        return;
-    }
-    
-    // Interact processing pre-empts map processing
-    if (KeyJustUp(KEY_CONFIRM)) {
-        InteractUser();
-        return;
-    }
-    
-    // Key press reading
-    float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTime();
-    float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTime();
-    
-    // Set the player's direction if any motion is
-    // REQUESTED (not if it's possible).
-    // Prefer UP/DOWN on diagonal motion.
-    if (dy > 0) {
-        Player->Direction = DOWN;
-    } else if (dy < 0) {
-        Player->Direction = UP;
-    } else if (dx > 0) {
-        Player->Direction = RIGHT;
-    } else if (dx < 0) {
-        Player->Direction = LEFT;
-    }
-    
-    // Normalize diagonal motion
-    // Approximately sqrt(2)/2
-    if (dx && dy) {
-        dx *= 0.7;
-        dy *= 0.7;
-    }
 
-    // Collision checking
-    int x = Player->Position.X;
-    int y = Player->Position.Y;
-    int xf = Player->Position.X+dx;
-    int yf = Player->Position.Y+dy;
-    int dxv = dx? (dx>0)? 1: -1: 0;
-    int dyv = dy? (dy>0)? 1: -1: 0;
-    while (xf!=x && !WorldPassableWithPadding(xf, y)) {
-        xf -= dxv;
-    }
-    while (yf!=y && !WorldPassableWithPadding(x, yf)) {
-        yf -= dyv;
-    }
-    while (xf!=x && yf!=y && !WorldPassableWithPadding(xf, yf)) {
-        if (xf!=x) {
+    } else if (KeyJustUp(KEY_CONFIRM)) {
+        // User interacting with an overworld object
+        InteractUser();
+
+    } else {
+        // Normal map processing
+        float dx = (KeyDown(KEY_RIGHT)-KeyDown(KEY_LEFT))*WALK_SPEED*LastFrameTime();
+        float dy = (KeyDown(KEY_DOWN)-KeyDown(KEY_UP))*WALK_SPEED*LastFrameTime();
+        
+        // Set the player's direction if any motion is
+        // REQUESTED (not if it's possible).
+        // Prefer UP/DOWN on diagonal motion.
+        if (dy > 0) {
+            Player->Direction = DOWN;
+        } else if (dy < 0) {
+            Player->Direction = UP;
+        } else if (dx > 0) {
+            Player->Direction = RIGHT;
+        } else if (dx < 0) {
+            Player->Direction = LEFT;
+        }
+        
+        // Normalize diagonal motion
+        // Approximately sqrt(2)/2
+        if (dx && dy) {
+            dx *= 0.7;
+            dy *= 0.7;
+        }
+
+        // Collision checking
+        int x = Player->Position.X;
+        int y = Player->Position.Y;
+        int xf = Player->Position.X+dx;
+        int yf = Player->Position.Y+dy;
+        int dxv = dx? (dx>0)? 1: -1: 0;
+        int dyv = dy? (dy>0)? 1: -1: 0;
+        while (xf!=x && !WorldPassableWithPadding(xf, y)) {
             xf -= dxv;
         }
-        if (yf!=y) {
+        while (yf!=y && !WorldPassableWithPadding(x, yf)) {
             yf -= dyv;
         }
+        while (xf!=x && yf!=y && !WorldPassableWithPadding(xf, yf)) {
+            if (xf!=x) {
+                xf -= dxv;
+            }
+            if (yf!=y) {
+                yf -= dyv;
+            }
+        }
+        assert(WorldPassableWithPadding(xf, yf));
+        
+        // Update walk frame
+        if (x!=xf || y != yf) {
+            PlayerWalkFrame++;
+            Player->Position.X = xf;
+            Player->Position.Y = yf;
+        
+            // Maybe enter battle if no interaction is needed,
+            // and a random encounter is triggered.
+            if (!InteractAutomatic() && RandomEncounter()) {
+                InitializeRandomEncounter(randint(1, 3), ENCOUNTER_OVERWORLD);
+                SetMode(MODE_BATTLE);
+            } else {
+                UpdateOverworldLocation();
+            }
+        } else {
+            PlayerWalkFrame = 0;
+        }
     }
-    assert(WorldPassableWithPadding(xf, yf));
-    
-    // Update walk frame
-    if (x!=xf || y != yf) {
-        PlayerWalkFrame++;
-    } else {
-        PlayerWalkFrame = 0;
-    }
-    
-    // Update position
-    Player->Position.X = xf;
-    Player->Position.Y = yf;
-    UpdateOverworldLocation();
-    InteractAutomatic();
 }
 
 /**************************************************************/
