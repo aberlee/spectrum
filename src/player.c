@@ -48,6 +48,18 @@ bool GetItem(ITEM_ID id) {
     return false;
 }
 
+bool HasItem(ITEM_ID id) {
+    for (int i=0; i<INVENTORY_SIZE; i++) {
+        ITEM_ID current = PlayerData.Inventory[i];
+        if (current == id) {
+            return true;
+        } else if (!current) {
+            return false;
+        }
+    }
+    return false;
+}
+
 /**********************************************************//**
  * @brief Configures a new game, and removes old player data.
  * Be sure the user is OK with deleting data before calling

@@ -11,6 +11,7 @@
 #include "effect.h"         // EFFECT_ID
 #include "battler.h"        // BATTLER
 #include "output.h"         // Output
+#include "debug.h"          // eprintf, assert
 
 /**********************************************************//**
  * @enum STAT_ID
@@ -323,9 +324,17 @@ bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argum
     
     // Effects that are implemented elsewhere
     case EFFECT_SPECIAL:
+        eprintf("Attempt to use a special effect in battle: %d\n", id);
+        assert(false);
+        break;
+
     default:
         return false;
     }
+}
+
+bool ApplyEffectInMenu(EFFECT_ID id, SPECTRA *target, int argument) {
+    return false;
 }
 
 /**************************************************************/

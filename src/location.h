@@ -12,6 +12,7 @@
 #include "coordinate.h"         // COORDINATE, DIRECTION
 #include "species.h"            // SPECIES_ID
 #include "person.h"             // PERSON_ID
+#include "item.h"               // ITEM_ID
 
 /**********************************************************//**
  * @enum LOCATION_ID
@@ -274,6 +275,7 @@ typedef struct {
 extern const LOCATION *Location(LOCATION_ID id);
 extern void InitializeLocation(void);
 extern void Warp(LOCATION_ID id, int x, int y, DIRECTION direction);
+extern bool UseMapItem(ITEM_ID id);
 extern void DrawMap(void);
 extern void UpdateMap(void);
 

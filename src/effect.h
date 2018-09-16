@@ -17,6 +17,7 @@
 /**************************************************************/
 extern bool ShouldEffectActivate(EFFECT_ID id, int argument);
 extern bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argument);
+extern bool ApplyEffectInMenu(EFFECT_ID id, SPECTRA *target, int argument);
 
 /**************************************************************/
 #endif // _EFFECT_H_

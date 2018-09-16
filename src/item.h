@@ -62,17 +62,8 @@ typedef enum {
     MENU_ONLY       = 0x0002,
     BATTLE_ONLY     = 0x0004,
     ANYWHERE        = 0x0006,
-    IMPORTANT       = 0x0009,
-    SPECIAL         = 0x0010,
+    IMPORTANT       = 0x0008,
 } ITEM_FLAGS;
-
-typedef enum {
-    FISHING         = 1,
-} SPECIAL_ID;
-
-//typedef enum {
-//
-//} BATTLE_SPECIAL_HOOK;
 
 /**********************************************************//**
  * @struct ITEM
@@ -84,7 +75,6 @@ typedef struct {
     EFFECT_ID Effect;           ///< Battle effect.
     int Argument;               ///< Argument to the effect.
     ITEM_FLAGS Flags;           ///< Bitset of ITEM_FLAGS.
-    SPECIAL_ID SpecialEffect;   ///< Special effect ID flag.
     const char *Description;    ///< Text description of the item.
 } ITEM;
 

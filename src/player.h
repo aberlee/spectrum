@@ -77,6 +77,7 @@ extern PLAYER *const Player;
 
 /**************************************************************/
 extern bool GetItem(ITEM_ID id);
+extern bool HasItem(ITEM_ID id);
 
 /**************************************************************/
 extern void NewGame(void);

@@ -466,6 +466,59 @@ static inline COORDINATE InteractPosition(void) {
     return (COORDINATE){WorldToTile(x), WorldToTile(y)};
 }
 
+static inline bool FishingAvailable(void) {
+    COORDINATE interact = InteractPosition();
+    bool isWater = Tile(interact.X, interact.Y).Flags & TILE_WATER;
+    return isWater && HasItem(FISHING_ROD);
+}
+
+typedef enum {
+    FISHING_DONE,
+    FISHING_CAST,
+    FISHING_WAIT,
+    FISHING_REEL,
+} FISHING_PHASE;
+
+static FISHING_PHASE FishingPhase = FISHING_DONE;
+
+static void UpdateFishing(void) {
+    static int Persist = 1;
+    switch (FishingPhase) {
+    case FISHING_CAST:
+        OutputSplitByCR("...\r......\r..........\r");
+        FishingPhase = FISHING_WAIT;
+        break;
+    
+    case FISHING_WAIT:
+        UpdateOutput();
+        if (OutputDone()) {
+            float found = uniform(0.0, 1.0/Persist) < 0.1;
+            if (found) {
+                Persist = 1;
+                Output("Something's on the line!");
+                FishingPhase = FISHING_REEL;
+            } else {
+                Persist++;
+            }
+        }
+        break;
+    
+    case FISHING_REEL:
+        UpdateOutput();
+        if (OutputDone()) {
+            InitializeRandomEncounter(1, ENCOUNTER_FISHING);
+            SetMode(MODE_BATTLE);
+            FishingPhase = FISHING_DONE;
+        }
+        break;
+    
+    case FISHING_DONE:
+    default:
+        break;
+    }
+}
+
+
 /**********************************************************//**
  * @brief Applies any redirects to the event ID.
  * @param argument: Event ID to redirect.
@@ -526,6 +579,12 @@ static void InteractUser(void) {
         default:
             eprintf("Invalid event type: %d\n", event->Type);
             break;
+        }
+    } else if (tile->Flags & TILE_WATER) {
+        if (FishingAvailable()) {
+            FishingPhase = FISHING_CAST;
+        } else {
+            Output("The water is crystal clear...");
         }
     }
 }
@@ -793,7 +852,9 @@ static bool RandomEncounter(void) {
  * position and activate any events.
  **************************************************************/
 void UpdateMap(void) {
-    if (!OutputDone()) {
+    if (FishingPhase != FISHING_DONE) {
+        UpdateFishing();
+    } else if (!OutputDone()) {
         // Output processing pre-empts all
         UpdateOutput();
 
@@ -882,6 +943,21 @@ void UpdateMap(void) {
         } else {
             PlayerWalkFrame = 0;
         }
+    }
+}
+
+bool UseMapItem(ITEM_ID id) {
+    switch (id) {
+    case FISHING_ROD:
+        if (FishingAvailable()) {
+            FishingPhase = FISHING_CAST;
+            return true;
+        }
+        return false;
+    
+    default:
+        eprintf("Incorrectly using %d as a map item.\n", id);
+        return false;
     }
 }
 

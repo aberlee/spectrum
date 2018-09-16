@@ -578,6 +578,25 @@ static MENU MainMenu = {
     },
 };
 
+typedef enum {
+    ITEM_USE,
+    ITEM_MOVE,
+    ITEM_DROP,
+    ITEM_CANCEL,
+} ITEM_MENU_OPTION;
+
+static MENU ItemMenu = {
+    .Option = {
+        [ITEM_USE]      = "Use",
+        [ITEM_MOVE]     = "Move",
+        [ITEM_DROP]     = "Drop",
+        [ITEM_CANCEL]   = "Cancel",
+    },
+    .Control = {
+        .IndexMax       = 3,
+    },
+};
+
 /// @brief Wait data for when the main menu opens an overlay.
 static WAIT Overlay = WAIT_INITIALIZER(KEY_DENY);
 
@@ -596,6 +615,23 @@ static SAVE_PHASE SavePhase;
 
 /// @brief Whether the last save succeeded or failed.
 static bool SaveStatus = false;
+
+static bool ItemUseInProgress = false;
+
+static bool UseItem(ITEM_ID id, SPECTRA *spectra) {
+    ItemUseInProgress = true;
+    const ITEM *item = ItemByID(id);
+    if (item->Effect == EFFECT_SPECIAL) {
+        if (!UseMapItem(id)) {
+            Output("That can't be used right now!");
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        return ApplyEffectInMenu(item->Effect, spectra, item->Argument);
+    }
+}
 
 /**********************************************************//**
  * @brief Sets up the main menu when it's opened.
@@ -661,12 +697,27 @@ void DrawMainMenu(void) {
             break;
         }
     }
+    
+    // Items being used?
+    if (ItemUseInProgress) {
+        DrawAt(0, 0);
+        DrawOutput();
+    }
 }
 
 /**********************************************************//**
  * @brief Updates the main menu and any of its descendants.
  **************************************************************/
 void UpdateMainMenu(void) {
+    // If item use is ongoing, resolve that through first
+    if (ItemUseInProgress) {
+        UpdateOutput();
+        if (OutputDone()) {
+            ItemUseInProgress = false;
+        }
+        return;
+    }
+    
     switch (MainMenu.Control.State) {
     // Cases where a submenu is currently open:
     // Party, Items, Player, Info, and Save screens.
@@ -693,8 +744,13 @@ void UpdateMainMenu(void) {
             case CONTROL_CONFIRM:
                 // Select a spectra to use the item on
                 switch (SpectraControl.State) {
-                case CONTROL_CONFIRM:
-                    // Use the item
+                case CONTROL_CONFIRM: {
+                        const ITEM_ID id = Player->Inventory[ControlItem(&ItemControl)];
+                        SPECTRA *spectra = &Player->Spectra[ControlItem(&SpectraControl)];
+                        UseItem(id, spectra);
+                        SpectraControl.State = CONTROL_CANCEL;
+                        ItemControl.State = CONTROL_IDLE;
+                    }
                     break;
                 case CONTROL_CANCEL:
                     ItemControl.State = CONTROL_IDLE;
@@ -712,9 +768,16 @@ void UpdateMainMenu(void) {
                 // Initialize spectra choice submenu
                 if (ItemControl.State == CONTROL_CONFIRM) {
                     // Ensure the item can be used from the menu
-                    const ITEM *item = ItemByID(Player->Inventory[ControlItem(&ItemControl)]);
+                    const ITEM_ID id = Player->Inventory[ControlItem(&ItemControl)];
+                    const ITEM *item = ItemByID(id);
                     if (item->Flags & MENU_ONLY) {
-                        ResetControl(&SpectraControl);
+                        if (item->Effect == EFFECT_SPECIAL) {
+                            if (UseItem(id, NULL)) {
+                                MainMenu.Control.State = CONTROL_CANCEL;
+                            }
+                        } else {
+                            ResetControl(&SpectraControl);
+                        }
                     } else {
                         ItemControl.State = CONTROL_IDLE;
                     }
