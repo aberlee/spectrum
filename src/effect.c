@@ -321,10 +321,8 @@ bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argum
         SetFlag(target, BATTLER_DEFEND);
         return true;
     
-    // TODO implement these effects
-    case EFFECT_CAPTURE:
-    case EFFECT_ITEM:
-    case EFFECT_ESCAPE:
+    // Effects that are implemented elsewhere
+    case EFFECT_SPECIAL:
     default:
         return false;
     }

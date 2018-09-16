@@ -48,7 +48,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Power          = 0,
         .Cost           = 0,
         .Target         = YOURSELF,
-        .Effect         = EFFECT_ITEM,
+        .Effect         = EFFECT_SPECIAL,
         .Description    = "The user uses an item during battle.",
     },
     
@@ -58,7 +58,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Power          = 0,
         .Cost           = 0,
         .Target         = YOURSELF,
-        .Effect         = EFFECT_ESCAPE,
+        .Effect         = EFFECT_SPECIAL,
         .Description    = "The allies try to escape the battle.",
     },
     
@@ -68,7 +68,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Power          = 0,
         .Cost           = 8,
         .Target         = TARGET_ENEMY,
-        .Effect         = EFFECT_CAPTURE,
+        .Effect         = EFFECT_SPECIAL,
         .Description    = "Attempts to capture the target spectra. Success depends on remaining HP and the species.",
     },
     

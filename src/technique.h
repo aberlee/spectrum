@@ -165,10 +165,8 @@ typedef enum {
 
     // Special
     KILL_USER,                  ///< The user dies after attacking.
-    EFFECT_CAPTURE,             ///< Attempts to capture an enemy in battle.
     EFFECT_DEFEND,              ///< User is defending.
-    EFFECT_ITEM,                ///< User using item.
-    EFFECT_ESCAPE,              ///< Trying to escape battle.
+    EFFECT_SPECIAL,             ///< Special effects are implemented elsewhere.
 } EFFECT_ID;
 
 /**********************************************************//**
