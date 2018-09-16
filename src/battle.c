@@ -36,6 +36,7 @@ typedef enum {
     BATTLE_STATE_WIN,
     BATTLE_STATE_LOSE,
     BATTLE_STATE_ESCAPE,
+    BATTLE_STATE_NO_ESCAPE,
 } BATTLE_STATE;
 
 /// @brief The state of the current battle.
@@ -299,6 +300,7 @@ static void InitializeRound(void) {
     CurrentUser = FirstUser();
     CurrentTurn = NULL;
     ResetControl(&BattleMenu.Control);
+    BattleState = BATTLE_STATE_ACTIVE;
 }
 
 static void IntroduceBattle(ENCOUNTER_TYPE type) {
@@ -336,7 +338,7 @@ static void IntroduceBattle(ENCOUNTER_TYPE type) {
     const char *others = NULL;
     switch (count) {
     case 1:
-        others = "";
+        others = NULL;
         break;
     case 2:
         others = "and its cohort";
@@ -357,7 +359,11 @@ static void IntroduceBattle(ENCOUNTER_TYPE type) {
     }
     
     // Finalize sentence
-    OutputF("%s %s %s %s!", an, name, others, description);
+    if (others) {
+        OutputF("%s %s %s %s!", an, name, others, description);
+    } else {
+        OutputF("%s %s %s!", an, name, description);
+    }
 }
 
 /**********************************************************//**
@@ -483,6 +489,41 @@ static void LoadTargetMenu(TARGET_TYPE type) {
  **************************************************************/
 static inline bool BattleMenuDone(void) {
     return CurrentUser>=TEAM_SIZE || !PlayerTeam.Member[CurrentUser].Spectra;
+}
+
+static void EscapeBattle(void) {
+    // Get the escape chance
+    int ally = 0;
+    int enemy = 0;
+    for (int id=0; id<BATTLE_SIZE; id++) {
+        const BATTLER *battler = BattlerByID(id);
+        if (BattlerIsActive(battler) && IsAlive(battler)) {
+            if (id<TEAM_SIZE) {
+                ally += BattlerEvade(battler)+BattlerLuck(battler);
+            } else {
+                enemy += BattlerEvade(battler);
+            }
+        }
+    }
+    assert(ally && enemy);
+    float chance = (float)ally / (ally+enemy);
+    
+    // Maybe escape
+    Output("The party tries to escape...");
+    if (uniform(0.0, 1.0) < chance) {
+        Output("And succeeds!");
+        BattleState = BATTLE_STATE_ESCAPE;
+    } else {
+        Output("And fails...");
+        
+        // Fast-forward to enemy turn select, and invalidate all
+        // of the user's turns.
+        for (int id=0; id<TEAM_SIZE; id++) {
+            Turns[id].State = TURN_DONE;
+        }
+        CurrentUser = TEAM_SIZE;
+        BattleState = BATTLE_STATE_NO_ESCAPE;
+    }
 }
 
 /**********************************************************//**
@@ -611,7 +652,7 @@ static void UpdateBattleMenu(void) {
                 JumpToPreviousUser();
                 ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
             } else if (CurrentUser==FirstUser()) {
-                UpdateTargetMenu();
+                EscapeBattle();
             }
             break;
         }
@@ -717,8 +758,13 @@ static void ExecuteTurn(const TURN *turn) {
     // Perform the turn
     BATTLER *user = BattlerByID(turn->User);
     const TECHNIQUE *technique = TechniqueByID(turn->Technique);
+    bool allInvalid = true;
     for (int i=0; i<nTargets; i++) {
         BATTLER *target = BattlerByID(Targets[i]);
+        if (!BattlerIsActive(target) && !IsAlive(target)) {
+            continue;
+        }
+        allInvalid = false;
         
         // Inflict damage
         int damage = 0;
@@ -748,7 +794,7 @@ static void ExecuteTurn(const TURN *turn) {
         }
         
         // Apply effect if applicable
-        if (!(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
+        if (IsAlive(target) && !(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
             if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
                 ApplyEffectInBattle(technique->Effect, user, target, technique->Argument);
             } else if (!technique->Power) {
@@ -756,6 +802,11 @@ static void ExecuteTurn(const TURN *turn) {
                 OutputF("%s avoided the attack!", BattlerName(target));
             }
         }
+    }
+    
+    // All invalid targets?
+    if (allInvalid) {
+        Output("There was no target...");
     }
     
     // Perform effect if it activates after all targets are hit
@@ -872,7 +923,7 @@ void UpdateBattle(void) {
         // Happens once at the start of each battle
         UpdateOutput();
         if (OutputDone()) {
-            BattleState = BATTLE_STATE_ACTIVE;
+            InitializeRound();
         }
         break;
 
@@ -891,6 +942,13 @@ void UpdateBattle(void) {
             }
         }
        break;
+    
+    case BATTLE_STATE_NO_ESCAPE:
+        UpdateOutput();
+        if (OutputDone()) {
+            BattleState = BATTLE_STATE_ACTIVE;
+        }
+        break;
     
     // End conditions
     case BATTLE_STATE_WIN:
