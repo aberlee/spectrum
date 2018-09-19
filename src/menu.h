@@ -10,6 +10,8 @@
 #define _MENU_H_
 
 #include "game.h"               // KEY
+#include "species.h"            // SPECTRA
+#include "item.h"               // ITEM_ID
 
 /**********************************************************//**
  * @enum WINDOW_ID
@@ -158,15 +160,16 @@ extern void DrawHudUser(const SPECTRA *spectra);
 extern void DrawHudEnemy(const SPECTRA *spectra);
 extern void DrawSpectraDisplay(const SPECTRA *spectra);
 extern void DrawTechniqueDisplay(TECHNIQUE_ID id);
+extern void DrawItemDisplay(ITEM_ID id);
 extern void DrawOutput(void);
 extern void DrawPlayerDisplay(void);
 extern void DrawPopupBar(const char *text);
 
 /**************************************************************/
-extern void InitializeMainMenu(void);
-extern void DrawMainMenu(void);
-extern void UpdateMainMenu(void);
-extern bool MainMenuClosed(void);
+extern void DrawParty(void);
+extern void DrawItems(void);
+extern CONTROL *PartyControl(void);
+extern CONTROL *ItemsControl(void);
 
 /**************************************************************/
 #endif // _MENU_H_

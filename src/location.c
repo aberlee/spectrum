@@ -21,6 +21,7 @@
 #include "event.h"              // EVENT, Events
 #include "player.h"             // Player
 #include "output.h"             // Output
+#include "main_menu.h"          // MainMenu
 #include "debug.h"              // eprintf
 
 #include "location.i"           // LOCATION_DATA
