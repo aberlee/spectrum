@@ -49,7 +49,7 @@ bool GetItem(ITEM_ID id) {
 }
 
 bool HasItem(ITEM_ID id) {
-    for (int i=0; i<INVENTORY_SIZE; i++) {
+    for (int i=0; i<INVENTORY_SIZE && PlayerData.Inventory[i]; i++) {
         ITEM_ID current = PlayerData.Inventory[i];
         if (current == id) {
             return true;
@@ -58,6 +58,19 @@ bool HasItem(ITEM_ID id) {
         }
     }
     return false;
+}
+
+void DropItem(ITEM_ID id) {
+    for (int i=0; i<INVENTORY_SIZE && PlayerData.Inventory[i]; i++) {
+        ITEM_ID current = PlayerData.Inventory[i];
+        if (current == id) {
+            while (i<INVENTORY_SIZE) {
+                PlayerData.Inventory[i] = PlayerData.Inventory[i+1];
+                i++;
+            }
+            PlayerData.Inventory[INVENTORY_SIZE-1] = 0;
+        }
+    }
 }
 
 /**********************************************************//**
