@@ -301,6 +301,9 @@ static void InitializeRound(void) {
     CurrentTurn = NULL;
     ResetControl(&BattleMenu.Control);
     BattleState = BATTLE_STATE_ACTIVE;
+    for (int i=0; i<BATTLE_SIZE; i++) {
+        Turns[i].State = TURN_INACTIVE;
+    }
 }
 
 static void IntroduceBattle(ENCOUNTER_TYPE type) {
@@ -734,7 +737,7 @@ static void LoadEnemyTurns(void) {
             }
         } else {
             // Turn skipped
-            turn->State = TURN_DONE;
+            turn->State = TURN_INACTIVE;
         }
     }
 }
@@ -857,11 +860,16 @@ static void UpdateBattleExecution(void) {
         int maxPriority = 0;
         for (int id=0; id<BATTLE_SIZE; id++) {
             BATTLER *battler = BattlerByID(id);
-            if (Turns[id].State == TURN_PENDING && BattlerIsActive(battler) && IsAlive(battler)) {
-                int priority = BattlerEvade(BattlerByID(id));
-                if (priority > maxPriority || !CurrentTurn) {
-                    maxPriority = priority;
-                    CurrentTurn = &Turns[id];
+            if (Turns[id].State == TURN_PENDING) {
+                if (BattlerIsActive(battler) && IsAlive(battler)) {
+                    int priority = BattlerEvade(BattlerByID(id));
+                    if (priority > maxPriority || !CurrentTurn) {
+                        maxPriority = priority;
+                        CurrentTurn = &Turns[id];
+                    }
+                } else {
+                    // Inactivate turns for dead battlers
+                    Turns[id].State = TURN_INACTIVE;
                 }
             }
         }
@@ -907,8 +915,15 @@ static void UpdateBattleExecution(void) {
  **************************************************************/
 static bool BattleExecutionDone(void) {
     for (int i=0; i<BATTLE_SIZE; i++) {
-        if (Turns[i].State != TURN_DONE) {
+        switch (Turns[i].State) {
+        case TURN_PENDING:
+        case TURN_ACTIVE:
+        case TURN_RESULT:
             return false;
+        case TURN_INACTIVE:
+        case TURN_DONE:
+        default:
+            break;
         }
     }
     return true;
