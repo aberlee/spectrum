@@ -128,7 +128,7 @@ extern void UpdateControl(CONTROL *control);
  * @brief Contains text for displaying choices on a menu.
  **************************************************************/
 typedef struct {
-    const char *Option[16];
+    const char *Option[32];
     CONTROL Control;
 } MENU;
 

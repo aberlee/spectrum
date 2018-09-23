@@ -47,7 +47,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Type           = BASIC,
         .Power          = 0,
         .Cost           = 0,
-        .Target         = YOURSELF,
+        .Target         = ALLY,
         .Effect         = EFFECT_SPECIAL,
         .Description    = "The user uses an item during battle.",
     },
@@ -59,6 +59,7 @@ const TECHNIQUE TECHNIQUE_DATA[N_TECHNIQUES] = {
         .Cost           = 0,
         .Target         = YOURSELF,
         .Effect         = EFFECT_SPECIAL,
+        .Flags          = TECHNIQUE_EFFECT_ONCE,
         .Description    = "The allies try to escape the battle.",
     },
     

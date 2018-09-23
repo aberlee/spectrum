@@ -73,6 +73,7 @@ typedef struct {
     TURN_STATE State;
     int User;
     TECHNIQUE_ID Technique;
+    ITEM_ID Item;
     int Target;
 } TURN;
 
@@ -131,6 +132,35 @@ static MENU BattleMenu = {
     },
 };
 
+static int LockedItemIndices[TEAM_SIZE];
+
+static MENU ItemMenu;
+
+static void InitializeItems(void) {
+    int count = 0;
+    for (int i=0; i<INVENTORY_SIZE; i++) {
+        ITEM_ID id = Player->Inventory[i];
+        const ITEM *item = ItemByID(id);
+        ItemMenu.Option[i] = item->Name;
+        if (id) {
+            count = i;
+        }
+    }
+    
+    // Set up indices
+    ItemMenu.Control.Index = 0;
+    ItemMenu.Control.IndexMax = (count<6)? count: 6;
+    ItemMenu.Control.Scroll = 0;
+    ItemMenu.Control.ScrollMax = (count<6)? 0: count-6;
+    ItemMenu.Control.Jump = 5;
+    ItemMenu.Control.State = CONTROL_IDLE;
+    
+    // Unlock all items
+    for (int i=0; i<TEAM_SIZE; i++) {
+        LockedItemIndices[i] = -1;
+    }
+}
+
 /**************************************************************/
 /// @brief Used in battle menu code to denote whose turn
 /// is being inputted by the user.
@@ -138,7 +168,6 @@ static int CurrentUser = 0;
 
 /// @brief Turn being executed currently.
 static TURN *CurrentTurn = NULL;
-
 
 /// @brief Centered coordinates where battlers should be drawn.static const COORDINATE BattlerPosition[] = {
     // User's team
@@ -304,6 +333,7 @@ static void InitializeRound(void) {
     for (int i=0; i<BATTLE_SIZE; i++) {
         Turns[i].State = TURN_INACTIVE;
     }
+    InitializeItems();
 }
 
 static void IntroduceBattle(ENCOUNTER_TYPE type) {
@@ -557,7 +587,12 @@ static void DrawBattleMenu(void) {
             break;
         
         case BATTLE_ITEM:
-            // TODO
+            DrawAt(108, 275);
+            DrawOption(&ItemMenu);
+            if (ItemMenu.Control.State == CONTROL_CONFIRM) {
+                DrawAt(212, 275);
+                DrawOption(&TargetMenu);
+            }
             break;
         
         case BATTLE_CANCEL:
@@ -604,6 +639,16 @@ static void UpdateTargetMenu(void) {
     }
 }
 
+static inline bool SelectedItemLocked(void) {
+    int index = MenuItem(&ItemMenu);
+    for (int i=0; i<TEAM_SIZE; i++) {
+        if (LockedItemIndices[i]==index) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**********************************************************//**
  * @brief Updates the battle menu for the user to input turns.
  **************************************************************/
@@ -646,7 +691,28 @@ static void UpdateBattleMenu(void) {
             break;
         
         case BATTLE_ITEM:
-            // TODO
+            switch (ItemMenu.Control.State) {
+            case CONTROL_CONFIRM:
+                UpdateTargetMenu();
+                break;
+                
+            case CONTROL_CANCEL:
+                BattleMenu.Control.State = CONTROL_IDLE;
+                LockedItemIndices[CurrentUser] = -1;
+                break;
+
+            case CONTROL_IDLE:
+                UpdateMenu(&ItemMenu);
+                if (SelectedItemLocked()) {
+                    ItemMenu.Control.State = CONTROL_IDLE;
+                } else if (ItemMenu.Control.State == CONTROL_CONFIRM) {
+                    turn->Technique = DEFAULT_ITEM;
+                    turn->Item = Player->Inventory[MenuItem(&ItemMenu)];
+                    LockedItemIndices[CurrentUser] = MenuItem(&ItemMenu);
+                    LoadTargetMenu(ALLY);
+                }
+                break;
+            }
             break;
         
         case BATTLE_CANCEL:
@@ -679,7 +745,7 @@ static void UpdateBattleMenu(void) {
                 ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
                 break;
             case BATTLE_ITEM:
-                // TODO
+                ResetControl(&ItemMenu.Control);
                 break;
             case BATTLE_CANCEL:
                 if (CurrentUser==FirstUser()) {
@@ -798,7 +864,19 @@ static void ExecuteTurn(const TURN *turn) {
         
         // Apply effect if applicable
         if (IsAlive(target) && !(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
-            if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
+            // Use item
+            if (turn->Technique==DEFAULT_ITEM) {
+                const ITEM *item = ItemByID(turn->Item);
+                if (item->Flags&BATTLE_ONLY) {
+                    if (ApplyEffectInBattle(item->Effect, user, target, item->Argument)) {
+                        DropItem(turn->Item);
+                    } else {
+                        Output("There was no effect...");
+                    }
+                } else {
+                    Output("That's not useful right now!");
+                }
+            } else if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
                 ApplyEffectInBattle(technique->Effect, user, target, technique->Argument);
             } else if (!technique->Power) {
                 // Technique doesn't do damage, and effect missed.
@@ -882,8 +960,13 @@ static void UpdateBattleExecution(void) {
     switch (CurrentTurn->State) {
     case TURN_PENDING:
         CurrentTurn->State = TURN_ACTIVE;
-        const char *technique = TechniqueByID(CurrentTurn->Technique)->Name;
-        OutputF("%s used %s!", BattlerNameByID(CurrentTurn->User), technique);
+        if (CurrentTurn->Technique==DEFAULT_ITEM) {
+            const ITEM *item = ItemByID(CurrentTurn->Item);
+            OutputF("%s used %s!", BattlerNameByID(CurrentTurn->User), item->Name);
+        } else {
+            const TECHNIQUE *technique = TechniqueByID(CurrentTurn->Technique);
+            OutputF("%s used %s!", BattlerNameByID(CurrentTurn->User), technique->Name);
+        }
         break;
     
     case TURN_ACTIVE:
