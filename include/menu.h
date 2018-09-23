@@ -123,12 +123,15 @@ static inline void ResetControl(CONTROL *control) {
 /**************************************************************/
 extern void UpdateControl(CONTROL *control);
 
+/// @brief The most options a menu can have.
+#define MENU_MAX_OPTION 32
+
 /**********************************************************//**
  * @struct MENU
  * @brief Contains text for displaying choices on a menu.
  **************************************************************/
 typedef struct {
-    const char *Option[32];
+    const char *Option[MENU_MAX_OPTION];
     CONTROL Control;
 } MENU;
 
@@ -148,6 +151,41 @@ static inline void UpdateMenu(MENU *menu) {
 static inline int MenuItem(const MENU *menu) {
     return ControlItem(&menu->Control);
 }
+
+/**********************************************************//**
+ * @brief Reset a MENU to the initial state.
+ * @param menu: MENU to reset.
+ **************************************************************/
+static inline void ResetMenu(MENU *menu) {
+    ResetControl(&menu->Control);
+}
+
+static inline CONTROL_STATE MenuState(const MENU *menu) {
+    return menu->Control.State;
+}
+
+static inline bool MenuConfirmed(const MENU *menu) {
+    return MenuState(menu) == CONTROL_CONFIRM;
+}
+
+static inline bool MenuCancelled(const MENU *menu) {
+    return MenuState(menu) == CONTROL_CANCEL;
+}
+
+static inline bool MenuIdle(const MENU *menu) {
+    return MenuState(menu) == CONTROL_IDLE;
+}
+
+/**********************************************************//**
+ * @brief Reset a MENU to the initial state.
+ * @param menu: MENU to reset.
+ **************************************************************/
+static inline void ResetMenuToIdle(MENU *menu) {
+    menu->Control.State = CONTROL_IDLE;
+}
+
+/**************************************************************/
+extern void InitializeMenuScroll(MENU *menu, WINDOW_ID type);
 
 /**************************************************************/
 extern void DrawAt(int x, int y);

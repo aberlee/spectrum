@@ -575,4 +575,39 @@ void DrawItems(void) {
     DrawSelector(x, y, 104, 12);
 }
 
+/**********************************************************//**
+ * @brief Initializes the scrollable region for a menu.
+ * @param menu: Menu to initialize.
+ * @param type: Type of menu.
+ **************************************************************/
+void InitializeMenuScroll(MENU *menu, WINDOW_ID type) {
+    // Get the number of slots
+    int max = 0;
+    switch (type) {
+    case MENU_OPTION:
+        max = 6;
+        break;
+    case MENU_CHOICE:
+        max = 2;
+        break;
+    case MENU_COLUMN:
+        max = 8;
+        break;
+    default:
+        eprintf("No menu initialization for type %d\n", type);
+        return;
+    }
+    
+    // Determine how many items are in the menu
+    int count = 0;
+    for (int i=0; i<MENU_MAX_OPTION && menu->Option[i]; i++) {
+        count = i;
+    }
+    
+    // Set the scroll parameters
+    menu->Control.IndexMax = (count<max)? count-1: max-1;
+    menu->Control.ScrollMax = (count<max)? 0: count-max+1;
+    menu->Control.Jump = max;
+}
+
 /**************************************************************/

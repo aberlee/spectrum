@@ -19,29 +19,23 @@
 #include "player.h"             // Player
 #include "battler.h"            // BATTLER
 #include "battle.h"             // TEAM
+#include "battle_menu.h"        // BattleMenu
 #include "type.h"               // TYPE
 #include "output.h"             // Output
-
-/**************************************************************/
-/// @brief Number of battlers in the whole battle.
-#define BATTLE_SIZE (TEAM_SIZE+TEAM_SIZE)
 
 /**********************************************************//**
  * @enum BATTLE_STATE
  * @brief Controls how the battle is finished.
  **************************************************************/
 typedef enum {
-    BATTLE_STATE_INTRO,
-    BATTLE_STATE_ACTIVE,
-    BATTLE_STATE_WIN,
-    BATTLE_STATE_LOSE,
-    BATTLE_STATE_ESCAPE,
-    BATTLE_STATE_NO_ESCAPE,
-    BATTLE_STATE_EXIT,
+    BATTLE_STATE_INTRO,         ///< The battle is being introduced.
+    BATTLE_STATE_ACTIVE,        ///< Battle is ongoing.
+    BATTLE_STATE_WIN,           ///< The user won.
+    BATTLE_STATE_LOSE,          ///< The user lost.
+    BATTLE_STATE_ESCAPE,        ///< The user escaped.
+    BATTLE_STATE_NO_ESCAPE,     ///< The user failed to escape.
+    BATTLE_STATE_EXIT,          ///< The battle is just ending.
 } BATTLE_STATE;
-
-/// @brief The state of the current battle.
-static BATTLE_STATE BattleState;
 
 /**************************************************************/
 /// @brief Battlers in the player's team.
@@ -50,148 +44,26 @@ static TEAM PlayerTeam;
 /// @brief Battlers in the enemy team.
 static TEAM EnemyTeam;
 
-/// @brief Buffer for enemy spectra.
-static SPECTRA EnemySpectra[TEAM_SIZE];
-
+/// @brief Pointer to a battler that was successfully captured
+/// during this turn, or NULL.
 static BATTLER *Captured = NULL;
 
-/**********************************************************//**
- * @enum TURN_STATE
- * @brief Represents the state of each active turn.
- **************************************************************/
-typedef enum {
-    TURN_INACTIVE       = 0,
-    TURN_PENDING        = 1,
-    TURN_ACTIVE         = 2,
-    TURN_RESULT         = 3,
-    TURN_DONE           = 4,
-} TURN_STATE;
-
-/**********************************************************//**
- * @struct TURN
- * @brief Represents all information required to perform
- * one battler's turn.
- **************************************************************/
-typedef struct {
-    TURN_STATE State;
-    int User;
-    TECHNIQUE_ID Technique;
-    ITEM_ID Item;
-    int Target;
-} TURN;
+/// @brief The state of the current battle.
+static BATTLE_STATE BattleState;
 
 /// @brief Buffer for actions the battlers will take on this turn.
 static TURN Turns[BATTLE_SIZE];
 
-/**********************************************************//**
- * @struct PLAYER_MENU
- * @brief Temporary buffer for the menus needed for the
- * player's spectra.
- **************************************************************/
-typedef struct {
-    MENU TechniqueMenu;
-    MENU CostMenu;
-    char CostString[MOVESET_SIZE][4];
-} PLAYER_MENU;
-
-/// @brief Buffers the player's spectra's battle menus.
-static PLAYER_MENU PlayerMenu[TEAM_SIZE];
-
-/// @brief Temporary buffer for target menu.
-static MENU TargetMenu;
-
-/// @brief Temporary buffer for strings used on the TargetMenu.
-static char EnemyNames[TEAM_SIZE][21];
-
-/// @brief ID of each enemy on the TargetMenu.
-static int TargetID[BATTLE_SIZE];
-
-/**********************************************************//**
- * @enum BATTLE_MENU_OPTION
- * @brief Enumerates options in the battle menu.
- **************************************************************/
-typedef enum {
-    BATTLE_ATTACK,
-    BATTLE_DEFEND,
-    BATTLE_TECHNIQUE,
-    BATTLE_ITEM,
-    BATTLE_CANCEL,
-} BATTLE_MENU_OPTION;
-
-/// @brief Defines the battle menu and its control structure.
-static MENU BattleMenu = {
-    .Option = {
-        [BATTLE_ATTACK]         = "Attack",
-        [BATTLE_DEFEND]         = "Defend",
-        [BATTLE_TECHNIQUE]      = "Technique",
-        [BATTLE_ITEM]           = "Item",
-        // This item periodically changes between
-        // "Escape" and "Cancel" depending on whose
-        // turn it is.
-        [BATTLE_CANCEL]         = "Escape",
-    },
-    .Control = {
-        .IndexMax               = 4,
-    },
-};
-
-static int LockedItemIndices[TEAM_SIZE];
-
-static MENU ItemMenu;
-
-static void InitializeItems(void) {
-    int count = 0;
-    for (int i=0; i<INVENTORY_SIZE; i++) {
-        ITEM_ID id = Player->Inventory[i];
-        const ITEM *item = ItemByID(id);
-        ItemMenu.Option[i] = item->Name;
-        if (id) {
-            count = i;
-        }
-    }
-    
-    // Set up indices
-    ItemMenu.Control.Index = 0;
-    ItemMenu.Control.IndexMax = (count<6)? count: 6;
-    ItemMenu.Control.Scroll = 0;
-    ItemMenu.Control.ScrollMax = (count<6)? 0: count-6;
-    ItemMenu.Control.Jump = 5;
-    ItemMenu.Control.State = CONTROL_IDLE;
-    
-    // Unlock all items
-    for (int i=0; i<TEAM_SIZE; i++) {
-        LockedItemIndices[i] = -1;
-    }
-}
-
-/**************************************************************/
-/// @brief Used in battle menu code to denote whose turn
-/// is being inputted by the user.
-static int CurrentUser = 0;
-
 /// @brief Turn being executed currently.
 static TURN *CurrentTurn = NULL;
-
-/// @brief Centered coordinates where battlers should be drawn.
-static const COORDINATE BattlerPosition[] = {
-    // User's team
-    [0] = { 60, 260},
-    [1] = {110, 240},
-    [2] = {160, 220},
-    
-    // Enemy's team
-    [3] = {320, 220},
-    [4] = {370, 240},
-    [5] = {420, 260},
-};
 
 /**********************************************************//**
  * @brief Gets the team the BATTLER belongs to.
  * @param id: BATTLER's unique ID.
  * @return Pointer to the BATTLER's team.
  **************************************************************/
-static inline TEAM *TeamOf(int id) {
-    return (id<TEAM_SIZE)? &PlayerTeam: &EnemyTeam;
+static inline bool BattlerIsAlly(int id) {
+    return (id<TEAM_SIZE);
 }
 
 /**********************************************************//**
@@ -199,8 +71,8 @@ static inline TEAM *TeamOf(int id) {
  * @param id: Unique ID of the BATTLER.
  * @return Pointer to the BATTLER's data.
  **************************************************************/
-static inline BATTLER *BattlerByID(int id) {
-    if (id<TEAM_SIZE) {
+BATTLER *BattlerByID(int id) {
+    if (BattlerIsAlly(id)) {
         return &PlayerTeam.Member[id];
     } else {
         return &EnemyTeam.Member[id-TEAM_SIZE];
@@ -208,12 +80,12 @@ static inline BATTLER *BattlerByID(int id) {
 }
 
 /**********************************************************//**
- * @brief Shortcut to get the name of a battler for output.
- * @param id: ID of the battler.
- * @return The battler's name.
+ * @brief Gets the TURN data for a battler.
+ * @param id: Unique ID if the turn.
+ * @return Pointer to the TURN data.
  **************************************************************/
-static inline const char *BattlerNameByID(int id) {
-    return BattlerName(BattlerByID(id));
+TURN *TurnByID(int id) {
+    return &Turns[id];
 }
 
 /**********************************************************//**
@@ -223,29 +95,33 @@ static void InitializePlayerTeam(void) {
     for (int id=0; id<TEAM_SIZE; id++) {
         // Collect data that we'll use to set up the battler.
         SPECTRA *spectra = &Player->Spectra[id];
-        PLAYER_MENU *menu = &PlayerMenu[id];
         BATTLER *battler = &PlayerTeam.Member[id];
         
         // Initialize battler data
         if (spectra->Species) {
             InitializeBattler(battler, spectra);
-            
-            // Initialize menu data
-            int t;
-            for (t=0; spectra->Moveset[t]; t++) {
-                const TECHNIQUE *technique = TechniqueByID(spectra->Moveset[t]);
-                menu->TechniqueMenu.Option[t] = technique->Name;
-                snprintf(menu->CostString[t], 3, "%d", technique->Cost);
-                menu->CostMenu.Option[t] = menu->CostString[t];
-            }
-            ResetControl(&menu->TechniqueMenu.Control);
-            ResetControl(&menu->CostMenu.Control);
-            menu->TechniqueMenu.Control.IndexMax = t-1;
-            menu->TechniqueMenu.Control.ScrollMax = 0;
-            menu->CostMenu.Control.IndexMax = t-1;
-            menu->CostMenu.Control.ScrollMax = 0;
         } else {
             InitializeBattlerAsInactive(battler);
+        }
+    }
+}
+
+/**********************************************************//**
+ * @brief Set up the enemy's team.
+ * @param enemies: Basic ENEMY data to set up.
+ **************************************************************/
+static void InitializeEnemyTeam(const ENEMY *enemies) {
+    // Enemy team members will point into this static space when
+    // they are initialized.
+    static SPECTRA EnemySpectra[TEAM_SIZE];
+    for (int id=0; id<TEAM_SIZE; id++) {
+        BATTLER *enemy = &EnemyTeam.Member[id];
+        if (enemies[id].Species) {
+            CreateSpectra(&EnemySpectra[id], enemies[id].Species, enemies[id].Level);
+            InitializeBattler(enemy, &EnemySpectra[id]);
+        } else {
+            EnemySpectra[id].Species = 0;
+            InitializeBattlerAsInactive(enemy);
         }
     }
 }
@@ -274,72 +150,9 @@ static void RandomEnemy(ENEMY *enemy, const ENCOUNTER *encounters) {
 }
 
 /**********************************************************//**
- * @brief Set up the enemy's team.
- * @param enemies: Basic ENEMY data to set up.
+ * @brief Generates the output for the beginning of battle.
+ * @param type: The type of encounter happening.
  **************************************************************/
-static void InitializeEnemyTeam(const ENEMY *enemies) {
-    for (int id=0; id<TEAM_SIZE; id++) {
-        BATTLER *enemy = &EnemyTeam.Member[id];
-        if (enemies[id].Species) {
-            CreateSpectra(&EnemySpectra[id], enemies[id].Species, enemies[id].Level);
-            InitializeBattler(enemy, &EnemySpectra[id]);
-        } else {
-            EnemySpectra[id].Species = 0;
-            InitializeBattlerAsInactive(enemy);
-        }
-    }
-}
-
-static int FirstUser(void) {
-    int id = 0;
-    while (id<TEAM_SIZE) {
-        BATTLER *battler = BattlerByID(id);
-        if (!BattlerIsAlive(battler)) {
-            id++;
-        } else {
-            break;
-        }
-    }
-    return id;
-}
-
-static void JumpToNextUser(void) {
-    CurrentUser++;
-    while (CurrentUser<TEAM_SIZE) {
-        BATTLER *battler = BattlerByID(CurrentUser);
-        if (!BattlerIsAlive(battler)) {
-            CurrentUser++;
-        } else {
-            break;
-        }
-    }
-}
-static void JumpToPreviousUser(void) {
-    CurrentUser--;
-    while (CurrentUser>0) {
-        BATTLER *battler = BattlerByID(CurrentUser);
-        if (!BattlerIsAlive(battler)) {
-            CurrentUser--;
-        } else {
-            break;
-        }
-    }
-}
-
-/**********************************************************//**
- * @brief Initializes setup for the current round of battle.
- **************************************************************/
-static void InitializeRound(void) {
-    CurrentUser = FirstUser();
-    CurrentTurn = NULL;
-    ResetControl(&BattleMenu.Control);
-    BattleState = BATTLE_STATE_ACTIVE;
-    for (int i=0; i<BATTLE_SIZE; i++) {
-        Turns[i].State = TURN_INACTIVE;
-    }
-    InitializeItems();
-}
-
 static void IntroduceBattle(ENCOUNTER_TYPE type) {
     BattleState = BATTLE_STATE_INTRO;
     int count = 0;
@@ -404,6 +217,18 @@ static void IntroduceBattle(ENCOUNTER_TYPE type) {
 }
 
 /**********************************************************//**
+ * @brief Initializes setup for the current round of battle.
+ **************************************************************/
+static void InitializeRound(void) {
+    CurrentTurn = NULL;
+    BattleState = BATTLE_STATE_ACTIVE;
+    for (int i=0; i<BATTLE_SIZE; i++) {
+        Turns[i].State = TURN_INACTIVE;
+    }
+    InitializeBattleMenu();
+}
+
+/**********************************************************//**
  * @brief Set up a new random encounter with spectra on the
  * overworld (normal or fishing).
  * @param count: Number of enemies.
@@ -434,6 +259,7 @@ void InitializeRandomEncounter(int count, ENCOUNTER_TYPE type) {
     }
     InitializeEnemyTeam(enemies);
     InitializePlayerTeam();
+    InitializeRound();
     IntroduceBattle(type);
 }
 
@@ -444,6 +270,7 @@ void InitializeRandomEncounter(int count, ENCOUNTER_TYPE type) {
 void InitializeBossEncounter(const BOSS *bosses) {
     InitializeEnemyTeam(bosses->Boss);
     InitializePlayerTeam();
+    InitializeRound();
     IntroduceBattle(ENCOUNTER_BOSS);
 }
 
@@ -454,7 +281,7 @@ void InitializeBossEncounter(const BOSS *bosses) {
  * @param type: Targetting type
  * @return Number of targets loaded.
  **************************************************************/
-static int GetTargets(int *targets, int user, TARGET_TYPE type) {
+int GetTargets(int *targets, int user, TARGET_TYPE type) {
     int i = 0;
     for (int id=0; id<BATTLE_SIZE; id++) {
         const BATTLER *battler = BattlerByID(id);
@@ -464,10 +291,10 @@ static int GetTargets(int *targets, int user, TARGET_TYPE type) {
         } else if (type&TARGET_USER && id==user) {
             // Targetting yourself
             targets[i++] = id;
-        } else if (type&TARGET_ALLY && TeamOf(id)==TeamOf(user)) {
+        } else if (type&TARGET_ALLY && BattlerIsAlly(id)==BattlerIsAlly(user)) {
             // Targetting any ally
             targets[i++] = id;
-        } else if (type&TARGET_ENEMY && TeamOf(id)!=TeamOf(user)) {
+        } else if (type&TARGET_ENEMY && BattlerIsAlly(id)!=BattlerIsAlly(user)) {
             // Targetting any enemy
             targets[i++] = id;
         }
@@ -475,60 +302,7 @@ static int GetTargets(int *targets, int user, TARGET_TYPE type) {
     return i;
 }
 
-/**********************************************************//**
- * @brief Sets up the target menu for the current user.
- * @param type: What the range of the technique is.
- **************************************************************/
-static void LoadTargetMenu(TARGET_TYPE type) {
-    // Only one group ever, so no menu needed.
-    if (type&TARGET_GROUP) {
-        if (type&TARGET_ALLY&TARGET_ENEMY) {
-            TargetMenu.Option[0] = "Everyone";
-        } else if (type&TARGET_ALLY) {
-            TargetMenu.Option[0] = "Allies";
-        } else if (type&TARGET_ENEMY) {
-            TargetMenu.Option[0] = "Enemies";
-        }
-        TargetID[0] = -1;
-        TargetMenu.Control.IndexMax = 1;
-        TargetMenu.Control.ScrollMax = 0;
-        return;
-    }
-    
-    // Select targets
-    int nTargets = GetTargets(TargetID, CurrentUser, type);
-    int i;
-    for (i=0; i<nTargets; i++) {
-        int id = TargetID[i];
-        if (id==CurrentUser) {
-            TargetMenu.Option[i] = "Yourself";
-        } else if (TargetID[i]>=TEAM_SIZE && type&TARGET_ALLY) {
-            // Disambiguate enemies and users if necessary
-            snprintf(EnemyNames[id-TEAM_SIZE], 20, "Enemy %s", BattlerNameByID(id));
-            TargetMenu.Option[i] = EnemyNames[id-TEAM_SIZE];
-        } else {
-            TargetMenu.Option[i] = BattlerNameByID(id);
-        }
-    }
-    
-    // Reset
-    TargetMenu.Control.IndexMax = i-1;
-    while (i < 6) {
-        TargetMenu.Option[i++] = NULL;
-    }
-    ResetControl(&TargetMenu.Control);
-    TargetMenu.Control.ScrollMax = 0;
-}
-
-/**********************************************************//**
- * @brief Check if the user is done inputting turns.
- * @return True if the user is finished.
- **************************************************************/
-static inline bool BattleMenuDone(void) {
-    return CurrentUser>=TEAM_SIZE || !PlayerTeam.Member[CurrentUser].Spectra;
-}
-
-static void EscapeBattle(void) {
+bool EscapeBattle(void) {
     // Get the escape chance
     int ally = 0;
     int enemy = 0;
@@ -550,224 +324,11 @@ static void EscapeBattle(void) {
     if (uniform(0.0, 1.0) < chance) {
         Output("And succeeds!");
         BattleState = BATTLE_STATE_ESCAPE;
+        return true;
     } else {
         Output("And fails...");
-        
-        // Fast-forward to enemy turn select, and invalidate all
-        // of the user's turns.
-        for (int id=0; id<TEAM_SIZE; id++) {
-            Turns[id].State = TURN_DONE;
-        }
-        CurrentUser = TEAM_SIZE;
         BattleState = BATTLE_STATE_NO_ESCAPE;
-    }
-}
-
-/**********************************************************//**
- * @brief Draws the main battle menu system on the screen.
- **************************************************************/
-static void DrawBattleMenu(void) {
-    // Escape/Cancel display
-    BattleMenu.Option[BATTLE_CANCEL] = CurrentUser==FirstUser()? "Escape": "Cancel";
-    DrawAt(4, 275);
-    DrawOption(&BattleMenu);
-    if (BattleMenu.Control.State == CONTROL_CONFIRM) {
-        switch (MenuItem(&BattleMenu)) {
-        case BATTLE_ATTACK:
-        case BATTLE_DEFEND:
-            // Shortcut techniques...
-            DrawAt(108, 275);
-            DrawOption(&TargetMenu);
-            break;
-        
-        case BATTLE_TECHNIQUE:
-            // Technique menu is open
-            DrawAt(108, 249);
-            DrawColumn(&PlayerMenu[CurrentUser].TechniqueMenu, &PlayerMenu[CurrentUser].CostMenu);
-            if (PlayerMenu[CurrentUser].TechniqueMenu.Control.State == CONTROL_CONFIRM) {
-                DrawAt(254, 275);
-                DrawOption(&TargetMenu);
-            }
-            break;
-        
-        case BATTLE_ITEM:
-            DrawAt(108, 275);
-            DrawOption(&ItemMenu);
-            if (ItemMenu.Control.State == CONTROL_CONFIRM) {
-                DrawAt(212, 275);
-                DrawOption(&TargetMenu);
-            }
-            break;
-        
-        case BATTLE_CANCEL:
-            // Only if first user - escape
-            if (CurrentUser==FirstUser()) {
-                DrawAt(108, 275);
-                DrawOption(&TargetMenu);
-            }
-            break;
-        }
-    }
-}
-
-/**********************************************************//**
- * @brief Updates the targetting menu.
- **************************************************************/
-static void UpdateTargetMenu(void) {
-    TURN *turn = &Turns[CurrentUser];
-    switch (TargetMenu.Control.State) {
-    case CONTROL_CONFIRM:
-        // Confirm the entire turn
-        turn->Target = TargetID[MenuItem(&TargetMenu)];
-        turn->State = TURN_PENDING;
-        
-        // Maybe move to the next battler
-        JumpToNextUser();
-        if (!BattleMenuDone()) {
-            ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
-            ResetControl(&BattleMenu.Control);
-        }
-        break;
-
-    case CONTROL_CANCEL:
-        // Revert to the previous menu.
-        if (PlayerMenu[CurrentUser].TechniqueMenu.Control.State) {
-            PlayerMenu[CurrentUser].TechniqueMenu.Control.State = CONTROL_IDLE;
-        } else {
-            BattleMenu.Control.State = CONTROL_IDLE;
-        }
-        break;
-
-    case CONTROL_IDLE:
-        UpdateControl(&TargetMenu.Control);
-        break;
-    }
-}
-
-static inline bool SelectedItemLocked(void) {
-    int index = MenuItem(&ItemMenu);
-    for (int i=0; i<TEAM_SIZE; i++) {
-        if (LockedItemIndices[i]==index) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**********************************************************//**
- * @brief Updates the battle menu for the user to input turns.
- **************************************************************/
-static void UpdateBattleMenu(void) {
-    // Set up the current turn
-    TURN *turn = &Turns[CurrentUser];
-    turn->User = CurrentUser;
-    
-    // Update battle menu system
-    switch (BattleMenu.Control.State) {
-    case CONTROL_CONFIRM:
-        switch (MenuItem(&BattleMenu)) {
-        case BATTLE_ATTACK:
-            UpdateTargetMenu();
-            break;
-            
-        case BATTLE_DEFEND:
-            UpdateTargetMenu();
-            break;
-        
-        case BATTLE_TECHNIQUE:
-            // Technique menu is open
-            switch (PlayerMenu[CurrentUser].TechniqueMenu.Control.State) {
-            case CONTROL_CONFIRM:
-                UpdateTargetMenu();
-                break;
-            
-            case CONTROL_CANCEL:
-                BattleMenu.Control.State = CONTROL_IDLE;
-                break;
-            
-            case CONTROL_IDLE:
-                UpdateControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
-                if (PlayerMenu[CurrentUser].TechniqueMenu.Control.State == CONTROL_CONFIRM) {
-                    turn->Technique = BattlerByID(CurrentUser)->Spectra->Moveset[MenuItem(&PlayerMenu[CurrentUser].TechniqueMenu)];
-                    LoadTargetMenu(TechniqueByID(turn->Technique)->Target);
-                }
-                break;
-            }
-            break;
-        
-        case BATTLE_ITEM:
-            switch (ItemMenu.Control.State) {
-            case CONTROL_CONFIRM:
-                UpdateTargetMenu();
-                break;
-                
-            case CONTROL_CANCEL:
-                BattleMenu.Control.State = CONTROL_IDLE;
-                LockedItemIndices[CurrentUser] = -1;
-                break;
-
-            case CONTROL_IDLE:
-                UpdateMenu(&ItemMenu);
-                if (SelectedItemLocked()) {
-                    ItemMenu.Control.State = CONTROL_IDLE;
-                } else if (ItemMenu.Control.State == CONTROL_CONFIRM) {
-                    turn->Technique = DEFAULT_ITEM;
-                    turn->Item = Player->Inventory[MenuItem(&ItemMenu)];
-                    LockedItemIndices[CurrentUser] = MenuItem(&ItemMenu);
-                    LoadTargetMenu(ALLY);
-                }
-                break;
-            }
-            break;
-        
-        case BATTLE_CANCEL:
-            // Go back to the previous user, or try to escape the battle.
-            if (CurrentUser > FirstUser()) {
-                JumpToPreviousUser();
-                ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
-            } else if (CurrentUser==FirstUser()) {
-                EscapeBattle();
-            }
-            break;
-        }
-        break;
-    
-    case CONTROL_IDLE:
-        // Using battle control menu...
-        UpdateControl(&BattleMenu.Control);
-        if (BattleMenu.Control.State == CONTROL_CONFIRM) {
-            // Initialize submenu
-            switch (MenuItem(&BattleMenu)) {
-            case BATTLE_ATTACK:
-                turn->Technique = DEFAULT_ATTACK,
-                LoadTargetMenu(TechniqueByID(turn->Technique)->Target);
-                break;
-            case BATTLE_DEFEND:
-                turn->Technique = DEFAULT_DEFEND,
-                LoadTargetMenu(TechniqueByID(turn->Technique)->Target);
-                break;
-            case BATTLE_TECHNIQUE:
-                ResetControl(&PlayerMenu[CurrentUser].TechniqueMenu.Control);
-                break;
-            case BATTLE_ITEM:
-                ResetControl(&ItemMenu.Control);
-                break;
-            case BATTLE_CANCEL:
-                if (CurrentUser==FirstUser()) {
-                    turn->Technique = DEFAULT_ESCAPE,
-                    LoadTargetMenu(TechniqueByID(turn->Technique)->Target);
-                }
-                break;
-            }
-        }
-        break;
-    
-    case CONTROL_CANCEL:
-        if (CurrentUser > FirstUser()) {
-            JumpToPreviousUser();
-        }
-        ResetControl(&BattleMenu.Control);        
-        break;
+        return false;
     }
 }
 
@@ -991,7 +552,7 @@ static void MaybeUpdateBattleState(void) {
     for (int id=0; id<BATTLE_SIZE; id++) {
         BATTLER *battler = BattlerByID(id);
         if(BattlerIsAlive(battler)) {
-            if (TeamOf(id)==&PlayerTeam) {
+            if (BattlerIsAlly(id)) {
                 lose = false;
             } else {
                 win = false;
@@ -1307,13 +868,20 @@ void UpdateBattle(void) {
  * @brief Draws each battler's sprite on the screen.
  **************************************************************/
 static void DrawBattlers(void) {
-    // Temp target?
-    int target = -1;
-    if (TargetMenu.Control.State == CONTROL_IDLE) {
-        target = TargetID[MenuItem(&TargetMenu)];
-    }
-
+    static const COORDINATE BattlerPosition[] = {
+        // User's team
+        [0] = { 60, 260},
+        [1] = {110, 240},
+        [2] = {160, 220},
+        
+        // Enemy's team
+        [3] = {320, 220},
+        [4] = {370, 240},
+        [5] = {420, 260},
+    };
+    
     // Draw drop shadows
+    int target = BattleMenuCurrentTargetID();
     for (int id=0; id<BATTLE_SIZE; id++) {
         const COORDINATE *center = &BattlerPosition[id];
         if (!BattlerIsActive(BattlerByID(id))) {
@@ -1323,9 +891,9 @@ static void DrawBattlers(void) {
         // Different colors for seletion
         ALLEGRO_COLOR color = al_map_rgba(0, 0, 0, 60);
         if (!BattleMenuDone()) {
-            if (id == CurrentUser && id < TEAM_SIZE) {
+            if (id==BattleMenuCurrentUserID() && BattlerIsAlly(id)) {
                 color = al_map_rgba(0, 127, 255, 200);
-            } else if (id == target) {
+            } else if (id==target) {
                 color = al_map_rgba(255, 20, 0, 200);
             }
         }
@@ -1374,9 +942,10 @@ static void DrawHUDs(void) {
         DrawHudUser(PlayerTeam.Member[id].Spectra);
         // Hud tag
         if (!BattleMenuDone()) {
-            if (id==CurrentUser) {
+            int current = BattleMenuCurrentUserID();
+            if (id==current) {
                 al_draw_bitmap(MiscImage(HUD_UP), 200, 5, 0);
-            } else if (id<CurrentUser) {
+            } else if (id<current) {
                 al_draw_bitmap(MiscImage(HUD_OK), 200, 5, 0);
             }
         }
