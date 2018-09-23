@@ -37,6 +37,21 @@ static inline void DrawText(const char *text, int x, int y) {
         ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
         text);
 }
+/**********************************************************//**
+ * @brief Draws right-aligned text on the screen.
+ * @param text: String to draw.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ **************************************************************/
+static inline void DrawTextRight(const char *text, int x, int y) {
+    al_draw_text(
+        Font(FONT_WINDOW),
+        al_map_rgb(0, 0, 0),
+        x,
+        y-3,
+        ALLEGRO_ALIGN_RIGHT|ALLEGRO_ALIGN_INTEGER,
+        text);
+}
 
 /**********************************************************//**
  * @brief Calls DrawText with printf-style formatting.
@@ -49,6 +64,18 @@ static inline void DrawText(const char *text, int x, int y) {
     char buf[256];\
     snprintf(buf, 255, format, __VA_ARGS__);\
     DrawText(buf, x, y);\
+}
+/**********************************************************//**
+ * @brief Calls DrawText with printf-style formatting.
+ * @param x: X position to draw at.
+ * @param y : Y position to draw at.
+ * @param format: printf-style format string.
+ * @param ...: printf-style arguments.
+ **************************************************************/
+#define DrawTextRightF(x, y, format, ...) {\
+    char buf[256];\
+    snprintf(buf, 255, format, __VA_ARGS__);\
+    DrawTextRight(buf, x, y);\
 }
 
 /**********************************************************//**
@@ -443,19 +470,11 @@ void DrawPlayerDisplay(void) {
     
     // Time formatting
     int time = Player->PlayTime + UnaccountedPlayTime();
-    char timeString[10];
     const char *format = time%2? "%d:%02d": "%d %02d";
-    snprintf(timeString, 9, format, time/3600, time/60%60);
-    al_draw_text(
-        Font(FONT_WINDOW),
-        al_map_rgb(0, 0, 0),
-        141,
-        72-3,
-        ALLEGRO_ALIGN_RIGHT|ALLEGRO_ALIGN_INTEGER,
-        timeString);
+    DrawTextRightF(141, 72, format, time/3600, time/60%60);
     
     // Money
-    DrawNumber(141, 85, Player->Money);
+    DrawTextRightF(141, 85, "$%.2f", (double)Player->Money);
     
     // Sprite pane
     ALLEGRO_BITMAP *sprite = CostumeImage(Player->Costume);
