@@ -996,10 +996,12 @@ static void DrawBattlers(void) {
         
         // Different colors for seletion
         ALLEGRO_COLOR color = al_map_rgba(0, 0, 0, 60);
-        if (id == CurrentUser && id < TEAM_SIZE) {
-            color = al_map_rgba(0, 127, 255, 200);
-        } else if (id == target) {
-            color = al_map_rgba(255, 20, 0, 200);
+        if (!BattleMenuDone()) {
+            if (id == CurrentUser && id < TEAM_SIZE) {
+                color = al_map_rgba(0, 127, 255, 200);
+            } else if (id == target) {
+                color = al_map_rgba(255, 20, 0, 200);
+            }
         }
         al_draw_filled_ellipse(center->X, center->Y, 40, 10, color);
     }
@@ -1044,10 +1046,12 @@ static void DrawHUDs(void) {
         DrawAt(4, y);
         DrawHudUser(PlayerTeam.Member[id].Spectra);
         // Hud tag
-        if (id==CurrentUser) {
-            al_draw_bitmap(MiscImage(HUD_UP), 200, 5, 0);
-        } else if (id<CurrentUser) {
-            al_draw_bitmap(MiscImage(HUD_OK), 200, 5, 0);
+        if (!BattleMenuDone()) {
+            if (id==CurrentUser) {
+                al_draw_bitmap(MiscImage(HUD_UP), 200, 5, 0);
+            } else if (id<CurrentUser) {
+                al_draw_bitmap(MiscImage(HUD_OK), 200, 5, 0);
+            }
         }
         y += 29;
     }
