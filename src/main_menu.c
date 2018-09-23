@@ -119,6 +119,9 @@ static bool UseItem(ITEM_ID id, SPECTRA *spectra) {
         }
     } else {
         if (ApplyEffectInMenu(item->Effect, spectra, item->Argument)) {
+            if (!(item->Flags&REUSABLE)) {
+                DropItem(id);
+            }
             return true;
         } else {
             Output("There was no effect...");
@@ -127,16 +130,24 @@ static bool UseItem(ITEM_ID id, SPECTRA *spectra) {
     }
 }
 
+static inline void InitializePartyMenu(void) {
+    for (int i=0; i<PARTY_SIZE && Player->Spectra[i].Species; i++) {
+        PartyControl()->IndexMax = i;
+    }
+}
+
+static inline void InitializeItemsMenu(void) {
+    for (int i=0; i<INVENTORY_SIZE && Player->Inventory[i]; i++) {
+        ItemsControl()->IndexMax = i;
+    }
+}
+
 /**********************************************************//**
  * @brief Sets up the main menu when it's opened.
  **************************************************************/
 void InitializeMainMenu(void) {
-    for (int i=0; i<PARTY_SIZE && Player->Spectra[i].Species; i++) {
-        PartyControl()->IndexMax = i;
-    }
-    for (int i=0; i<INVENTORY_SIZE && Player->Inventory[i]; i++) {
-        ItemsControl()->IndexMax = i;
-    }
+    InitializePartyMenu();
+    InitializeItemsMenu();
     ResetControl(&MainMenu.Control);
 }
 
@@ -230,6 +241,7 @@ static void UpdateItemSubmenuUse(void) {
     switch (PartyControl()->State) {
     case CONTROL_CONFIRM:
         UseItem(SelectedItemID(), SelectedSpectra());
+        InitializeItemsMenu();
         break;
         
     case CONTROL_IDLE:
@@ -247,8 +259,8 @@ static void UpdateItemSubmenuDrop(void) {
     case CONTROL_CONFIRM:
         if (MenuItem(&YesNo) == 0) {
             DropItem(SelectedItemID());
-            ItemsControl()->IndexMax--;
         }
+        InitializeItemsMenu();
         ItemsControl()->State = CONTROL_IDLE;
         break;
     
