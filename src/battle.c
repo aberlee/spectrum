@@ -842,7 +842,7 @@ static void ExecuteTurn(const TURN *turn) {
     
     case ASLEEP:
         OutputF("%s is fast asleep...", BattlerName(user));
-        break;
+        return;
     
     default:
         break;
