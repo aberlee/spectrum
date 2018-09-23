@@ -11,7 +11,7 @@
 #include <stddef.h>             // NULL
 #include <stdbool.h>            // bool
 
-#include "species.h"            // SPECTRA
+#include "species.h"            // SPECIES, SPECTRA
 
 /**************************************************************/
 /// @brief Defines the maximum number of levels a stat can be
@@ -49,6 +49,14 @@ typedef struct {
 static inline bool BattlerIsActive(const BATTLER *battler) {
     return battler->Spectra != NULL;
 }
+/**********************************************************//**
+ * @brief Determines if the battler is active and alive.
+ * @param battler: The battler to check.
+ * @return True if the battler is alive.
+ **************************************************************/
+static inline bool BattlerIsAlive(const BATTLER *battler) {
+    return battler->Spectra && battler->Spectra->Health > 0;
+}
 
 /**********************************************************//**
  * @brief Gets the species of the BATTLER.
@@ -68,8 +76,19 @@ static inline const char *BattlerName(const BATTLER *battler) {
     return BattlerSpecies(battler)->Name;
 }
 
-/**************************************************************/
-extern void InitializeBattler(BATTLER *battler, SPECTRA *spectra);
+/**********************************************************//**
+ * @brief Set up a BATTLER for a SPECTRA.
+ * @param battler: BATTLER to set up.
+ * @param spectra: SPECTRA that's joining the battle.
+ **************************************************************/
+static inline void InitializeBattler(BATTLER *battler, SPECTRA *spectra) {
+    battler->Spectra = spectra;
+    battler->Flags = 0;
+    battler->AttackBoost = 0;
+    battler->DefendBoost = 0;
+    battler->EvadeBoost = 0;
+    battler->LuckBoost = 0;
+}
 
 /**********************************************************//**
  * @brief Initializes a BATTLER struct to an inactive state,
@@ -78,15 +97,6 @@ extern void InitializeBattler(BATTLER *battler, SPECTRA *spectra);
  **************************************************************/
 static inline void InitializeBattlerAsInactive(BATTLER *battler) {
     InitializeBattler(battler, NULL);
-}
-
-/**********************************************************//**
- * @brief Determines if the battler is active and alive.
- * @param battler: The battler to check.
- * @return True if the battler is alive.
- **************************************************************/
-static inline bool BattlerIsAlive(const BATTLER *battler) {
-    return battler->Spectra && battler->Spectra->Health > 0;
 }
 
 /**********************************************************//**
