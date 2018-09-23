@@ -892,6 +892,13 @@ static void ExecuteTurn(const TURN *turn) {
         break;
     }
     
+    // Spend P
+    if (BattlerPower(user) >= technique->Cost) {
+        user->Spectra->Power -= technique->Cost;
+    } else {
+        OutputF("%s is out of power!", BattlerName(user));
+    }
+    
     // Perform the turn
     bool allInvalid = true;
     for (int i=0; i<nTargets; i++) {
