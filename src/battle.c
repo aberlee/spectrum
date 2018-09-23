@@ -824,9 +824,31 @@ static void ExecuteTurn(const TURN *turn) {
         nTargets = 1;
     }
     
-    // Perform the turn
+    // Maybe fail if there are status conditions
     BATTLER *user = BattlerByID(turn->User);
     const TECHNIQUE *technique = TechniqueByID(turn->Technique);
+    switch (user->Spectra->Ailment) {
+    case SHOCKED:
+        if (uniform(0.0,1.0)<0.5) {
+            OutputF("%s can't move...", BattlerName(user));
+            return;
+        }
+        break;
+    
+    case BURIED:
+        OutputF("%s is buried in the ground...", BattlerName(user));
+        user->Spectra->Ailment = 0;
+        return;
+    
+    case ASLEEP:
+        OutputF("%s is fast asleep...", BattlerName(user));
+        break;
+    
+    default:
+        break;
+    }
+    
+    // Perform the turn
     bool allInvalid = true;
     for (int i=0; i<nTargets; i++) {
         BATTLER *target = BattlerByID(Targets[i]);
@@ -927,6 +949,15 @@ static void MaybeUpdateBattleState(void) {
     }
 }
 
+static inline int Priority(const BATTLER *battler) {
+    int evade = BattlerEvade(battler);
+    if (battler->Spectra->Ailment==SHOCKED) {
+        return evade/2;
+    } else {
+        return evade;
+    }
+}
+
 /**********************************************************//**
  * @brief Updates a step of the battle system during each
  * frame of rendering.
@@ -940,7 +971,7 @@ static void UpdateBattleExecution(void) {
             BATTLER *battler = BattlerByID(id);
             if (Turns[id].State == TURN_PENDING) {
                 if (BattlerIsActive(battler) && IsAlive(battler)) {
-                    int priority = BattlerEvade(BattlerByID(id));
+                    int priority = Priority(BattlerByID(id));
                     if (priority > maxPriority || !CurrentTurn) {
                         maxPriority = priority;
                         CurrentTurn = &Turns[id];
@@ -1012,6 +1043,62 @@ static bool BattleExecutionDone(void) {
     return true;
 }
 
+static void ApplyEndOfRoundEffects(void) {
+    for (int id=0; id<BATTLE_SIZE; id++) {
+        BATTLER *battler = BattlerByID(id);
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+            continue;
+        }
+        
+        // Unset the battler's flags.
+        battler->Flags = 0;
+        
+        // Apply status ailments
+        int damage;
+        switch (battler->Spectra->Ailment) {
+        case ASLEEP:
+            if (uniform(00.0,1.0)<0.5) {
+                OutputF("%s woke up!", BattlerName(battler));
+                battler->Spectra->Ailment =0;
+            }
+            break;
+        
+        case POISONED:
+            damage = 1 + BattlerMaxHealth(battler)/8;
+            battler->Spectra->Health -= damage;
+            if (battler->Spectra->Health < 0) {
+                battler->Spectra->Health = 0;
+            }
+            OutputF("%s took %d damage from poison!", BattlerName(battler), damage);
+            if (!IsAlive(battler)) {
+                OutputF("%s passed out!", BattlerName(battler));
+            }
+            break;  
+            
+        case AFLAME:
+            damage = 1 + BattlerMaxHealth(battler)/8;
+            battler->Spectra->Health -= damage;
+            if (battler->Spectra->Health < 0) {
+                battler->Spectra->Health = 0;
+            }
+            OutputF("%s took %d damage from fire!", BattlerName(battler), damage);
+            if (!IsAlive(battler)) {
+                OutputF("%s passed out!", BattlerName(battler));
+            }
+            break;
+            
+        default:
+            break;
+        }
+        
+        // Check win and lose conditions
+        MaybeUpdateBattleState();
+        if (BattleState!=BATTLE_STATE_ACTIVE) {
+            return;
+        }
+    }
+}
+
 /**********************************************************//**
  * @brief Updates one step of the battle system.
  **************************************************************/
@@ -1036,6 +1123,14 @@ void UpdateBattle(void) {
         } else if (!BattleExecutionDone()) {
             UpdateBattleExecution();
             if (BattleExecutionDone()) {
+                ApplyEndOfRoundEffects();
+                if (OutputDone()) {
+                    InitializeRound();
+                }
+            }
+        } else if (!OutputDone()) {
+            UpdateOutput();
+            if (OutputDone()) {
                 InitializeRound();
             }
         }
