@@ -37,6 +37,7 @@ typedef enum {
     BATTLE_STATE_LOSE,
     BATTLE_STATE_ESCAPE,
     BATTLE_STATE_NO_ESCAPE,
+    BATTLE_STATE_EXIT,
 } BATTLE_STATE;
 
 /// @brief The state of the current battle.
@@ -912,13 +913,12 @@ static void ExecuteTurn(const TURN *turn) {
         int damage = 0;
         if (technique->Power) {
             float ratio = (float)BattlerAttack(user)/BattlerDefend(target);
-            float scale = (float)user->Spectra->Level/LEVEL_MAX;
             const TYPE_ID *targetType = SpeciesByID(target->Spectra->Species)->Type;
             float matchup = TypeMatchup(technique->Type, targetType[0]);
             if (targetType[1]) {
                 matchup *= TypeMatchup(technique->Type, targetType[1]);
             }
-            damage = 1 + technique->Power*ratio*scale*matchup;
+            damage = 1 + technique->Power*ratio*matchup;
             target->Spectra->Health -= damage;
             if (target->Spectra->Health < 0) {
                 target->Spectra->Health = 0;
@@ -995,8 +995,6 @@ static void MaybeUpdateBattleState(void) {
                 } else {
                     win = false;
                 }
-            } else {
-                InitializeBattlerAsInactive(battler);
             }
         }
     }
@@ -1165,6 +1163,76 @@ static void ApplyEndOfRoundEffects(void) {
     }
 }
 
+void GainExperience(SPECTRA *spectra, int experience) {
+    if (spectra->Level < LEVEL_MAX && experience>0) {
+        // Health gain initialization
+        int health = spectra->MaxHealth;
+        int power = spectra->MaxPower;
+        
+        // Manage level-up
+        const SPECIES *species = SpeciesOfSpectra(spectra);
+        OutputF("%s gained %d experience!", species->Name, experience);
+        spectra->Experience -= experience;
+        int gained = 0;
+        while (spectra->Experience <= 0 && spectra->Level < LEVEL_MAX) {
+            gained++;
+            spectra->Level++;
+            spectra->Experience += ExperienceNeeded(spectra);
+        }
+        
+        // Gained any levels?
+        if (gained > 0) {
+            if (spectra->Level == LEVEL_MAX) {
+                spectra->Experience = 0;
+            }
+            
+            // Output level gains.
+            if (gained == 1) {
+                OutputF("%s's level went up!\n", species->Name);
+            } else if (gained > 1) {
+                OutputF("%s's level went up by %d!\n", species->Name, gained);
+            }
+            
+            // Health gain
+            UpdateActiveStats(spectra);
+            spectra->Health += (spectra->MaxHealth - health);
+            spectra->Power += (spectra->MaxPower - power);
+        }
+    }
+}
+
+void ApplyWinEffects(void) {
+    int experience = 0;
+    int money = 0;
+    for (int id=TEAM_SIZE; id<BATTLE_SIZE; id++) {
+        BATTLER *battler = BattlerByID(id);
+        if (!BattlerIsActive(battler)) {
+            continue;
+        }
+        
+        // Gain exp from this battler
+        experience += BattlerSpecies(battler)->Experience*battler->Spectra->Level/5;
+        money += BattlerSpecies(battler)->Money*battler->Spectra->Level/5;
+    }
+    
+    // Each user gains experience
+    for (int id=0; id<TEAM_SIZE; id++) {
+        BATTLER *battler = BattlerByID(id);
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+            continue;
+        }
+        
+        // This user's spectra gains the experience
+        GainExperience(battler->Spectra, experience);
+    }
+    
+    // You gain money
+    if (money) {
+        OutputF("Gained $%.2f", (double)money);
+        Player->Money += money;
+    }
+}
+
 /**********************************************************//**
  * @brief Updates one step of the battle system.
  **************************************************************/
@@ -1211,8 +1279,22 @@ void UpdateBattle(void) {
     
     // End conditions
     case BATTLE_STATE_WIN:
+        UpdateOutput();
+        if (OutputDone()) {
+            ApplyWinEffects();
+            BattleState = BATTLE_STATE_EXIT;
+        }
+        break;
+    
     case BATTLE_STATE_LOSE:
     case BATTLE_STATE_ESCAPE:
+        UpdateOutput();
+        if (OutputDone()) {
+            BattleState = BATTLE_STATE_EXIT;
+        }
+        break;
+    
+    case BATTLE_STATE_EXIT:
         UpdateOutput();
         if (OutputDone()) {
             SetMode(MODE_MAP);
@@ -1254,7 +1336,8 @@ static void DrawBattlers(void) {
     static const int Order[] = {3, 2, 4, 1, 5, 0};
     for (int i=0; i<6; i++) {
         int id = Order[i];
-        if (!BattlerIsActive(BattlerByID(id))) {
+        BATTLER *battler = BattlerByID(id);
+        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
             continue;
         }
         SPECIES_ID speciesID = BattlerByID(id)->Spectra->Species;
