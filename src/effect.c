@@ -338,6 +338,13 @@ bool ApplyEffectInBattle(EFFECT_ID id, BATTLER *user, BATTLER *target, int argum
     }
 }
 
+/**********************************************************//**
+ * @brief Applies an effect in the menu system (from an item).
+ * @param id: Effect to apply.
+ * @param target: Target of the effect.
+ * @param argument: Argument to the effect.
+ * @return Whether the effect did anything.
+ **************************************************************/
 bool ApplyEffectInMenu(EFFECT_ID id, SPECTRA *target, int argument) {
     switch (id) {
     // Curing ailments

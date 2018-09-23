@@ -81,7 +81,7 @@ extern bool HasItem(ITEM_ID id);
 extern void DropItem(ITEM_ID id);
 
 /**************************************************************/
-extern bool Capture(const SPECTRA *spectra);
+extern bool GetSpectra(const SPECTRA *spectra);
 
 /**************************************************************/
 extern void NewGame(void);

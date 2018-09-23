@@ -302,6 +302,10 @@ int GetTargets(int *targets, int user, TARGET_TYPE type) {
     return i;
 }
 
+/**********************************************************//**
+ * @brief Attempt to escape the battle.
+ * @return True if the battle was escaped.
+ **************************************************************/
 bool EscapeBattle(void) {
     // Get the escape chance
     int ally = 0;
@@ -374,6 +378,11 @@ static void LoadEnemyTurns(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Attempts to capture the target.
+ * @param battler: Target to capture.
+ * @return True if the target was captured.
+ **************************************************************/
 static bool ExecuteCapture(BATTLER *battler) {
     // Determine if capture succeeds
     int rate = BattlerSpecies(battler)->CatchRate;
@@ -397,7 +406,7 @@ static bool ExecuteCapture(BATTLER *battler) {
     int test = randint(0, 99);
     int threshold = rate + (100-rate)*(1-percent)*(1-percent);
     if (test < threshold) {
-        if (Capture(battler->Spectra)) {
+        if (GetSpectra(battler->Spectra)) {
             Output("The capture succeeded!");
             Captured = battler;
             return true;
@@ -440,16 +449,13 @@ static void ExecuteTurn(const TURN *turn) {
             return;
         }
         break;
-    
     case BURIED:
         OutputF("%s is buried in the ground...", BattlerName(user));
         user->Spectra->Ailment = 0;
         return;
-    
     case ASLEEP:
         OutputF("%s is fast asleep...", BattlerName(user));
         return;
-    
     default:
         break;
     }
@@ -545,6 +551,9 @@ static void ExecuteTurn(const TURN *turn) {
     }
 }
 
+/**********************************************************//**
+ * @brief Check if the battle shound end.
+ **************************************************************/
 static void MaybeUpdateBattleState(void) {
     // Clean up any dead battlers
     bool win = true;
@@ -570,6 +579,11 @@ static void MaybeUpdateBattleState(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Gets the turn priority for a battler.
+ * @param battler: Battler to check.
+ * @return Priority
+ **************************************************************/
 static inline int Priority(const BATTLER *battler) {
     int evade = BattlerEvade(battler);
     if (battler->Spectra->Ailment==SHOCKED) {
@@ -668,6 +682,9 @@ static bool BattleExecutionDone(void) {
     return true;
 }
 
+/**********************************************************//**
+ * @brief Apply effects to battlers at the end of each round.
+ **************************************************************/
 static void ApplyEndOfRoundEffects(void) {
     for (int id=0; id<BATTLE_SIZE; id++) {
         BATTLER *battler = BattlerByID(id);
@@ -724,7 +741,12 @@ static void ApplyEndOfRoundEffects(void) {
     }
 }
 
-void GainExperience(SPECTRA *spectra, int experience) {
+/**********************************************************//**
+ * @brief Give experience to a spectra.
+ * @param spectra: Spectra to gain experience.
+ * @param experience: Amount of experience.
+ **************************************************************/
+static void GainExperience(SPECTRA *spectra, int experience) {
     if (spectra->Level < LEVEL_MAX && experience>0) {
         // Health gain initialization
         int health = spectra->MaxHealth;
@@ -762,6 +784,9 @@ void GainExperience(SPECTRA *spectra, int experience) {
     }
 }
 
+/**********************************************************//**
+ * @brief Apply effects that happen when the user wins.
+ **************************************************************/
 void ApplyWinEffects(void) {
     int experience = 0;
     int money = 0;

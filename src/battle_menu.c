@@ -128,10 +128,20 @@ bool BattleMenuDone(void) {
     return CurrentUser>=TEAM_SIZE || !BattlerIsAlive(BattlerByID(CurrentUser));
 }
 
+/**********************************************************//**
+ * @brief Gets the ID of the current user being processed for
+ * turns using the turn menu.
+ * @return User ID.
+ **************************************************************/
 int BattleMenuCurrentUserID(void) {
     return CurrentUser;
 }
 
+/**********************************************************//**
+ * @brief Gets the current user being targetted on the
+ * targetting menu.
+ * @return User ID or -1 if invalid.
+ **************************************************************/
 int BattleMenuCurrentTargetID(void) {
     if (!BattleMenuDone() && MenuIdle(&TargetMenu)) {
         int index = MenuItem(&TargetMenu);
@@ -338,25 +348,46 @@ static inline bool SelectedItemLocked(void) {
     return false;
 }
 
+/**********************************************************//**
+ * @brief Get the current technique ID selected on the
+ * technique menu.
+ * @return Technique ID.
+ **************************************************************/
 static inline TECHNIQUE_ID SelectedTechniqueID(void) {
     int index = MenuItem(&PlayerMenu[CurrentUser].TechniqueMenu);
     return BattlerByID(CurrentUser)->Spectra->Moveset[index];
 }
 
+/**********************************************************//**
+ * @brief Get the current technique  selected on the
+ * technique menu.
+ * @return TECHNIQUE pointer
+ **************************************************************/
 static inline const TECHNIQUE *SelectedTechnique(void) {
     TECHNIQUE_ID id = SelectedTechniqueID();
     return TechniqueByID(id);
 }
 
+/**********************************************************//**
+ * @brief Get the current item ID selected on the items menu.
+ * @return ITEM ID.
+ **************************************************************/
 static inline ITEM_ID SelectedItemID(void) {
     int index = MenuItem(&ItemMenu);
     return Player->Inventory[index];
 }
 
+/**********************************************************//**
+ * @brief Gets the current turn being processed.
+ * @return TURN pointer
+ **************************************************************/
 static inline TURN *CurrentTurn(void) {
     return TurnByID(CurrentUser);
 }
 
+/**********************************************************//**
+ * @brief Updates the technique selection menu.
+ **************************************************************/
 static void UpdateTechniqueMenu(void) {
     switch (MenuState(&PlayerMenu[CurrentUser].TechniqueMenu)) {
     case CONTROL_CONFIRM:
@@ -377,6 +408,9 @@ static void UpdateTechniqueMenu(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Updates the items selection menu.
+ **************************************************************/
 static void UpdateItemsMenu(void) {
     TURN *turn = CurrentTurn();
     switch (ItemMenu.Control.State) {
@@ -405,6 +439,10 @@ static void UpdateItemsMenu(void) {
     }
 }
 
+/**********************************************************//**
+ * @brief Initialize a submenu once the user confirms the
+ * root battle menu.
+ **************************************************************/
 void UpdateBattleMenuOnConfirm(void) {
     TURN *turn = CurrentTurn();
     switch (MenuItem(&BattleMenu)) {

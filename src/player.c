@@ -49,6 +49,11 @@ bool GetItem(ITEM_ID id) {
     return false;
 }
 
+/**********************************************************//**
+ * @brief Determine if the player posesses an item.
+ * @param id: The item tp check.
+ * @return True if the player has the item.
+ **************************************************************/
 bool HasItem(ITEM_ID id) {
     for (int i=0; i<INVENTORY_SIZE && PlayerData.Inventory[i]; i++) {
         ITEM_ID current = PlayerData.Inventory[i];
@@ -61,6 +66,10 @@ bool HasItem(ITEM_ID id) {
     return false;
 }
 
+/**********************************************************//**
+ * @brief The player loses the item provided.
+ * @param id: Item to use.
+ **************************************************************/
 void DropItem(ITEM_ID id) {
     for (int i=0; i<INVENTORY_SIZE && PlayerData.Inventory[i]; i++) {
         ITEM_ID current = PlayerData.Inventory[i];
@@ -74,7 +83,12 @@ void DropItem(ITEM_ID id) {
     }
 }
 
-bool Capture(const SPECTRA *spectra) {
+/**********************************************************//**
+ * @brief Attempts to add a spectra to the player's party.
+ * @param spectra: Spectra to capture.
+ * @return True if the spectra was added.
+ **************************************************************/
+bool GetSpectra(const SPECTRA *spectra) {
     // Try to find a slot for the spectra
     for (int i=0; i<PARTY_SIZE; i++) {
         if (!PlayerData.Spectra[i].Species) {

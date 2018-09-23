@@ -78,6 +78,12 @@ int ExperienceNeeded(const SPECTRA *spectra) {
     return 1 + rate*levelSquared/100;
 }
 
+/**********************************************************//**
+ * @brief Determines the total amount of experience the
+ * given spectra has earned at any level.
+ * @param spectra: Spectra to check.
+ * @return Total experience.
+ **************************************************************/
 int ExperienceTotal(const SPECTRA *spectra) {
     int levelCubed = spectra->Level*spectra->Level*spectra->Level;
     const SPECIES *species = SpeciesOfSpectra(spectra);
@@ -99,3 +105,5 @@ void CreateSpectra(SPECTRA *spectra, SPECIES_ID species, int level) {
     UpdateActiveStats(spectra);
     Recover(spectra);
 }
+
+/**************************************************************/
