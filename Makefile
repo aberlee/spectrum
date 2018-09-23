@@ -15,13 +15,13 @@ CFLAGS += -DVERBOSE -DDEBUG
 ######### Source code setup #########
 # Directory for all project files.
 SRC_DIR := src
-INCLUDE += -I$(SRC_DIR)
+INCLUDE_DIR := include
+INCLUDE += -I$(INCLUDE_DIR)
 
 # Source files
 CFILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c)
-HFILES := $(wildcard $(SRC_DIR)/*.h) $(wildcard $(SRC_DIR)/**/*.h)
-IFILES := $(wildcard $(SRC_DIR)/*.i) $(wildcard $(SRC_DIR)/**/*.i)
-SRC_SUB_DIRS := $(sort $(filter-out $(SRC_DIR)/,$(dir $(CFILES) $(HFILES) $(IFILES))))
+HFILES := $(wildcard $(INCLUDE_DIR)/*.h) $(wildcard $(INCLUDE_DIR)/**/*.h)
+IFILES := $(wildcard $(INCLUDE_DIR)/*.i) $(wildcard $(INCLUDE_DIR)/**/*.i)
 
 # Important files
 MAKEFILE := Makefile
@@ -38,7 +38,6 @@ LFLAGS += -lallegro_image -lallegro_color -lallegro_primitives  -lallegro_main
 # Get the names of all object files
 # and dependency files.
 BUILD_DIR := build
-BUILD_SUB_DIRS := $(SRC_SUB_DIRS:$(SRC_DIR)/%=$(BUILD_DIR)/%)
 OFILES := $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 DFILES := $(OFILES:%.o=%.d)
 EXECUTABLE := spectrum.exe
@@ -49,7 +48,7 @@ default: $(BUILD_DIR) $(EXECUTABLE)
 
 # Put all the .o files in the build directory
 $(BUILD_DIR):
-	@mkdir $(BUILD_DIR) $(BUILD_SUB_DIRS)
+	@mkdir $(BUILD_DIR)
 
 # Compile the source files
 .SECONDARY: $(DFILES)
