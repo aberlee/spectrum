@@ -21,6 +21,7 @@ typedef enum {
     DEFAULT_DEFEND  = 82,
     DEFAULT_ITEM    = 83,
     DEFAULT_ESCAPE  = 84,
+    CAPTURE         = 72,
     
     // Basic techniques
     BITE            =  1,
@@ -46,7 +47,6 @@ typedef enum {
     MIND_RAY        = 56,
     BRAINWAVE       = 57,
     HYPNOSIS        = 59,
-    CAPTURE         = 72,
     AILMENT         = 73,
 
     // Wind techniques

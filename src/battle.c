@@ -52,6 +52,8 @@ static TEAM EnemyTeam;
 /// @brief Buffer for enemy spectra.
 static SPECTRA EnemySpectra[TEAM_SIZE];
 
+static BATTLER *Captured = NULL;
+
 /**********************************************************//**
  * @enum TURN_STATE
  * @brief Represents the state of each active turn.
@@ -169,7 +171,8 @@ static int CurrentUser = 0;
 /// @brief Turn being executed currently.
 static TURN *CurrentTurn = NULL;
 
-/// @brief Centered coordinates where battlers should be drawn.static const COORDINATE BattlerPosition[] = {
+/// @brief Centered coordinates where battlers should be drawn.
+static const COORDINATE BattlerPosition[] = {
     // User's team
     [0] = { 60, 260},
     [1] = {110, 240},
@@ -626,7 +629,8 @@ static void UpdateTargetMenu(void) {
         break;
 
     case CONTROL_CANCEL:
-        // Revert to the previous menu.        if (PlayerMenu[CurrentUser].TechniqueMenu.Control.State) {
+        // Revert to the previous menu.
+        if (PlayerMenu[CurrentUser].TechniqueMenu.Control.State) {
             PlayerMenu[CurrentUser].TechniqueMenu.Control.State = CONTROL_IDLE;
         } else {
             BattleMenu.Control.State = CONTROL_IDLE;
@@ -808,6 +812,46 @@ static void LoadEnemyTurns(void) {
     }
 }
 
+static bool ExecuteCapture(BATTLER *battler) {
+    // Determine if capture succeeds
+    int rate = BattlerSpecies(battler)->CatchRate;
+    float percent = (float)BattlerHealth(battler)/BattlerMaxHealth(battler);
+    
+    // Increased rate if ailed
+    switch (battler->Spectra->Ailment) {
+    case ASLEEP:
+    case BURIED:
+        rate += 10;
+        break;
+    case SHOCKED:
+        rate += 5;
+        break;
+    default:
+        break;
+    }
+    
+    // Test rate
+    OutputSplitByCR("...\r......\r.........");
+    int test = randint(0, 99);
+    int threshold = rate + (100-rate)*(1-percent)*(1-percent);
+    if (test < threshold) {
+        if (Capture(battler->Spectra)) {
+            Output("The capture succeeded!");
+            Captured = battler;
+            return true;
+        } else {
+            Output("You can't capture any more!");
+        }
+    } else if (test-10 < threshold) {
+        Output("It just got away...");
+    } else if (test-20 < threshold) {
+        Output("It managed to break free!");
+    } else {
+        Output("The capture failed!");
+    }
+    return false;
+}
+
 /**********************************************************//**
  * @brief Performs one turn during battle.
  * @param turn: Turn to execute.
@@ -852,7 +896,7 @@ static void ExecuteTurn(const TURN *turn) {
     bool allInvalid = true;
     for (int i=0; i<nTargets; i++) {
         BATTLER *target = BattlerByID(Targets[i]);
-        if (!BattlerIsActive(target) && !IsAlive(target)) {
+        if (!BattlerIsActive(target) || !IsAlive(target)) {
             continue;
         }
         allInvalid = false;
@@ -886,9 +930,10 @@ static void ExecuteTurn(const TURN *turn) {
         
         // Apply effect if applicable
         if (IsAlive(target) && !(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
-            // Use item
-            if (turn->Technique==DEFAULT_ITEM) {
-                const ITEM *item = ItemByID(turn->Item);
+            const ITEM *item;
+            switch (turn->Technique) {
+            case DEFAULT_ITEM:
+                item = ItemByID(turn->Item);
                 if (item->Flags&BATTLE_ONLY) {
                     if (ApplyEffectInBattle(item->Effect, user, target, item->Argument)) {
                         DropItem(turn->Item);
@@ -898,11 +943,21 @@ static void ExecuteTurn(const TURN *turn) {
                 } else {
                     Output("That's not useful right now!");
                 }
-            } else if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
-                ApplyEffectInBattle(technique->Effect, user, target, technique->Argument);
-            } else if (!technique->Power) {
+                
+                break;
+            
+            case CAPTURE:
+                ExecuteCapture(target);
+                break;
+            
+            default:
+                if (ShouldEffectActivate(technique->Effect, technique->Argument)) {
+                    ApplyEffectInBattle(technique->Effect, user, target, technique->Argument);
+                } else if (!technique->Power) {
                 // Technique doesn't do damage, and effect missed.
                 OutputF("%s avoided the attack!", BattlerName(target));
+                }
+                break;
             }
         }
     }
@@ -1013,6 +1068,10 @@ static void UpdateBattleExecution(void) {
         // Await previous phase completion
         UpdateOutput();
         if (OutputDone()) {
+            if (Captured) {
+                Captured->Spectra = 0;
+                Captured = NULL;
+            }
             CurrentTurn->State = TURN_DONE;
             MaybeUpdateBattleState();
         }

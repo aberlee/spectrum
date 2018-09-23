@@ -7,6 +7,7 @@
 
 #include <stdbool.h>            // bool
 #include <stdio.h>              // FILE
+#include <stdlib.h>             // memcpy
 
 #include <allegro5/allegro.h>
 
@@ -71,6 +72,17 @@ void DropItem(ITEM_ID id) {
             PlayerData.Inventory[INVENTORY_SIZE-1] = 0;
         }
     }
+}
+
+bool Capture(const SPECTRA *spectra) {
+    // Try to find a slot for the spectra
+    for (int i=0; i<PARTY_SIZE; i++) {
+        if (!PlayerData.Spectra[i].Species) {
+            memcpy(&PlayerData.Spectra[i], spectra, sizeof(SPECTRA));
+            return true;
+        }
+    }
+    return false;
 }
 
 /**********************************************************//**
