@@ -773,7 +773,7 @@ static void ExecuteTurn(const TURN *turn) {
         int damage = 0;
         if (technique->Power) {
             float ratio = (float)BattlerAttack(user)/BattlerDefend(target);
-            float scale = (float)user->Spectra->Level/target->Spectra->Level;
+            float scale = (float)user->Spectra->Level/LEVEL_MAX;
             const TYPE_ID *targetType = SpeciesByID(target->Spectra->Species)->Type;
             float matchup = TypeMatchup(technique->Type, targetType[0]);
             if (targetType[1]) {
