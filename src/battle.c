@@ -764,8 +764,8 @@ static void UpdateBattleMenu(void) {
     case CONTROL_CANCEL:
         if (CurrentUser > FirstUser()) {
             JumpToPreviousUser();
-            ResetControl(&BattleMenu.Control);
         }
+        ResetControl(&BattleMenu.Control);        
         break;
     }
 }
