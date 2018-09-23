@@ -42,7 +42,7 @@ typedef struct {
 
 /**********************************************************//**
  * @brief Determines if the BATTLER struct represents an
- * actual valid battler.
+ * actual valid battler (alive or not).
  * @param battler: The BATTLER to check.
  * @return True if the BATTLER is a valid battler.
  **************************************************************/
@@ -81,12 +81,12 @@ static inline void InitializeBattlerAsInactive(BATTLER *battler) {
 }
 
 /**********************************************************//**
- * @brief Determines if the battler is alive.
+ * @brief Determines if the battler is active and alive.
  * @param battler: The battler to check.
  * @return True if the battler is alive.
  **************************************************************/
-static inline bool IsAlive(const BATTLER *battler) {
-    return battler->Spectra->Health > 0;
+static inline bool BattlerIsAlive(const BATTLER *battler) {
+    return battler->Spectra && battler->Spectra->Health > 0;
 }
 
 /**********************************************************//**

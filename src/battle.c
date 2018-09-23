@@ -294,7 +294,7 @@ static int FirstUser(void) {
     int id = 0;
     while (id<TEAM_SIZE) {
         BATTLER *battler = BattlerByID(id);
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             id++;
         } else {
             break;
@@ -307,7 +307,7 @@ static void JumpToNextUser(void) {
     CurrentUser++;
     while (CurrentUser<TEAM_SIZE) {
         BATTLER *battler = BattlerByID(CurrentUser);
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             CurrentUser++;
         } else {
             break;
@@ -318,7 +318,7 @@ static void JumpToPreviousUser(void) {
     CurrentUser--;
     while (CurrentUser>0) {
         BATTLER *battler = BattlerByID(CurrentUser);
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             CurrentUser--;
         } else {
             break;
@@ -459,7 +459,7 @@ static int GetTargets(int *targets, int user, TARGET_TYPE type) {
     for (int id=0; id<BATTLE_SIZE; id++) {
         const BATTLER *battler = BattlerByID(id);
         // Can't target gone or incapacitated battlers
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             continue;
         } else if (type&TARGET_USER && id==user) {
             // Targetting yourself
@@ -534,7 +534,7 @@ static void EscapeBattle(void) {
     int enemy = 0;
     for (int id=0; id<BATTLE_SIZE; id++) {
         const BATTLER *battler = BattlerByID(id);
-        if (BattlerIsActive(battler) && IsAlive(battler)) {
+        if (BattlerIsAlive(battler)) {
             if (id<TEAM_SIZE) {
                 ally += BattlerEvade(battler)+BattlerLuck(battler);
             } else {
@@ -779,7 +779,7 @@ static void LoadEnemyTurns(void) {
     for (int id=TEAM_SIZE; id<BATTLE_SIZE; id++) {
         BATTLER *enemy = BattlerByID(id);
         TURN *turn = &Turns[id];
-        if (enemy->Spectra && IsAlive(enemy)) {
+        if (BattlerIsAlive(enemy)) {
             turn->State = TURN_PENDING;
             turn->User = id;
             
@@ -904,7 +904,7 @@ static void ExecuteTurn(const TURN *turn) {
     bool allInvalid = true;
     for (int i=0; i<nTargets; i++) {
         BATTLER *target = BattlerByID(Targets[i]);
-        if (!BattlerIsActive(target) || !IsAlive(target)) {
+        if (!BattlerIsAlive(target)) {
             continue;
         }
         allInvalid = false;
@@ -929,7 +929,7 @@ static void ExecuteTurn(const TURN *turn) {
             // Messages
             if (damage) {
                 OutputF("%s took %d damage!", BattlerName(target), damage);
-                if (!IsAlive(target)) {
+                if (!BattlerIsAlive(target)) {
                     OutputF("%s passed out!", BattlerName(target));
                 }
             } else {
@@ -938,7 +938,7 @@ static void ExecuteTurn(const TURN *turn) {
         }
         
         // Apply effect if applicable
-        if (IsAlive(target) && !(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
+        if (BattlerIsAlive(target) && !(technique->Flags&TECHNIQUE_EFFECT_ONCE)) {
             const ITEM *item;
             switch (turn->Technique) {
             case DEFAULT_ITEM:
@@ -990,13 +990,11 @@ static void MaybeUpdateBattleState(void) {
     bool lose = true;
     for (int id=0; id<BATTLE_SIZE; id++) {
         BATTLER *battler = BattlerByID(id);
-        if (BattlerIsActive(battler)){
-            if(IsAlive(battler)) {
-                if (TeamOf(id)==&PlayerTeam) {
-                    lose = false;
-                } else {
-                    win = false;
-                }
+        if(BattlerIsAlive(battler)) {
+            if (TeamOf(id)==&PlayerTeam) {
+                lose = false;
+            } else {
+                win = false;
             }
         }
     }
@@ -1032,7 +1030,7 @@ static void UpdateBattleExecution(void) {
         for (int id=0; id<BATTLE_SIZE; id++) {
             BATTLER *battler = BattlerByID(id);
             if (Turns[id].State == TURN_PENDING) {
-                if (BattlerIsActive(battler) && IsAlive(battler)) {
+                if (BattlerIsAlive(battler)) {
                     int priority = Priority(BattlerByID(id));
                     if (priority > maxPriority || !CurrentTurn) {
                         maxPriority = priority;
@@ -1112,7 +1110,7 @@ static bool BattleExecutionDone(void) {
 static void ApplyEndOfRoundEffects(void) {
     for (int id=0; id<BATTLE_SIZE; id++) {
         BATTLER *battler = BattlerByID(id);
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             continue;
         }
         
@@ -1136,7 +1134,7 @@ static void ApplyEndOfRoundEffects(void) {
                 battler->Spectra->Health = 0;
             }
             OutputF("%s took %d damage from poison!", BattlerName(battler), damage);
-            if (!IsAlive(battler)) {
+            if (!BattlerIsAlive(battler)) {
                 OutputF("%s passed out!", BattlerName(battler));
             }
             break;  
@@ -1148,7 +1146,7 @@ static void ApplyEndOfRoundEffects(void) {
                 battler->Spectra->Health = 0;
             }
             OutputF("%s took %d damage from fire!", BattlerName(battler), damage);
-            if (!IsAlive(battler)) {
+            if (!BattlerIsAlive(battler)) {
                 OutputF("%s passed out!", BattlerName(battler));
             }
             break;
@@ -1220,7 +1218,7 @@ void ApplyWinEffects(void) {
     // Each user gains experience
     for (int id=0; id<TEAM_SIZE; id++) {
         BATTLER *battler = BattlerByID(id);
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             continue;
         }
         
@@ -1339,7 +1337,7 @@ static void DrawBattlers(void) {
     for (int i=0; i<6; i++) {
         int id = Order[i];
         BATTLER *battler = BattlerByID(id);
-        if (!BattlerIsActive(battler) || !IsAlive(battler)) {
+        if (!BattlerIsAlive(battler)) {
             continue;
         }
         SPECIES_ID speciesID = BattlerByID(id)->Spectra->Species;
