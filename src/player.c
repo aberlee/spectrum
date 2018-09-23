@@ -151,6 +151,9 @@ bool LoadGame(void) {
  * @return True if the save succeeded.
  **************************************************************/
 bool SaveGame(void) {
+    // Update time stamping
+    Player->PlayTime += UnaccountedPlayTime();
+    StartPlayTime();
     FILE *saveFile = fopen(SAVE_FILE, "w");
     if (saveFile) {
         int nWrite = fwrite(&PlayerData, sizeof(PLAYER), 1, saveFile);
