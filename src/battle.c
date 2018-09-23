@@ -913,12 +913,14 @@ static void ExecuteTurn(const TURN *turn) {
         int damage = 0;
         if (technique->Power) {
             float ratio = (float)BattlerAttack(user)/BattlerDefend(target);
+            float scale = (float)user->Spectra->Level/LEVEL_MAX;
             const TYPE_ID *targetType = SpeciesByID(target->Spectra->Species)->Type;
             float matchup = TypeMatchup(technique->Type, targetType[0]);
             if (targetType[1]) {
                 matchup *= TypeMatchup(technique->Type, targetType[1]);
             }
-            damage = 1 + technique->Power*ratio*matchup;
+            float power = (technique->Power>10)? (technique->Power-10)*scale+10: 10;
+            damage = 1 + power*ratio*matchup;
             target->Spectra->Health -= damage;
             if (target->Spectra->Health < 0) {
                 target->Spectra->Health = 0;
