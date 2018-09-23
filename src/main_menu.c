@@ -63,6 +63,12 @@ typedef enum {
     ITEM_CANCEL,
 } ITEM_MENU_OPTION;
 
+typedef enum {
+    PARTY_VIEW,
+    PARTY_SWAP,
+    PARTY_CANCEL,
+} PARTY_MENU_OPTION;
+
 /**************************************************************/
 /// @brief Defines the main menu and its control structure.
 static MENU MainMenu = {
@@ -89,6 +95,17 @@ static MENU ItemMenu = {
     .Control = {
         .IndexMax       = 2,
     },
+};
+
+static MENU PartyMenu = {
+    .Option = {
+        [PARTY_VIEW]    = "View",
+        [PARTY_SWAP]    = "Swap",
+        [PARTY_CANCEL]  = "Cancel",
+    },
+    .Control = {
+        .IndexMax       = 2,
+    }
 };
 
 static MENU YesNo = {
@@ -156,8 +173,12 @@ static ITEM_ID SelectedItemID(void) {
     return Player->Inventory[index];
 }
 
+static int SelectedSpectraID(void) {
+    return ControlItem(PartyControl());
+}
+
 static SPECTRA *SelectedSpectra(void) {
-    int index = ControlItem(PartyControl());
+    int index = SelectedSpectraID();
     return &Player->Spectra[index];
 }
 
@@ -178,7 +199,17 @@ void DrawMainMenu(void) {
             DrawParty();
             if (PartyControl()->State == CONTROL_CONFIRM) {
                 DrawAt(26, 100);
-                DrawSpectraDisplay(SelectedSpectra());
+                DrawOption(&PartyMenu);
+                if (PartyMenu.Control.State == CONTROL_CONFIRM) {
+                    switch (MenuItem(&PartyMenu)) {
+                    case PARTY_VIEW:
+                        DrawAt(34, 108);
+                        DrawSpectraDisplay(SelectedSpectra());
+                        break;
+                    default:
+                        break;
+                    }
+                }
             }
             break;
 
@@ -347,20 +378,72 @@ static void UpdateItemSubmenu(void) {
     }
 }
 
+static int PartySwapFirst = -1;
+
+void UpdatePartySubmenu(void) {
+    switch (PartyMenu.Control.State) {
+    case CONTROL_CONFIRM:
+        switch (MenuItem(&PartyMenu)) {
+        case PARTY_VIEW:
+            if (KeyJustUp(KEY_DENY)) {
+                PartyControl()->State = CONTROL_IDLE;
+            }
+            break;
+        case PARTY_SWAP:
+            PartySwapFirst = SelectedSpectraID();
+            PartyControl()->State = CONTROL_IDLE;
+            break;
+        case PARTY_CANCEL:
+            PartyControl()->State = CONTROL_IDLE;
+            break;
+        }
+        break;
+    
+    case CONTROL_CANCEL:
+        PartyControl()->State = CONTROL_IDLE;
+        break;
+    
+    case CONTROL_IDLE:
+        UpdateMenu(&PartyMenu);
+        if (PartyMenu.Control.State == CONTROL_CONFIRM) {
+            switch (MenuItem(&PartyMenu)) {
+            case PARTY_SWAP:
+                PartySwapFirst = SelectedSpectraID();
+                PartyControl()->State = CONTROL_IDLE;
+            default:
+                break;
+            }
+        }
+        break;
+    }
+}
+
 void UpdatePartyMenu(void) {
     switch (PartyControl()->State) {
     case CONTROL_CONFIRM:
-        if (KeyJustUp(KEY_DENY)) {
+        if (PartySwapFirst == -1) {
+            UpdatePartySubmenu();
+        } else {
+            // Perform the swap
+            int swap = SelectedSpectraID();
+            SPECTRA temp = Player->Spectra[swap];
+            Player->Spectra[swap] = Player->Spectra[PartySwapFirst];
+            Player->Spectra[PartySwapFirst] = temp;
+            PartySwapFirst = -1;
             PartyControl()->State = CONTROL_IDLE;
         }
         break;
 
     case CONTROL_CANCEL:
         MainMenu.Control.State = CONTROL_IDLE;
+        PartySwapFirst = -1;
         break;
 
     case CONTROL_IDLE:
         UpdateControl(PartyControl());
+        if (PartyControl()->State == CONTROL_CONFIRM) {
+            ResetControl(&PartyMenu.Control);
+        }
         break;
     }
 }
