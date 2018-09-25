@@ -17,6 +17,10 @@
 *.tar.gz
 *.zip
 
-# Error stuff
+# Development stuff
 dev/
-error.log 
+error.log
+*.diff
+
+# Spectrum files
+*.save
