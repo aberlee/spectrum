@@ -6,21 +6,21 @@
  * @date April 9th, 2018
  **************************************************************/
 
-#include "windows.h"		// WINDOWS
+#include "windows.h"        // WINDOWS
 
 /**************************************************************/
-VS_VERSION_INFO 		VERSIONINFO
-FILEVERSION				0,9,0,0
-PRODUCTVERSION			0,9,0,0
-FILEFLAGSMASK   		VS_FFI_FILEFLAGSMASK
+VS_VERSION_INFO         VERSIONINFO
+FILEVERSION             0,9,0,0
+PRODUCTVERSION          0,9,0,0
+FILEFLAGSMASK           VS_FFI_FILEFLAGSMASK
 #ifdef DEBUG
-FILEFLAGS       		(VS_FF_PRERELEASE|VS_FF_DEBUG)
+FILEFLAGS               (VS_FF_PRERELEASE|VS_FF_DEBUG)
 #else
-FILEFLAGS				VS_FF_PRERELEASE
+FILEFLAGS               VS_FF_PRERELEASE
 #endif
-FILEOS					VOS__WINDOWS32
-FILETYPE				VFT_APP
-FILESUBTYPE				VFT2_UNKNOWN
+FILEOS                  VOS__WINDOWS32
+FILETYPE                VFT_APP
+FILESUBTYPE             VFT2_UNKNOWN
 
 /**************************************************************/
 BEGIN
@@ -29,17 +29,17 @@ BEGIN
         BLOCK "04090000"
         BEGIN
             VALUE "CompanyName",      "Rena Shinomiya"
-			VALUE "CompanyShortName", "xyRena"
+            VALUE "CompanyShortName", "xyRena"
             VALUE "FileDescription",  "Spectrum Legacy 0.9-alpha for 32-bit Windows"
             VALUE "FileVersion",      "0.9-alpha"
             VALUE "InternalName",     "spectrum"
             VALUE "LegalCopyright",   "Copyright 2018, Rena Shinomiya. This product is open source under the BSD-3-Clause License."
             VALUE "OriginalFilename", "spectrum.exe"
             VALUE "ProductName",      "Spectrum Legacy"
-			VALUE "ProductShortName", "Spectrum"
+            VALUE "ProductShortName", "Spectrum"
             VALUE "ProductVersion",   "0.9-alpha"
 #ifdef DEBUG
-			VALUE "Comments",         "Debug build."
+            VALUE "Comments",         "Debug build."
 #endif
         END
     END
