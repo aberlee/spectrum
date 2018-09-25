@@ -163,7 +163,7 @@ const LOCATION LOCATION_DATA[] = {
         .Encounters     = (ENCOUNTER[]){
             {40, JAYRAPTOR,     { 9, 12}},
             {30, FLOPJELLY,     { 8, 12}},
-            {20, NITROBOMB,     { 8, 12}},
+            {30, NITROBOMB,     { 8, 12}},
         },
         .Fishing        = (ENCOUNTER[]){
             {50, CATFISH,       { 8, 12}},
