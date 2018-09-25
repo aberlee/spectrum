@@ -423,6 +423,22 @@ static bool ExecuteCapture(BATTLER *battler) {
     return false;
 }
 
+static float HitRate(int uid, int tid, const TECHNIQUE *technique) {
+    if (uid==tid) {
+        // Can't miss yourself
+        return 1.0;
+    } else if (BattlerIsAlly(uid)==BattlerIsAlly(tid) && technique->Power==0) {
+        // Can't miss an ally with non-damaging attack
+        return 1.0;
+    } else {
+        // Can never have worse than 50% chance to hit.
+        const BATTLER *user = BattlerByID(uid);
+        const BATTLER *target = BattlerByID(tid);
+        float base = (float)BattlerLuck(user)/BattlerEvade(target);
+        return (base < 0.5)? 0.5: base;
+    }
+}
+
 /**********************************************************//**
  * @brief Performs one turn during battle.
  * @param turn: Turn to execute.
@@ -475,6 +491,12 @@ static void ExecuteTurn(const TURN *turn) {
             continue;
         }
         allInvalid = false;
+        
+        // Maybe miss the target
+        if (uniform(0.0, 1.0) > HitRate(turn->User, Targets[i], technique)) {
+            OutputF("%s avoided the attack!", BattlerName(target));
+            continue;
+        }
         
         // Inflict damage
         int damage = 0;
