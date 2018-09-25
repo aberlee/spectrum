@@ -5,7 +5,7 @@
 CC := gcc
 CFLAGS := -g -O3 -Wall -Wpedantic -Wextra -std=gnu99
 DFLAGS := -MP -MMD
-LFLAGS := -g -lm
+LFLAGS := -g -lm -Wl,--subsystem,windows
 INCLUDE := 
 LIBRARY := 
 
