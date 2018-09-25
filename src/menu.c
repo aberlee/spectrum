@@ -605,7 +605,7 @@ void InitializeMenuScroll(MENU *menu, WINDOW_ID type) {
     }
     
     // Set the scroll parameters
-    menu->Control.IndexMax = (count<max)? count-1: max-1;
+    menu->Control.IndexMax = (count<max)? count: max-1;
     menu->Control.ScrollMax = (count<max)? 0: count-max+1;
     menu->Control.Jump = max;
 }
