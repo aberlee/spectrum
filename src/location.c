@@ -737,7 +737,7 @@ static void DrawRuntimeEvents(EVENT_DRAW_RANGE range) {
         }
         case EVENT_PERSON:
             DrawAtTileCenter(eventX, eventY);
-            DrawPerson(event->Union.Person.Person, data->Union.Person.Direction, 0);
+            DrawPerson(event->Union.Person.Person, data->Union.Person.Direction);
             break;
         
         default:

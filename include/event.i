@@ -335,7 +335,7 @@ static const EVENT *(EVENT_DATA[]) = {
     },
     [MAP_SAPLING_HOSPITAL] = (EVENT[]){
         [  1] = TEXT("OUT OF ORDER"),
-        [  2] = PERSON(AMY_NORMAL, DOWN, "Hello!"),
+        [  2] = PERSON(NPC_DOCTOR, DOWN, "Hello!"),
         [  3] = WARP(OVERWORLD, 84, 15, DOWN),
     },
     [MAP_SAPLING_CITY_HALL] = (EVENT[]){

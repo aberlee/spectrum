@@ -22,10 +22,18 @@ static const PERSON_ID PlayerCostume[] = {
     [NORMAL]        = AMY_NORMAL,
     [RED_DRESS]     = AMY_RED_DRESS,
     [BLACK_DRESS]   = AMY_BLACK_DRESS,
-    [PAJAMAS]       = AMY_PAJAMAS,
-    [SUIT]          = AMY_SUIT,
-    [SWIMSUIT]      = AMY_SWIMSUIT,
 };
+
+void DrawPerson(PERSON_ID id, DIRECTION direction) {
+    ALLEGRO_BITMAP *person = PersonImage(id);
+    int sheetX = direction*16;
+    
+    // Draw small drop shadow
+    al_draw_filled_ellipse(0, 0, 6, 3, al_map_rgba_f(0, 0, 0, 0.2));
+    
+    // Offset drawing to center feet
+    al_draw_bitmap_region(person, sheetX, 0, 16, 26, -8, -24, 0);
+}
 
 /**********************************************************//**
  * @brief Draws a person's frame from a person sprite sheet.
@@ -34,7 +42,7 @@ static const PERSON_ID PlayerCostume[] = {
  * @param direction: Direction the person faces.
  * @param frame: Frame of animation, if applicable.
  **************************************************************/
-void DrawPerson(PERSON_ID id, DIRECTION direction, int frame) {
+static void DrawPersonAnimated(PERSON_ID id, DIRECTION direction, int frame) {
     ALLEGRO_BITMAP *person = PersonImage(id);
     int sheetX = frame%4*16;
     int sheetY = direction*26;
@@ -52,7 +60,7 @@ void DrawPerson(PERSON_ID id, DIRECTION direction, int frame) {
  * @param frame: Frame of motion, if applicable.
  **************************************************************/
 void DrawPlayer(int frame) {
-    DrawPerson(PlayerCostume[Player->Costume], Player->Direction, frame);
+    DrawPersonAnimated(PlayerCostume[Player->Costume], Player->Direction, frame);
 }
 
 /**************************************************************/

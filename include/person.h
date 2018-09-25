@@ -16,47 +16,21 @@
  * @brief Defines a constant for each costume an npc can use.
  **************************************************************/
 typedef enum {
-    // Business-people
-    BUSINESSWOMAN_BRUNETTE      = 1,
-    BUSINESSWOMAN_BLONDE,
-    BUSINESSMAN_BALD,
-    BUSINESSMAN_GRAY,
-    BUSINESSMAN_BLOND,
-    BUSINESSMAN_BLACK,
-    
-    // Everyday adults
-    WOMAN_SHORT_BLONDE,
-    WOMAN_SHORT_BRUNETTE,
-    WOMAN_BRUNETTE,
-    MAN_BALD,
-    MAN_GRAY,
-    MAN_BRUNET,
-    GRANDMOTHER,
-    
-    // Everyday young adults
-    GIRL_BRUNETTE,
-    GIRL_BLONDE,
-    BOY_BRUNET,
-    
-    // Vocation
-    FARMER,
-    MEDIC,
-    SCIENTIST,
-    
     // Player costumes
     AMY_NORMAL,
     AMY_RED_DRESS,
     AMY_BLACK_DRESS,
-    AMY_PAJAMAS,
-    AMY_SUIT,
-    AMY_SWIMSUIT,
+    
+    // NPC Skins
+    NPC_DOCTOR,
+    NPC_NURSE,
 } PERSON_ID;
 
 /// @brief The number of different overworld person costumes.
-#define N_PERSON (AMY_SWIMSUIT+1)
+#define N_PERSON 5
 
 /**************************************************************/
-extern void DrawPerson(PERSON_ID id, DIRECTION direction, int frame);
+extern void DrawPerson(PERSON_ID id, DIRECTION direction);
 extern void DrawPlayer(int frame);
 
 /**************************************************************/
