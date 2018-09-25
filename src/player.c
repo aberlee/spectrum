@@ -102,6 +102,19 @@ bool GetSpectra(const SPECTRA *spectra) {
     return false;
 }
 
+void ReleaseSpectra(int index) {
+    // Can't release the player character
+    if (PlayerData.Spectra[index].Species == AMY) {
+        return;
+    }
+    
+    // Rotate spectra list down
+    for (int i=index; i<PARTY_SIZE; i++) {
+        PlayerData.Spectra[i] = PlayerData.Spectra[i+1];
+    }
+    PlayerData.Spectra[PARTY_SIZE-1].Species = 0;
+}
+
 /**********************************************************//**
  * @brief Configures a new game, and removes old player data.
  * Be sure the user is OK with deleting data before calling

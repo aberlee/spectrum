@@ -82,6 +82,7 @@ extern void DropItem(ITEM_ID id);
 
 /**************************************************************/
 extern bool GetSpectra(const SPECTRA *spectra);
+extern void ReleaseSpectra(int index);
 
 /**************************************************************/
 extern void NewGame(void);

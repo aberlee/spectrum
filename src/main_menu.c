@@ -66,6 +66,7 @@ typedef enum {
 typedef enum {
     PARTY_VIEW,
     PARTY_SWAP,
+    PARTY_RELEASE,
     PARTY_CANCEL,
 } PARTY_MENU_OPTION;
 
@@ -101,10 +102,11 @@ static MENU PartyMenu = {
     .Option = {
         [PARTY_VIEW]    = "View",
         [PARTY_SWAP]    = "Swap",
+        [PARTY_RELEASE] = "Release",
         [PARTY_CANCEL]  = "Cancel",
     },
     .Control = {
-        .IndexMax       = 2,
+        .IndexMax       = 3,
     }
 };
 
@@ -205,6 +207,10 @@ void DrawMainMenu(void) {
                     case PARTY_VIEW:
                         DrawAt(34, 108);
                         DrawSpectraDisplay(SelectedSpectra());
+                        break;
+                    case PARTY_RELEASE:
+                        DrawAt(34, 108);
+                        DrawChoice(&YesNo);
                         break;
                     default:
                         break;
@@ -378,6 +384,27 @@ static void UpdateItemSubmenu(void) {
     }
 }
 
+static void UpdatePartySubmenuRelease(void) {
+    switch (YesNo.Control.State) {
+    case CONTROL_CONFIRM:
+        if (MenuItem(&YesNo) == 0) {
+            ReleaseSpectra(SelectedSpectraID());
+            InitializePartyMenu();
+            ResetControl(PartyControl());
+        }
+        PartyControl()->State = CONTROL_IDLE;
+        break;
+    
+    case CONTROL_IDLE:
+        UpdateMenu(&YesNo);
+        break;
+     
+    case CONTROL_CANCEL:
+        ResetMenuToIdle(&PartyMenu);
+        break;
+    }
+}
+
 static int PartySwapFirst = -1;
 
 void UpdatePartySubmenu(void) {
@@ -392,6 +419,9 @@ void UpdatePartySubmenu(void) {
         case PARTY_SWAP:
             PartySwapFirst = SelectedSpectraID();
             PartyControl()->State = CONTROL_IDLE;
+            break;
+        case PARTY_RELEASE:
+            UpdatePartySubmenuRelease();
             break;
         case PARTY_CANCEL:
             PartyControl()->State = CONTROL_IDLE;
@@ -410,6 +440,15 @@ void UpdatePartySubmenu(void) {
             case PARTY_SWAP:
                 PartySwapFirst = SelectedSpectraID();
                 PartyControl()->State = CONTROL_IDLE;
+                break;
+            case PARTY_RELEASE:
+                if (SelectedSpectra()->Species == AMY) {
+                    Output("That doesn't make any sense!");
+                    PartyControl()->State = CONTROL_IDLE;
+                } else {
+                    ResetMenu(&YesNo);
+                }
+                break;
             default:
                 break;
             }
