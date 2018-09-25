@@ -220,7 +220,11 @@ void DrawWarning(const char *text) {
 void DrawOption(const MENU *options) {
     al_draw_bitmap(WindowImage(MENU_OPTION), 0, 0, 0);
     for (int i=0; i<6; i++) {
-        DrawText(options->Option[options->Control.Scroll+i], 4, 4+13*i);
+        int index = options->Control.Scroll+i;
+        if (index > options->Control.IndexMax) {
+            break;
+        }
+        DrawText(options->Option[index], 4, 4+13*i);
     }
     DrawSelector(2, 2+13*options->Control.Index, 96, 12);
 }
