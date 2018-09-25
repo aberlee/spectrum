@@ -20,6 +20,9 @@
 /// @brief Defines the path to the save file.
 #define SAVE_FILE "spectrum.save"
 
+/// @brief Define the path to the backup save file.
+#define BACKUP_SAVE_FILE "backup.save"
+
 /**************************************************************/
 /// @brief The player's data (referenced via Player pointer
 /// from any external code).
@@ -146,13 +149,19 @@ int UnaccountedPlayTime(void) {
  * @return True if the load succeeded.
  **************************************************************/
 bool LoadGame(void) {
-    FILE *saveFile = fopen(SAVE_FILE, "r");
+    FILE *saveFile = fopen(SAVE_FILE, "rb");
     if (saveFile) {
         int nRead = fread(&PlayerData, sizeof(PLAYER), 1, saveFile);
         fclose(saveFile);
         if (nRead == 1) {
             InitializeLocation();
             SetMode(MODE_MAP);
+#ifdef DEBUG
+            FILE *copyFile = fopen(BACKUP_SAVE_FILE, "wb");
+            fwrite(&PlayerData, sizeof(PLAYER), 1, copyFile);
+            fflush(copyFile);
+            fclose(copyFile);
+#endif // DEBUG
             return true;
         }
     }
@@ -168,9 +177,10 @@ bool SaveGame(void) {
     // Update time stamping
     Player->PlayTime += UnaccountedPlayTime();
     StartPlayTime();
-    FILE *saveFile = fopen(SAVE_FILE, "w");
+    FILE *saveFile = fopen(SAVE_FILE, "wb");
     if (saveFile) {
         int nWrite = fwrite(&PlayerData, sizeof(PLAYER), 1, saveFile);
+        fflush(saveFile);
         fclose(saveFile);
         return nWrite == 1;
     }
