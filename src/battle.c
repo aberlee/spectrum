@@ -481,6 +481,7 @@ static void ExecuteTurn(const TURN *turn) {
         user->Spectra->Power -= technique->Cost;
     } else {
         OutputF("%s is out of power!", BattlerName(user));
+        return;
     }
     
     // Perform the turn
