@@ -439,6 +439,16 @@ static float HitRate(int uid, int tid, const TECHNIQUE *technique) {
     }
 }
 
+static float CriticalHitRate(const BATTLER *user, const BATTLER *target) {
+    float ratio = (float)BattlerLuck(user)/BattlerLuck(target);
+    
+    // Minimum critical hit rate:  0%
+    // Average critical hit rate: 10%
+    // Maximum critical hit rate: 20%
+    float base = 0.1*ratio;
+    return (base > 0.2)? 0.2: base;
+}
+
 /**********************************************************//**
  * @brief Performs one turn during battle.
  * @param turn: Turn to execute.
@@ -511,6 +521,14 @@ static void ExecuteTurn(const TURN *turn) {
             }
             float power = (technique->Power>10)? (technique->Power-10)*scale+10: 10;
             damage = 1 + power*ratio*matchup;
+            
+            // Maybe critical hit?
+            if (uniform(0.0, 1.0) < CriticalHitRate(user, target)) {
+                damage *= 2;
+                OutputF("A critical hit on %s!", BattlerName(target));
+            }
+            
+            // Inflict damage
             target->Spectra->Health -= damage;
             if (target->Spectra->Health < 0) {
                 target->Spectra->Health = 0;
