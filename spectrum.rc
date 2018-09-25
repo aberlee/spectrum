@@ -3,7 +3,7 @@
  * @brief Includes Windows-specific version information that
  * will be embedded into the executable.
  * @author Rena Shinomiya
- * @date April 9th, 2018
+ * @date September 25, 2018
  **************************************************************/
 
 #include "windows.h"        // WINDOWS
