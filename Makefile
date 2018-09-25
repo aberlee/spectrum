@@ -6,11 +6,12 @@ CC := gcc
 CFLAGS := -g -O3 -Wall -Wpedantic -Wextra -std=gnu99
 DFLAGS := -MP -MMD
 LFLAGS := -g -lm -Wl,--subsystem,windows
+DEFINE := 
 INCLUDE := 
 LIBRARY := 
 
 # debug.h
-CFLAGS += -DVERBOSE -DDEBUG
+DEFINE += -DVERBOSE -DDEBUG
 
 ######### Source code setup #########
 # Directory for all project files.
@@ -22,6 +23,7 @@ INCLUDE += -I$(INCLUDE_DIR)
 CFILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c)
 HFILES := $(wildcard $(INCLUDE_DIR)/*.h) $(wildcard $(INCLUDE_DIR)/**/*.h)
 IFILES := $(wildcard $(INCLUDE_DIR)/*.i) $(wildcard $(INCLUDE_DIR)/**/*.i)
+RFILES := spectrum.rc
 
 # Important files
 MAKEFILE := Makefile
@@ -40,6 +42,7 @@ LFLAGS += -lallegro_image -lallegro_color -lallegro_primitives  -lallegro_main
 BUILD_DIR := build
 OFILES := $(CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 DFILES := $(OFILES:%.o=%.d)
+WFILES := $(RFILES:%.rc=$(BUILD_DIR)/%.rc.o)
 EXECUTABLE := spectrum.exe
 
 ############### Rules ###############
@@ -50,17 +53,21 @@ default: $(BUILD_DIR) $(EXECUTABLE)
 $(BUILD_DIR):
 	@mkdir $(BUILD_DIR)
 
+# Put the version information in the build directory
+$(BUILD_DIR)/%.rc.o: %.rc
+	@windres $(DEFINE) -J rc $< $@ 
+
 # Compile the source files
 .SECONDARY: $(DFILES)
 .SECONDARY: $(OFILES)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(MAKEFILE)
-	@$(CC) $(CFLAGS) $(DFLAGS) $(INCLUDE) -c $< -o $@
+	@$(CC) $(CFLAGS) $(DEFINE) $(DFLAGS) $(INCLUDE) -c $< -o $@
 
 # Automatic dependency files
 -include $(DFILES)
 
 # Make executable for each driver
-$(EXECUTABLE): $(OFILES)
+$(EXECUTABLE): $(OFILES) $(WFILES)
 	@$(CC) -o $@ $^ $(LIBRARY) $(LFLAGS)
 
 # Clean up build files and executable
