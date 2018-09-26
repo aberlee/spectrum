@@ -17,17 +17,33 @@
  **************************************************************/
 typedef enum {
     // Player costumes
-    AMY_NORMAL,
+    AMY_NORMAL          = 1,
     AMY_RED_DRESS,
     AMY_BLACK_DRESS,
     
     // NPC Skins
     NPC_DOCTOR,
     NPC_NURSE,
+    
+    // Generic femme-presenting NPCs
+    NPC_FEMME_A,
+    NPC_FEMME_B,
+    NPC_FEMME_C,
+    NPC_FEMME_D,
+    NPC_FEMME_E,
+    NPC_FEMME_F,
+    
+    // Generic masc-presenting NPCs
+    NPC_MASC_A,
+    NPC_MASC_B,
+    NPC_MASC_C,
+    NPC_MASC_D,
+    NPC_MASC_E,
+    NPC_MASC_F,
 } PERSON_ID;
 
 /// @brief The number of different overworld person costumes.
-#define N_PERSON 5
+#define N_PERSON (NPC_MASC_F+1)
 
 /**************************************************************/
 extern void DrawPerson(PERSON_ID id, DIRECTION direction);

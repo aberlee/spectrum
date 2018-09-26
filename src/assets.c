@@ -291,15 +291,25 @@ static IMAGE_ASSET SensorAssets[] = {
  * @brief Indexes PERSON_ID members to IMAGE_ASSET data.
  **************************************************************/
 static IMAGE_ASSET PersonAssets[N_PERSON] = {
-    // Costumes
     [AMY_NORMAL]        = IMAGE("person/costume/normal.png"),
     [AMY_RED_DRESS]     = IMAGE("person/costume/red_dress.png"),
     [AMY_BLACK_DRESS]   = IMAGE("person/costume/black_dress.png"),
-    
-    // NPC Skins
-    [NPC_DOCTOR]        = IMAGE("person/doctor.png"),
-    [NPC_NURSE]         = IMAGE("person/nurse.png"),
+    [NPC_DOCTOR]        = IMAGE("person/npc/doctor.png"),
+    [NPC_NURSE]         = IMAGE("person/npc/nurse.png"),
+    [NPC_FEMME_A]       = IMAGE("person/npc/femme_a.png"),
+    [NPC_FEMME_B]       = IMAGE("person/npc/femme_b.png"),
+    [NPC_FEMME_C]       = IMAGE("person/npc/femme_c.png"),
+    [NPC_FEMME_D]       = IMAGE("person/npc/femme_d.png"),
+    [NPC_FEMME_E]       = IMAGE("person/npc/femme_e.png"),
+    [NPC_FEMME_F]       = IMAGE("person/npc/femme_f.png"),
+    [NPC_MASC_A]        = IMAGE("person/npc/masc_a.png"),
+    [NPC_MASC_B]        = IMAGE("person/npc/masc_b.png"),
+    [NPC_MASC_C]        = IMAGE("person/npc/masc_c.png"),
+    [NPC_MASC_D]        = IMAGE("person/npc/masc_d.png"),
+    [NPC_MASC_E]        = IMAGE("person/npc/masc_e.png"),
+    [NPC_MASC_F]        = IMAGE("person/npc/masc_f.png"),
 };
+
 /**********************************************************//**
  * @brief Indexes MISC_ID members to IMAGE_ASSET data.
  **************************************************************/
