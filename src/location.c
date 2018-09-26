@@ -552,15 +552,15 @@ static void InteractUser(void) {
         case EVENT_TEXT:
             OutputSplitByCR(event->Union.Text);
             break;
-        case EVENT_SHOP:
-            // TODO
-            break;
+
         case EVENT_BOSS:
             // TODO
             break;
+
         case EVENT_WARP:
             // Warps processed by InteractAutomatic
             break;
+
         case EVENT_PRESENT:
             // Present
             if (Switch(event->Union.Present.Switch)) {
@@ -572,11 +572,23 @@ static void InteractUser(void) {
                 Output("You can't carry anything else!");
             }
             break;
+
         case EVENT_PERSON:
             // Make person face the player
             RuntimeEventData[tile->RuntimeID].Union.Person.Direction = OppositeDirection(Player->Direction);
-            OutputSplitByCR(event->Union.Person.Speech);
+            switch (event->Union.Person.Type) {
+            case PERSON_SPEECH:
+                OutputSplitByCR(event->Union.Person.Speech);
+                break;
+            case PERSON_HOSPITAL:
+                OutputSplitByCR(event->Union.Person.Speech);
+                RecoverParty();
+                break;
+            default:
+                break;
+            }
             break;
+
         default:
             eprintf("Invalid event type: %d\n", event->Type);
             break;

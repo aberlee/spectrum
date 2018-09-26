@@ -13,15 +13,17 @@
 #include "shop.h"           // SHOP_ID
 #include "species.h"        // SPECIES_ID
 
+/**************************************************************/
 #define WARP(id, x, y, d) {EVENT_WARP, {.Warp={{x, y}, id, d}}}
 #define TEXT(text) {EVENT_TEXT, {.Text=text}}
-#define SHOP(id) {EVENT_SHOP, {.Shop=id}}
+#define SHOP(person, direction, speech, shop) {EVENT_PERSON, {.Person={person, direction, PERSON_SHOP, speech, shop}}}
 #define BOSS(spectra, level) {EVENT_BOSS, {.Boss={spectra, level}}}
 #define REDIRECT(event) {EVENT_REDIRECT, {.Redirect=event}}
 #define UNDEFINED {0}
 #define HOUSE TEXT("You can't go in other people's houses!")
 #define PRESENT(item, switch) {EVENT_PRESENT, {.Present={item, switch}}}
-#define PERSON(person, direction, speech) {EVENT_PERSON, {.Person={person, direction, speech}}}
+#define PERSON(person, direction, speech) {EVENT_PERSON, {.Person={person, direction, PERSON_SPEECH, speech, 0}}}
+#define HOSPITAL(person, direction, speech) {EVENT_PERSON, {.Person={person, direction, PERSON_HOSPITAL, speech, 0}}}
 
 /**********************************************************//**
  * @var EVENT_DATA
@@ -335,7 +337,14 @@ static const EVENT *(EVENT_DATA[]) = {
     },
     [MAP_SAPLING_HOSPITAL] = (EVENT[]){
         [  1] = TEXT("OUT OF ORDER"),
-        [  2] = PERSON(NPC_DOCTOR, DOWN, "Hello!"),
+        [  2] = HOSPITAL(
+            NPC_DOCTOR,
+            DOWN,
+            "This is Sapling Hospital.\n"
+            "We'll heal you and your party back to full health!\r"
+            "Don't worry, it doesn't cost anything!\n"
+            "Stay safe out there."
+        ),
         [  3] = WARP(OVERWORLD, 84, 15, DOWN),
     },
     [MAP_SAPLING_CITY_HALL] = (EVENT[]){
@@ -723,12 +732,4 @@ static const EVENT *(EVENT_DATA[]) = {
 };
 
 /**************************************************************/
-#undef WARP
-#undef TEXT
-#undef SHOP
-#undef BOSS
-#undef REDIRECT
-#undef HOUSE
-#undef UNDEFINED
-
 #endif // _EVENT_I_

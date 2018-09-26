@@ -46,6 +46,12 @@ typedef struct {
     SWITCH Switch;
 } PRESENT;
 
+typedef enum {
+    PERSON_SPEECH,
+    PERSON_HOSPITAL,
+    PERSON_SHOP,
+} PERSON_TYPE;
+
 /**********************************************************//**
  * @struct PERSON
  * @brief Defines data for each non-player character.
@@ -53,7 +59,9 @@ typedef struct {
 typedef struct {
     PERSON_ID Person;
     DIRECTION Direction;
+    PERSON_TYPE Type;
     const char *Speech;
+    SHOP_ID Shop;
 } PERSON;
 
 /**********************************************************//**
@@ -64,11 +72,10 @@ typedef struct {
 typedef enum {
     EVENT_WARP      = 1,
     EVENT_TEXT,
-    EVENT_SHOP,
+    EVENT_PERSON,
+    EVENT_PRESENT,
     EVENT_BOSS,
     EVENT_REDIRECT,
-    EVENT_PRESENT,
-    EVENT_PERSON,
 } EVENT_TYPE;
 
 /**********************************************************//**
@@ -80,11 +87,10 @@ typedef struct {
     union {
         WARP Warp;              ///< EVENT_WARP field.
         const char *Text;       ///< EVENT_TEXT field.
-        SHOP_ID Shop;           ///< EVENT_SHOP field.
+        PERSON Person;          ///< EVENT_PERSON field.
+        PRESENT Present;        ///< EVENT_PRESENT field.
         BOSS Boss;              ///< EVENT_BOSS field.
         int Redirect;           ///< EVENT_REDIRECT
-        PRESENT Present;        ///< EVENT_PRESENT field.
-        PERSON Person;          ///< EVENT_PERSON field.
     } Union;                    ///< EVENT data stored as a union.
 } EVENT;
 

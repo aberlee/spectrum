@@ -115,6 +115,15 @@ void ReleaseSpectra(int index) {
     PlayerData.Spectra[PARTY_SIZE-1].Species = 0;
 }
 
+void RecoverParty(void) {
+    for (int i=0; i<PARTY_SIZE; i++) {
+        SPECTRA *spectra = &PlayerData.Spectra[i];
+        if (spectra->Species) {
+            Recover(spectra);
+        }
+    }
+}
+
 /**********************************************************//**
  * @brief Configures a new game, and removes old player data.
  * Be sure the user is OK with deleting data before calling
