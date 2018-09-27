@@ -398,7 +398,15 @@ static const EVENT *(EVENT_DATA[]) = {
             "who helped build Port Royal. In his free time\r"
             "he collected rocks near the Oxide Crater."
         ),
-        [  4] = WARP(OVERWORLD, 27, 30, DOWN),
+        [  4] = HOSPITAL(
+            NPC_DOCTOR,
+            DOWN,
+            "This is Port Royal Hospital.\n"
+            "We'll heal you and your party back to full health!\r"
+            "Don't worry, it doesn't cost anything!\n"
+            "Stay safe out there."
+        ),
+        [  5] = WARP(OVERWORLD, 27, 30, DOWN),
     },
     [MAP_ROYAL_WAREHOUSE] = (EVENT[]){
         [  1] = WARP(OVERWORLD, 22, 36, DOWN),
@@ -443,7 +451,15 @@ static const EVENT *(EVENT_DATA[]) = {
             "Today, Solar City leads the protection of Kaido's\n"
             "environment, and is its largest producer of energy."
         ),
-        [  2] = WARP(OVERWORLD, 111, 86, DOWN),
+        [  2] = HOSPITAL(
+            NPC_DOCTOR,
+            DOWN,
+            "This is Solar Hospital.\n"
+            "We'll heal you and your party back to full health!\r"
+            "Don't worry, it doesn't cost anything!\n"
+            "Stay safe out there."
+        ),
+        [  3] = WARP(OVERWORLD, 111, 86, DOWN),
     },
     [MAP_SOLAR_EAST_CORP] = (EVENT[]){
         [  1] = WARP(OVERWORLD, 131, 91, DOWN),
@@ -474,7 +490,15 @@ static const EVENT *(EVENT_DATA[]) = {
     },
     [MAP_ANDORA_HOSPITAL] = (EVENT[]){
         [  1] = TEXT("Hey! Occupied!"),
-        [  2] = WARP(OVERWORLD, 20, 150, DOWN),
+        [  2] = HOSPITAL(
+            NPC_DOCTOR,
+            DOWN,
+            "This is Andora Hospital.\n"
+            "We'll heal you and your party back to full health!\r"
+            "Don't worry, it doesn't cost anything!\n"
+            "Stay safe out there."
+        ),
+        [  3] = WARP(OVERWORLD, 20, 150, DOWN),
     },
     [MAP_ANDORA_PORT] = (EVENT[]){
         [  1] = WARP(OVERWORLD, 13, 148, DOWN),
@@ -540,8 +564,16 @@ static const EVENT *(EVENT_DATA[]) = {
             "Cave, or Boulder Cave.\""
         ),
         [  4] = WARP(OVERWORLD, 94, 238, DOWN),
-        [  5] = WARP(OVERWORLD, 88, 240, DOWN),
-        [  6] = WARP(OVERWORLD, 90, 240, DOWN),
+        [  5] = HOSPITAL(
+            NPC_DOCTOR,
+            DOWN,
+            "This is Granite Hospital.\n"
+            "We'll heal you and your party back to full health!\r"
+            "Don't worry, it doesn't cost anything!\n"
+            "Stay safe out there."
+        ),
+        [  6] = WARP(OVERWORLD, 88, 240, DOWN),
+        [  7] = WARP(OVERWORLD, 90, 240, DOWN),
     },
     [MAP_GRANITE_LIBRARY] = (EVENT[]){
         [  1] = TEXT(
