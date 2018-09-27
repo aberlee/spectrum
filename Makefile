@@ -30,7 +30,7 @@ MAKEFILE := Makefile
 
 ########### Allegro Setup ###########
 # Link to installation of Allegro5.
-ALLEGRO_DIR := C:/lib/allegro/allegro
+ALLEGRO_DIR := lib/allegro
 INCLUDE += -I$(ALLEGRO_DIR)/include
 LIBRARY += -L$(ALLEGRO_DIR)/lib
 LFLAGS += -lallegro -lallegro_audio -lallegro_acodec -lallegro_font -lallegro_ttf
