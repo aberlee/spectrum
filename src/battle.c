@@ -596,6 +596,11 @@ static void ExecuteTurn(const TURN *turn) {
  * @brief Check if the battle shound end.
  **************************************************************/
 static void MaybeUpdateBattleState(void) {
+    // No point calling this again
+    if (BattleState != BATTLE_STATE_ACTIVE) {
+        return;
+    }
+    
     // Clean up any dead battlers
     bool win = true;
     bool lose = true;
