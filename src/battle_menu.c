@@ -500,7 +500,7 @@ void UpdateBattleMenu(void) {
         case BATTLE_CANCEL:
             if (CurrentUser == FirstUser()) {
                 // Fast-forward out of the battle menu
-                if (EscapeBattle()) {
+                if (!EscapeBattle()) {
                     for (int id=0; id<TEAM_SIZE; id++) {
                         TurnByID(id)->State = TURN_INACTIVE;
                     }
