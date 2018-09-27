@@ -431,6 +431,9 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     }
     WarpPreimage = Screenshot();
     TimeOfLastWarp = al_get_time();
+    
+    // Graphics maintenance
+    PlayerWalkFrame = 0;
 }
 
 void WarpToLastHospital(void) {
