@@ -894,6 +894,7 @@ void UpdateMap(void) {
     } else if (!MainMenuOpen && KeyJustUp(KEY_MENU)) {
         // User opened the main menu
         MainMenuOpen = true;
+        LocationPopupY = -20;
         InitializeMainMenu();
 
     } else if (MainMenuOpen) {
