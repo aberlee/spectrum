@@ -914,6 +914,14 @@ void UpdateBattle(void) {
         break;
     
     case BATTLE_STATE_LOSE:
+        UpdateOutput();
+        if (OutputDone()) {
+            WarpToLastHospital();
+            RecoverParty();
+            BattleState = BATTLE_STATE_EXIT;
+        }
+        break;
+
     case BATTLE_STATE_ESCAPE:
         UpdateOutput();
         if (OutputDone()) {

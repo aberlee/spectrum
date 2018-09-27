@@ -274,8 +274,15 @@ typedef struct {
 /**************************************************************/
 extern const LOCATION *Location(LOCATION_ID id);
 extern void InitializeLocation(void);
+
+/**************************************************************/
 extern void Warp(LOCATION_ID id, int x, int y, DIRECTION direction);
+extern void WarpToLastHospital(void);
+
+/**************************************************************/
 extern bool UseMapItem(ITEM_ID id);
+
+/**************************************************************/
 extern void DrawMap(void);
 extern void UpdateMap(void);
 

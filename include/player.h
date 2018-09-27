@@ -62,6 +62,9 @@ typedef struct {
     
     // Game switch data
     int Switch[N_SWITCH];
+    
+    // Last hospital used
+    LOCATION_ID LastHospital;
 } PLAYER;
 
 /**************************************************************/

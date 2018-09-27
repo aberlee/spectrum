@@ -432,6 +432,21 @@ void Warp(LOCATION_ID id, int x, int y, DIRECTION direction) {
     TimeOfLastWarp = al_get_time();
 }
 
+void WarpToLastHospital(void) {
+    // Coordinates to warp to within each hospital.
+    static const COORDINATE DeathWarp[] = {
+        [SAPLING_HOSPITAL]      = {10,  3},
+        [ROYAL_HOSPITAL]        = {10,  3},
+        [SOLAR_HOSPITAL]        = {10,  3},
+        [ANDORA_HOSPITAL]       = {10,  3},
+        [GRANITE_HOSPITAL]      = { 1,  3},
+    };
+    
+    LOCATION_ID hospital = Player->LastHospital;
+    const COORDINATE *coordinate = &DeathWarp[hospital];
+    Warp(hospital, coordinate->X, coordinate->Y, DOWN);
+}
+
 /**********************************************************//**
  * @brief Check if the game is animating a warp.
  * @return True if a warp is ongiong.
@@ -582,6 +597,7 @@ static void InteractUser(void) {
                 break;
             case PERSON_HOSPITAL:
                 OutputSplitByCR(event->Union.Person.Speech);
+                Player->LastHospital = Player->Location;
                 RecoverParty();
                 break;
             default:

@@ -134,6 +134,7 @@ void NewGame(void) {
     Player->Costume = BLACK_DRESS;
     Player->Money = 0;
     Player->PlayTime = 0;
+    Player->LastHospital = SAPLING_HOSPITAL;
     
     // Reset collections to just yourself
     for (int i = 0; i < INVENTORY_SIZE; i++) {
