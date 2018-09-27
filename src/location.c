@@ -22,6 +22,7 @@
 #include "player.h"             // Player
 #include "output.h"             // Output
 #include "main_menu.h"          // MainMenu
+#include "shop.h"               // SHOP
 #include "debug.h"              // eprintf
 
 #include "location.i"           // LOCATION_DATA
@@ -600,6 +601,10 @@ static void InteractUser(void) {
                 Player->LastHospital = Player->Location;
                 RecoverParty();
                 break;
+            case PERSON_SHOP:
+                OutputSplitByCR(event->Union.Person.Speech);
+                InitializeShop(event->Union.Person.Shop);
+                break;
             default:
                 break;
             }
@@ -823,6 +828,11 @@ void DrawMap(void) {
         DrawAt(0, 0);
         DrawMainMenu();
     }
+    
+    // Shop menu overlay
+    if (!ShopDone()) {
+        DrawShop();
+    }
 }
 
 /**********************************************************//**
@@ -882,7 +892,9 @@ static bool RandomEncounter(void) {
  **************************************************************/
 void UpdateMap(void) {
     if (FishingPhase != FISHING_DONE) {
+        // Fishing mode ongoing
         UpdateFishing();
+
     } else if (!OutputDone()) {
         // Output processing pre-empts all
         UpdateOutput();
@@ -890,6 +902,10 @@ void UpdateMap(void) {
     } else if (WarpInProgress()) {
         // Nothing to update while waiting for the warp
         (void)0;
+        
+    } else if (!ShopDone()) {
+        // Shop mode ongoing
+        UpdateShop();
 
     } else if (!MainMenuOpen && KeyJustUp(KEY_MENU)) {
         // User opened the main menu

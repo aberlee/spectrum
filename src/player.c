@@ -53,6 +53,19 @@ bool GetItem(ITEM_ID id) {
 }
 
 /**********************************************************//**
+ * @brief Determine if the player's inventory is full.
+ * @return True if the inventory is full.
+ **************************************************************/
+bool InventoryFull(void) {
+    for (int i=0; i<INVENTORY_SIZE; i++) {
+        if (!PlayerData.Inventory[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**********************************************************//**
  * @brief Determine if the player posesses an item.
  * @param id: The item tp check.
  * @return True if the player has the item.
