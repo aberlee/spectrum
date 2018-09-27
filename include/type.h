@@ -16,13 +16,13 @@
 typedef enum {
     BASIC           = 1,
     FIRE            = 2,
-    WATER           = 9,
-    ICE             = 3,
-    WIND            = 4,
-    EARTH           = 5,
+    WATER           = 3,
+    ICE             = 4,
+    WIND            = 5,
+    EARTH           = 6,
     METAL           = 7,
-    LIGHT           = 6,
-    DARK            = 8,
+    LIGHT           = 8,
+    DARK            = 9,
 } TYPE_ID;
 
 /// The number of unique TYPE_ID members.

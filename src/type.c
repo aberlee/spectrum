@@ -37,7 +37,7 @@ static const float TypeMatchupTable[N_TYPE][N_TYPE] = {
  * @return Multiplication factor of the matchup.
  **************************************************************/
 float TypeMatchup(TYPE_ID attacking, TYPE_ID defending) {
-    return TypeMatchupTable[attacking][defending];
+    return TypeMatchupTable[attacking][defending-1];
 }
 
 /**************************************************************/
