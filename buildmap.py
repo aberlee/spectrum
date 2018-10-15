@@ -4,27 +4,9 @@
 
 import xml.etree.ElementTree as et
 import sys
-import tkinter
 import os.path
 
-tk = tkinter.Tk()
-tk.wm_withdraw()
-
-def crop(tkimage, xo=0, yo=0, xf=None, yf=None):
-    ''' Return a cropped portion of this image from xo, yo
-        to xf, yf. If endpoints are not specified, default to
-        the width and height.
-    '''
-    if xf is None:
-        xf = tkimage.width()
-    if yf is None:
-        yf = tkimage.height()
-    
-    # Copy pixels over
-    cls = type(tkimage)
-    ret = cls()
-    tkimage.tk.call(ret.name, "copy", tkimage.name, "-from", xo, yo, xf, yf)
-    return ret
+from PIL import Image
 
 def fragment(root, width, height):
     ''' Generator to split the root tkimage into fragments of width * height
@@ -32,23 +14,18 @@ def fragment(root, width, height):
     '''
 
     #Validate split
-    if (root.width() % width) or (root.height() % height):
+    if (root.width % width) or (root.height % height):
         raise ValueError("Invalid image dimensions: cannot split evenly")
     
     #Generate tiles
     y = 0
-    while y < root.height():
+    while y < root.height:
         x = 0
-        while x < root.width():
-            yield crop(root, x, y, x+width, y+height)
+        while x < root.width:
+            yield root.crop((x, y, x+width, y+height))
             x += width
         y += height
     return
-
-def composite(tkimage, other, *, x=0, y=0, discard=False):
-    ''' Combine the other image into this image '''
-    rule = "set" if discard else "overlay"
-    tkimage.tk.call(tkimage.name, "copy", other.name, "-to", x, y, "-compositingrule", rule)
 
 class Tileset(object):
     
@@ -82,7 +59,7 @@ class Tileset(object):
         self.width = int(root.get("tilewidth"))
         self.height = int(root.get("tileheight"))
         image_path = os.path.join(os.path.dirname(path), image.get("source"))
-        whole = tkinter.PhotoImage(master=tk, file=image_path)
+        whole = Image.open(image_path)
         for index, image in enumerate(fragment(whole, self.width, self.height)):
             self._tiles[index].image = image
         return
@@ -129,39 +106,27 @@ class Map(object):
         # Set up images
         tile_width = self._tileset.width
         tile_height = self._tileset.height
-        bg = tkinter.PhotoImage(
-            master = tk,
-            width  = self.width*tile_width,
-            height = self.height*tile_height,
-            format = "png",
-        )
-        fg = tkinter.PhotoImage(
-            master = tk,
-            width  = self.width*tile_width,
-            height = self.height*tile_height,
-            format = "png",
-        )
+        bg = Image.new("RGBA", (self.width*tile_width, self.height*tile_height))
+        fg = Image.new("RGBA", (self.width*tile_width, self.height*tile_height))
         
         # Assemble the composite images
         any_overlay = False
         for l, layer in enumerate(self._layers):
-            print("Compiling layer %d of %d..." % (l, len(self._layers)))
             for y, row in enumerate(layer._tiles):
-                print("Progress: %d%%" % (y*100/self.height))
                 for x, tile in enumerate(row):
                     if tile is not None:
                         if tile.overlay:
-                            composite(fg, tile.image, x=x*tile_width, y=y*tile_height)
+                            fg.alpha_composite(tile.image, (x*tile_width, y*tile_height))
                             any_overlay = True
                         else:
-                            composite(bg, tile.image, x=x*tile_width, y=y*tile_height)
+                            bg.alpha_composite(tile.image, (x*tile_width, y*tile_height))
         
         # Save the images
-        bg.write(filename=filename, format="png")
+        bg.save(filename)
         if any_overlay:
             base, ext = os.path.splitext(filename)
             overlay_filename = base + "-overlay" + ext
-            fg.write(filename=overlay_filename, format="png")
+            fg.save(overlay_filename)
         return
     
 if __name__ == "__main__":
