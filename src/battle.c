@@ -943,26 +943,39 @@ void UpdateBattle(void) {
     }
 }
 
+static inline COORDINATE BattlerPosition(int current) {
+    int activeCount = 0;
+    COORDINATE position;
+    if (BattlerIsAlly(current)) {
+        for (int id=0; id<TEAM_SIZE; id++) {
+            const BATTLER *battler = BattlerByID(id);
+            if (BattlerIsActive(battler)) {
+                activeCount++;
+            }
+        }
+        position.X = 60  + (TEAM_SIZE-activeCount)*25 + 50*current;
+        position.Y = 260 - (TEAM_SIZE-activeCount)*10 - 20*current;
+    } else {
+        for (int id=TEAM_SIZE; id<BATTLE_SIZE; id++) {
+            const BATTLER *battler = BattlerByID(id);
+            if (BattlerIsActive(battler)) {
+                activeCount++;
+            }
+        }
+        position.X = 320 + (TEAM_SIZE-activeCount)*25 + 50*(current-TEAM_SIZE);
+        position.Y = 220 + (TEAM_SIZE-activeCount)*10 + 20*(current-TEAM_SIZE);
+    }
+    return position;
+}
+
 /**********************************************************//**
  * @brief Draws each battler's sprite on the screen.
  **************************************************************/
 static void DrawBattlers(void) {
-    static const COORDINATE BattlerPosition[] = {
-        // User's team
-        [0] = { 60, 260},
-        [1] = {110, 240},
-        [2] = {160, 220},
-        
-        // Enemy's team
-        [3] = {320, 220},
-        [4] = {370, 240},
-        [5] = {420, 260},
-    };
-    
     // Draw drop shadows
     int target = BattleMenuCurrentTargetID();
     for (int id=0; id<BATTLE_SIZE; id++) {
-        const COORDINATE *center = &BattlerPosition[id];
+        const COORDINATE center = BattlerPosition(id);
         if (!BattlerIsActive(BattlerByID(id))) {
             continue;
         }
@@ -976,7 +989,7 @@ static void DrawBattlers(void) {
                 color = al_map_rgba(255, 20, 0, 200);
             }
         }
-        al_draw_filled_ellipse(center->X, center->Y, 40, 10, color);
+        al_draw_filled_ellipse(center.X, center.Y, 40, 10, color);
     }
     
     // Draw existing spectra in layer order
@@ -989,7 +1002,7 @@ static void DrawBattlers(void) {
         }
         SPECIES_ID speciesID = BattlerByID(id)->Spectra->Species;
         const SPECIES *species = SpeciesByID(speciesID);
-        const COORDINATE *center = &BattlerPosition[id];
+        const COORDINATE center = BattlerPosition(id);
         const COORDINATE *offset = &species->Offset;
         ALLEGRO_BITMAP *image = NULL;
         if (speciesID == AMY) {
@@ -1000,10 +1013,10 @@ static void DrawBattlers(void) {
         
         // Flip enemies
         if (id<TEAM_SIZE) {
-            al_draw_bitmap(image, center->X-offset->X, center->Y-offset->Y, 0);
+            al_draw_bitmap(image, center.X-offset->X, center.Y-offset->Y, 0);
         } else {
             int flipped = al_get_bitmap_width(image) - offset->X;
-            al_draw_bitmap(image, center->X-flipped, center->Y-offset->Y, ALLEGRO_FLIP_HORIZONTAL);
+            al_draw_bitmap(image, center.X-flipped, center.Y-offset->Y, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
 }
