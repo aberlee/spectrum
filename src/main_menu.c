@@ -190,26 +190,26 @@ static SPECTRA *SelectedSpectra(void) {
  **************************************************************/
 void DrawMainMenu(void) {
     // Draw main menu
-    DrawAt(326, 92);
+    DrawAt(10, 10);
     DrawOption(&MainMenu);
     
     // Draw sub-menus
     if (MainMenu.Control.State == CONTROL_CONFIRM) {
         switch (MenuItem(&MainMenu)) {
         case MENU_PARTY:
-            DrawAt(18, 92);
+            DrawAt(18, 18);
             DrawParty();
             if (PartyControl()->State == CONTROL_CONFIRM) {
-                DrawAt(26, 100);
+                DrawAt(26, 26);
                 DrawOption(&PartyMenu);
                 if (PartyMenu.Control.State == CONTROL_CONFIRM) {
                     switch (MenuItem(&PartyMenu)) {
                     case PARTY_VIEW:
-                        DrawAt(34, 108);
+                        DrawAt(34, 34);
                         DrawSpectraDisplay(SelectedSpectra());
                         break;
                     case PARTY_RELEASE:
-                        DrawAt(34, 108);
+                        DrawAt(34, 34);
                         DrawChoice(&YesNo);
                         break;
                     default:
@@ -220,21 +220,21 @@ void DrawMainMenu(void) {
             break;
 
         case MENU_ITEMS:
-            DrawAt(4, 92);
+            DrawAt(18, 18);
             DrawItems();
-            DrawAt(4, 216);
+            DrawAt(18, 142);
             DrawItemDisplay(SelectedItemID());
             if (ItemsControl()->State == CONTROL_CONFIRM) {
-                DrawAt(12, 100);
+                DrawAt(26, 26);
                 DrawOption(&ItemMenu);
                 if (ItemMenu.Control.State == CONTROL_CONFIRM) {
                     switch (MenuItem(&ItemMenu)) {
                     case ITEM_USE:
-                        DrawAt(20, 108);
+                        DrawAt(34, 34);
                         DrawParty();
                         break;
                     case ITEM_DROP:
-                        DrawAt(20, 108);
+                        DrawAt(34, 34);
                         DrawChoice(&YesNo);
                         break;
                     default:
@@ -245,12 +245,12 @@ void DrawMainMenu(void) {
             break;
 
         case MENU_PLAYER:
-            DrawAt(179, 92);
+            DrawAt(18, 18);
             DrawPlayerDisplay();
             break;
 
         case MENU_SAVE:
-            DrawAt(194, 92);
+            DrawAt(18, 18);
             switch (SavePhase) {
             case SAVE_BEFORE:
                 DrawAlert("Now saving...");
