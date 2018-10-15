@@ -289,7 +289,7 @@ static IMAGE_ASSET SensorAssets[] = {
 
 /**********************************************************//**
  * @brief Indexes PERSON_ID members to IMAGE_ASSET data.
- **************************************************************/
+ *************************************************************/
 static IMAGE_ASSET PersonAssets[N_PERSON] = {
     [AMY_NORMAL]        = IMAGE("person/costume/normal.png"),
     [AMY_RED_DRESS]     = IMAGE("person/costume/red_dress.png"),
@@ -318,6 +318,7 @@ static IMAGE_ASSET MiscAssets[] = {
     [GIFT_OPEN]         = IMAGE("gift_open.png"),
     [HUD_OK]            = IMAGE("window/hud_ok.png"),
     [HUD_UP]            = IMAGE("window/hud_up.png"),
+    [BOSS_ICON]         = IMAGE("boss.png"),
 };
 
 /**********************************************************//**

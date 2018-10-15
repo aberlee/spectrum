@@ -17,7 +17,7 @@
 #define WARP(id, x, y, d) {EVENT_WARP, {.Warp={{x, y}, id, d}}}
 #define TEXT(text) {EVENT_TEXT, {.Text=text}}
 #define SHOP(person, direction, speech, shop) {EVENT_PERSON, {.Person={person, direction, PERSON_SHOP, speech, shop}}}
-#define BOSS(spectra, level) {EVENT_BOSS, {.Boss={spectra, level}}}
+#define BOSS(spectra, level) {EVENT_BOSS, {.Boss={{{spectra, level}}}}}
 #define REDIRECT(event) {EVENT_REDIRECT, {.Redirect=event}}
 #define UNDEFINED {0}
 #define HOUSE TEXT("You can't go in other people's houses!")

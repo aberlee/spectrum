@@ -33,9 +33,10 @@ typedef enum {
     GIFT_OPEN,
     HUD_OK,
     HUD_UP,
+    BOSS_ICON,
 } MISC_ID;
 
-#define N_MISC (HUD_UP+1)
+#define N_MISC 6
 
 /**************************************************************/
 extern bool LoadAssets(void);

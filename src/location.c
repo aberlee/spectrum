@@ -343,6 +343,7 @@ static void UseSensor(MAP_ID id) {
                 switch (event->Type) {
                 case EVENT_PRESENT:
                 case EVENT_PERSON:
+                case EVENT_BOSS:
                     data->EventID = eventID;
                     data->EventX = x;
                     data->EventY = y;
@@ -573,7 +574,8 @@ static void InteractUser(void) {
             break;
 
         case EVENT_BOSS:
-            // TODO
+            InitializeBossEncounter(&event->Union.Boss);
+            SetMode(MODE_BATTLE);
             break;
 
         case EVENT_WARP:
@@ -774,6 +776,11 @@ static void DrawRuntimeEvents(EVENT_DRAW_RANGE range) {
         case EVENT_PERSON:
             DrawAtTileCenter(eventX, eventY);
             DrawPerson(event->Union.Person.Person, data->Union.Person.Direction);
+            break;
+        
+        case EVENT_BOSS:
+            DrawAtTile(eventX, eventY);
+            al_draw_bitmap(MiscImage(BOSS_ICON), 0, -8, 0);
             break;
         
         default:
