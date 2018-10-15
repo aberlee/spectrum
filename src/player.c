@@ -137,6 +137,15 @@ void RecoverParty(void) {
     }
 }
 
+void RecoverPartyPower(void) {
+    for (int i=0; i<PARTY_SIZE; i++) {
+        SPECTRA *spectra = &PlayerData.Spectra[i];
+        if (spectra->Species) {
+            spectra->Power = spectra->MaxPower;
+        }
+    }
+}
+
 /**********************************************************//**
  * @brief Configures a new game, and removes old player data.
  * Be sure the user is OK with deleting data before calling

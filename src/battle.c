@@ -937,6 +937,7 @@ void UpdateBattle(void) {
     case BATTLE_STATE_EXIT:
         UpdateOutput();
         if (OutputDone()) {
+            RecoverPartyPower();
             SetMode(MODE_MAP);
         }
         break;

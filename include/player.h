@@ -88,6 +88,7 @@ extern bool InventoryFull(void);
 extern bool GetSpectra(const SPECTRA *spectra);
 extern void ReleaseSpectra(int index);
 extern void RecoverParty(void);
+extern void RecoverPartyPower(void);
 
 /**************************************************************/
 extern void NewGame(void);
