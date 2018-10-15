@@ -215,38 +215,6 @@ typedef struct {
 } ENCOUNTER;
 
 /**********************************************************//**
- * @enum TILE_FLAGS
- * @brief Flags that describe a tile (16*16 cell) on a map.
- * These can be combined with a bitwise-OR.
- **************************************************************/
-typedef enum {
-    TILE_SOLID      = 0x0001,   ///< Tile can't be walked through.
-    TILE_WATER      = 0x0002,   ///< Tile can be fished in.
-    TILE_EVENT      = 0x0004,   ///< Tile contains an event.
-} TILE_FLAGS;
-
-/**********************************************************//**
- * @struct TILE
- * @brief Contains information about one 16*16 region on a
- * map. This is used by a SENSOR to control motion.
- **************************************************************/
-typedef struct {
-    TILE_FLAGS Flags;           ///< Describes the tile properties.
-    int EventID;                ///< Indexed TILE_EVENT ID.
-    int RuntimeID;              ///< Indexed runtime event ID.
-} TILE;
-
-/**********************************************************//**
- * @struct SENSOR
- * @brief Contains all the tile information for a map.
- **************************************************************/
-typedef struct {
-    int Height;                 ///< Height in tiles of the map.
-    int Width;                  ///< Width in tiles of the map.
-    TILE *Sensor;               ///< All tile information.
-} SENSOR;
-
-/**********************************************************//**
  * @enum RATE
  * @brief Describes rates of encountering enemies.
  **************************************************************/
