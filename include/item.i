@@ -247,6 +247,32 @@ static const ITEM ITEM_DATA[] = {
         .Flags          = REUSABLE|IMPORTANT|MENU_ONLY,
         .Description    = "A fishing rod for finding spectra.",
     },
+
+    ////////////////////////////////////////////////////////
+    // Clothes
+    [ITEM_BLACK_DRESS] = {
+        .Name           = "Black Dress",
+        .Price          = 80,
+        .Effect         = EFFECT_SPECIAL,
+        .Flags          = REUSABLE|IMPORTANT|MENU_ONLY,
+        .Description    = "A sleek black dress for formal occasions.",
+    },
+    
+    [ITEM_RED_DRESS] = {
+        .Name           = "Red Dress",
+        .Price          = 80,
+        .Effect         = EFFECT_SPECIAL,
+        .Flags          = REUSABLE|IMPORTANT|MENU_ONLY,
+        .Description    = "A sleek red dress for formal occasions.",
+    },
+
+    [ITEM_CLOTHES] = {
+        .Name           = "Clothes",
+        .Price          = 26,
+        .Effect         = EFFECT_SPECIAL,
+        .Flags          = REUSABLE|IMPORTANT|MENU_ONLY,
+        .Description    = "An everyday outfit.",
+    },
 };
 
 /**************************************************************/

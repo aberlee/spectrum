@@ -167,6 +167,7 @@ typedef enum {
     KILL_USER,                  ///< The user dies after attacking.
     EFFECT_DEFEND,              ///< User is defending.
     EFFECT_SPECIAL,             ///< Special effects are implemented elsewhere.
+    EFFECT_CLOTHES,             ///< Changes the player's outfit.
 } EFFECT_ID;
 
 /**********************************************************//**

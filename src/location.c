@@ -1034,6 +1034,15 @@ void UpdateMap(void) {
     }
 }
 
+void ChangeCostume(COSTUME_ID costume) {
+    if (Player->Costume != costume) {
+        Player->Costume = costume;
+        Output("Amy changed clothes!");
+    } else {
+        Output("There was no effect...");
+    }
+}
+
 bool UseMapItem(ITEM_ID id) {
     switch (id) {
     case FISHING_ROD:
@@ -1042,6 +1051,18 @@ bool UseMapItem(ITEM_ID id) {
             return true;
         }
         return false;
+    
+    case ITEM_BLACK_DRESS:
+        ChangeCostume(BLACK_DRESS);
+        return true;
+    
+    case ITEM_RED_DRESS:
+        ChangeCostume(RED_DRESS);
+        return true;
+    
+    case ITEM_CLOTHES:
+        ChangeCostume(NORMAL);
+        return true;
     
     default:
         eprintf("Incorrectly using %d as a map item.\n", id);

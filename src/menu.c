@@ -37,6 +37,39 @@ static inline void DrawText(const char *text, int x, int y) {
         ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
         text);
 }
+
+/**********************************************************//**
+ * @brief Draws standard text on the screen.
+ * @param text: String to draw.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ **************************************************************/
+static inline void DrawTextHighlight(const char *text, int x, int y) {
+    al_draw_text(
+        Font(FONT_WINDOW),
+        al_map_rgb(0, 127, 255),
+        x,
+        y-3,
+        ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
+        text);
+}
+
+/**********************************************************//**
+ * @brief Draws standard text on the screen.
+ * @param text: String to draw.
+ * @param x: X position to draw at.
+ * @param y: Y position to draw at.
+ **************************************************************/
+static inline void DrawTextLowlight(const char *text, int x, int y) {
+    al_draw_text(
+        Font(FONT_WINDOW),
+        al_map_rgb(163, 163, 163),
+        x,
+        y-3,
+        ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER,
+        text);
+}
+
 /**********************************************************//**
  * @brief Draws right-aligned text on the screen.
  * @param text: String to draw.
@@ -570,7 +603,11 @@ void DrawItems(void) {
         
         // Get item information
         const ITEM *item = ItemByID(Player->Inventory[i]);
-        DrawText(item->Name, x, y);
+        if (item->Flags & MENU_ONLY) {
+            DrawText(item->Name, x, y);
+        } else {
+            DrawTextLowlight(item->Name, x, y);
+        }
     }
     
     // Draw selector

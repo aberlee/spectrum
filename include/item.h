@@ -50,6 +50,11 @@ typedef enum {
 
     // Key items
     FISHING_ROD     = 39,
+    
+    // Clothes
+    ITEM_BLACK_DRESS= 40,
+    ITEM_RED_DRESS  = 41,
+    ITEM_CLOTHES    = 42,
 } ITEM_ID;
 
 /**********************************************************//**
