@@ -16,6 +16,8 @@
 /// @brief Number of characters typed per second.
 #define TYPING_SPEED 32
 
+#define FAST_FORWARD_WAIT 0.5f
+
 /**************************************************************/
 /// @brief Queue for output messages.
 static char Log[LOG_SIZE][MESSAGE_SIZE+1] = {{'\0'}};
@@ -75,30 +77,39 @@ void OutputSplitByCR(const char *text) {
  * duration of the previous frame.
  **************************************************************/
 void UpdateOutput(void) {
-    static float Progress = 0.0;
-    static bool WaitingWhileKeyDown = false;
+    static float Progress = 0.0f;
+    static float FastForwardTime = 0.0f;
     int max = strlen(Log[Head]);
     if (Head == Tail) {
         return;
     }
     
-    // Done typing - wait for user to press CONFIRM
+    if (KeyUp(KEY_CONFIRM)) {
+        FastForwardTime = 0.0f;
+    }
+    
     WaitingForUser = true;
     if (CurrentCharacter == max) {
-        if (KeyJustDown(KEY_CONFIRM)) {
-            WaitingWhileKeyDown = true;
-        } else if (KeyJustUp(KEY_CONFIRM) && WaitingWhileKeyDown) {
+        // Done typing - wait for user to press CONFIRM
+        bool again = FastForwardTime && al_get_time()>FastForwardTime;
+        if (KeyJustUp(KEY_CONFIRM) || again) {
             WaitingForUser = false;
-            WaitingWhileKeyDown = false;
             Head = (Head+1) % LOG_SIZE;
             Progress = 0.0;
             CurrentCharacter = 0;
+            if (again) {
+                CurrentCharacter = max;
+                FastForwardTime = al_get_time() + FAST_FORWARD_WAIT;
+            }
         }
     } else {
         // Update the progress of the typing
         Progress += TYPING_SPEED*LastFrameTime();
-        if (Progress > max || KeyJustDown(KEY_CONFIRM)) {
+        if (Progress > max) {
             CurrentCharacter = max;
+        } else if (KeyJustDown(KEY_CONFIRM)) {
+            CurrentCharacter = max;
+            FastForwardTime = al_get_time() + FAST_FORWARD_WAIT;
         } else {
             CurrentCharacter = (int)Progress;
         }
