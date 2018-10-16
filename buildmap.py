@@ -7,10 +7,16 @@ import xml.etree.ElementTree as et
 import sys
 import os
 import os.path
+import struct
 import traceback
 
 # External libraries
 from PIL import Image
+
+###############################################################
+TILE_SOLID = 0x1
+TILE_WATER = 0x2
+TILE_EVENT = 0x4
 
 ###############################################################
 ## Tile
@@ -166,6 +172,7 @@ class Map(object):
     __slots__ = [
         "_tileset", # Tileset: Map tileset (protected)
         "_layers",  # list of Layer: Map layers in ascending order (protected)
+        "_events",  # Layer: Events on the map
         "width",    # int: Map width in tiles
         "height",   # int: Map height in tiles
     ]
@@ -184,7 +191,9 @@ class Map(object):
             height = int(layer.get("height"))
             built = Layer(width, height)
             for y, csv in enumerate(layer.find("data").text.split()):
-                for x, dirty_index in enumerate(csv.split(",")[:-1]):
+                for x, dirty_index in enumerate(csv.split(",")):
+                    if not dirty_index:
+                        continue
                     clean_index = int(dirty_index.strip())
                     if clean_index > 0:
                         tile = tileset.tile(clean_index-1)
@@ -194,6 +203,39 @@ class Map(object):
         # Store other data
         self.width = int(root.get("width"))
         self.height = int(root.get("height"))
+        
+        # Unpack events
+        self._events = Layer(self.width, self.height)
+        for event in root.iter("object"):
+            x = int(event.get("x")) // self.width
+            y = int(event.get("y")) // self.height
+            id = int(event.get("id"))
+            self._events.set(x, y, id)
+        return
+    
+    def _pack(self, x, y):
+        """ Packs the tile properties at x,y into a struct of 2 bytes.
+            The first byte is the struct flags, and the second is the
+            event ID.
+        """
+        # Get tile properties
+        flags = 0x0
+        for layer in self._layers:
+            tile = layer.get(x, y)
+            if tile and tile.water:
+                flags |= TILE_WATER
+            if tile and tile.solid:
+                flags |= TILE_SOLID
+
+        # Get event ID
+        event = self._events.get(x, y)
+        if event:
+            flags |= TILE_EVENT
+        else:
+            event = 0
+        
+        # Yield packed data
+        return struct.pack("BB", flags, event)
 
     def compile(self, filename, overlay=None):
         """ Render the map as a pair of images.
@@ -218,10 +260,19 @@ class Map(object):
         # Save the images
         bg.save(filename)
         if any_overlay:
-            if overlay is None:
-                base, ext = os.path.splitext(filename)
-                overlay = base + "-overlay" + ext
+            base, ext = os.path.splitext(filename)
+            overlay = base + "-overlay" + ext
             fg.save(overlay)
+        
+        # Save the events
+        sensor = bytearray()
+        for y in range(self.height):
+            for x in range(self.width):
+                sensor.extend(self._pack(x, y))
+        base, ext = os.path.splitext(filename)
+        events = base + ".dat"
+        with open(events, "wb") as file:
+            file.write(sensor)
         return
 
 ###############################################################
@@ -231,11 +282,10 @@ if __name__ == "__main__":
     tileset_path = sys.argv[1] if len(sys.argv) > 1 else None
     tilemap_path = sys.argv[2] if len(sys.argv) > 2 else None
     output_path = sys.argv[3] if len(sys.argv) > 3 else None
-    overlay_path = sys.argv[4] if len(sys.argv) > 4 else None
 
     # Deal with arguments
     if tileset_path is None or tilemap_path is None:
-        print("Usage: %s <tileset> <map> [output?] [overlay?]" % (sys.argv[0],))
+        print("Usage: %s <tileset> <map> [output?]" % (sys.argv[0],))
         exit(0)
     if output_path is None:
         output_path = os.path.splitext(tilemap_path)[0] + ".png"
@@ -244,11 +294,9 @@ if __name__ == "__main__":
     try:
         tileset = Tileset(tileset_path)
         tilemap = Map(tilemap_path, tileset)
-        if not os.path.isdir(output_path):
+        if not os.path.isdir(os.path.dirname(output_path)):
             os.mkdir(os.path.dirname(output_path))
-        if overlay_path and not os.path.isdir(overlay_path):
-            os.mkdir(os.path.dirname(overlay_path))
-        tilemap.compile(output_path, overlay_path)
+        tilemap.compile(output_path)
     except:
         traceback.print_exc()
         exit(1)
