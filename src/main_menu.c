@@ -414,6 +414,10 @@ void UpdatePartySubmenu(void) {
         case PARTY_VIEW:
             if (KeyJustUp(KEY_DENY)) {
                 PartyControl()->State = CONTROL_IDLE;
+            } else {
+                PartyControl()->State = CONTROL_IDLE;
+                UpdateControl(PartyControl());
+                PartyControl()->State = CONTROL_CONFIRM;
             }
             break;
         case PARTY_SWAP:
