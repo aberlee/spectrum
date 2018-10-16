@@ -844,7 +844,7 @@ void ApplyWinEffects(void) {
         
         // Gain exp from this battler
         experience += BattlerSpecies(battler)->Experience*battler->Spectra->Level/5;
-        money += BattlerSpecies(battler)->Money*battler->Spectra->Level/5;
+        money += BattlerSpecies(battler)->Money;
     }
     
     // Each user gains experience

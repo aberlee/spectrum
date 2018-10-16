@@ -66,16 +66,20 @@ static const int EXPERIENCE_RATE_DATA[] = {
     [SLOWEST]           = 140,
 };
 
+static int ExperienceNeededAtLevel(const SPECTRA *spectra, int level) {
+    int levelCubed = level*level*level;
+    const SPECIES *species = SpeciesOfSpectra(spectra);
+    int rate = EXPERIENCE_RATE_DATA[species->Rate];
+    return 1 + rate*levelCubed/1000;
+}
+
 /**********************************************************//**
  * @brief Compute the experience needed to level up.
  * @param spectra: Spectra to compute for.
  * @return The total experience needed.
  **************************************************************/
 int ExperienceNeeded(const SPECTRA *spectra) {
-    int levelSquared = spectra->Level*spectra->Level;
-    const SPECIES *species = SpeciesOfSpectra(spectra);
-    int rate = EXPERIENCE_RATE_DATA[species->Rate];
-    return 1 + rate*levelSquared/100;
+    return ExperienceNeededAtLevel(spectra, spectra->Level);
 }
 
 /**********************************************************//**
@@ -85,11 +89,11 @@ int ExperienceNeeded(const SPECTRA *spectra) {
  * @return Total experience.
  **************************************************************/
 int ExperienceTotal(const SPECTRA *spectra) {
-    int levelCubed = spectra->Level*spectra->Level*spectra->Level;
-    const SPECIES *species = SpeciesOfSpectra(spectra);
-    int rate = EXPERIENCE_RATE_DATA[species->Rate];
-    int currentLevel = ExperienceNeeded(spectra)-spectra->Experience;
-    return spectra->Level-1 + rate*levelCubed/300 + currentLevel;
+    int total = 0;
+    for (int l=1; l<spectra->Level; l++) {
+        total += ExperienceNeededAtLevel(spectra, l);
+    }
+    return total + ExperienceNeeded(spectra) - spectra->Experience;
 }
 
 /**********************************************************//**
