@@ -209,7 +209,15 @@ class Map(object):
         for event in root.iter("object"):
             x = int(event.get("x")) // self.width
             y = int(event.get("y")) // self.height
-            id = int(event.get("id"))
+            
+            # Get the event ID
+            id = None
+            for prop in event.iter("property"):
+                if prop.get("name") == "EventID":
+                    id = int(prop.get("value"))
+                    break
+            if id is None:
+                raise ValueError("Event without ID discovered.")
             self._events.set(x, y, id)
         return
     
