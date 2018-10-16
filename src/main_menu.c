@@ -47,7 +47,6 @@ static SAVE_PHASE SavePhase;
 typedef enum {
     MENU_PARTY,
     MENU_ITEMS,
-    MENU_PLAYER,
     MENU_INFO,
     MENU_SAVE,
     MENU_EXIT,
@@ -76,13 +75,12 @@ static MENU MainMenu = {
     .Option = {
         [MENU_PARTY]    = "Party",
         [MENU_ITEMS]    = "Items",
-        [MENU_PLAYER]   = "Player",
         [MENU_INFO]     = "Options",
         [MENU_SAVE]     = "Save",
         [MENU_EXIT]     = "Exit",
     },
     .Control = {
-        .IndexMax       = 5,
+        .IndexMax       = 4,
     },
 };
 
@@ -190,8 +188,12 @@ static SPECTRA *SelectedSpectra(void) {
  **************************************************************/
 void DrawMainMenu(void) {
     // Draw main menu
-    DrawAt(10, 10);
+    DrawAt(161, 10);
     DrawOption(&MainMenu);
+    
+    // Draw player information
+    DrawAt(10, 10);
+    DrawPlayerDisplay();
     
     // Draw sub-menus
     if (MainMenu.Control.State == CONTROL_CONFIRM) {
@@ -242,11 +244,6 @@ void DrawMainMenu(void) {
                     }
                 }
             }
-            break;
-
-        case MENU_PLAYER:
-            DrawAt(18, 18);
-            DrawPlayerDisplay();
             break;
 
         case MENU_SAVE:
@@ -537,7 +534,6 @@ void UpdateMainMenuOnConfirm(void) {
         ResetControl(ItemsControl());
         break;
 
-    case MENU_PLAYER:
     case MENU_INFO:
         ResetWait(&Overlay);
         break;
@@ -580,7 +576,6 @@ void UpdateMainMenu(void) {
             UpdateItemsMenu();
             break;
         
-        case MENU_PLAYER:
         case MENU_INFO:
             UpdateWait(&Overlay);
             if (!IsWaiting(&Overlay)) {
